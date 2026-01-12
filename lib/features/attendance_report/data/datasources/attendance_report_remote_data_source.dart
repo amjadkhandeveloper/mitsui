@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/config/app_config.dart';
+import '../../../../core/mock/mock_data_service.dart';
 import '../models/attendance_report_model.dart';
 
 abstract class AttendanceReportRemoteDataSource {
@@ -22,6 +24,12 @@ class AttendanceReportRemoteDataSourceImpl
     int? month,
     int? year,
   }) async {
+    // Use mock data if enabled
+    if (AppConfig.USE_MOCK_DATA) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+      return MockDataService.getMockAttendanceReport();
+    }
+
     try {
       final queryParams = <String, dynamic>{};
       if (driverId != null) queryParams['driver_id'] = driverId;

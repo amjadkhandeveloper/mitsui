@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/config/app_config.dart';
+import '../../../../core/mock/mock_data_service.dart';
 import '../../domain/entities/leave_request.dart';
 import '../models/leave_request_model.dart';
 
@@ -20,6 +22,12 @@ class LeaveRemoteDataSourceImpl implements LeaveRemoteDataSource {
 
   @override
   Future<List<LeaveRequestModel>> getLeaveRequests({String? userId}) async {
+    // Use mock data if enabled
+    if (AppConfig.USE_MOCK_DATA) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+      return MockDataService.getMockLeaveRequests(userId: userId);
+    }
+
     try {
       final queryParams = <String, dynamic>{};
       if (userId != null) queryParams['user_id'] = userId;
@@ -54,6 +62,26 @@ class LeaveRemoteDataSourceImpl implements LeaveRemoteDataSource {
 
   @override
   Future<LeaveRequestModel> applyLeave(Map<String, dynamic> leaveData) async {
+    // Use mock data if enabled
+    if (AppConfig.USE_MOCK_DATA) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+      final now = DateTime.now();
+      final startDate = DateTime.parse(leaveData['start_date']);
+      final endDate = DateTime.parse(leaveData['end_date']);
+      return LeaveRequestModel(
+        id: 'leave_new_${now.millisecondsSinceEpoch}',
+        userId: leaveData['user_id'] ?? '1',
+        userName: 'John Doe',
+        startDate: startDate,
+        endDate: endDate,
+        startTime: DateTime(startDate.year, startDate.month, startDate.day, 9, 0),
+        endTime: DateTime(endDate.year, endDate.month, endDate.day, 18, 0),
+        reason: leaveData['reason'] ?? '',
+        status: LeaveStatus.pending,
+        createdAt: now,
+      );
+    }
+
     try {
       final response = await dio.post(
         '/leave-requests',
@@ -88,6 +116,25 @@ class LeaveRemoteDataSourceImpl implements LeaveRemoteDataSource {
     LeaveStatus status,
     String? adminNote,
   ) async {
+    // Use mock data if enabled
+    if (AppConfig.USE_MOCK_DATA) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+      final now = DateTime.now();
+      return LeaveRequestModel(
+        id: leaveId,
+        userId: '1',
+        userName: 'John Doe',
+        startDate: now.add(const Duration(days: 5)),
+        endDate: now.add(const Duration(days: 7)),
+        startTime: DateTime(now.year, now.month, now.day + 5, 9, 0),
+        endTime: DateTime(now.year, now.month, now.day + 7, 18, 0),
+        reason: 'Mock leave',
+        status: status,
+        adminNote: adminNote,
+        createdAt: now.subtract(const Duration(days: 2)),
+      );
+    }
+
     try {
       final response = await dio.patch(
         '/leave-requests/$leaveId/status',

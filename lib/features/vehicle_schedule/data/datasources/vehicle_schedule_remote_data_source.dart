@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/config/app_config.dart';
+import '../../../../core/mock/mock_data_service.dart';
 import '../models/trip_model.dart';
 import '../models/free_slot_model.dart';
 import '../../domain/entities/trip.dart';
@@ -27,6 +29,12 @@ class VehicleScheduleRemoteDataSourceImpl
     DateTime? startDate,
     DateTime? endDate,
   }) async {
+    // Use mock data if enabled
+    if (AppConfig.USE_MOCK_DATA) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+      return MockDataService.getMockTrips(date: date);
+    }
+
     try {
       final queryParams = <String, dynamic>{};
       if (date != null) {
@@ -99,6 +107,24 @@ class VehicleScheduleRemoteDataSourceImpl
 
   @override
   Future<FreeSlotModel> createFreeSlot(Map<String, dynamic> slotData) async {
+    // Use mock data if enabled
+    if (AppConfig.USE_MOCK_DATA) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+      final now = DateTime.now();
+      final startDate = DateTime.parse(slotData['start_date']);
+      final startTime = DateTime.parse(slotData['start_time']);
+      final endTime = DateTime.parse(slotData['end_time']);
+      return FreeSlotModel(
+        id: 'free_slot_${now.millisecondsSinceEpoch}',
+        vehicleId: slotData['vehicle_id'] ?? 'V001',
+        vehicleName: 'Toyota Camry',
+        date: startDate,
+        startTime: startTime,
+        endTime: endTime,
+        createdAt: now,
+      );
+    }
+
     try {
       final response = await dio.post(
         '/free-slots',

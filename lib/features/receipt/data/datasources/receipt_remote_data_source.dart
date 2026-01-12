@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'dart:io';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/config/app_config.dart';
+import '../../../../core/mock/mock_data_service.dart';
 import '../models/receipt_model.dart';
 import '../../domain/entities/receipt.dart';
 
@@ -28,6 +30,16 @@ class ReceiptRemoteDataSourceImpl implements ReceiptRemoteDataSource {
     String? driverId,
     String? status,
   }) async {
+    // Use mock data if enabled
+    if (AppConfig.USE_MOCK_DATA) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+      var receipts = MockDataService.getMockReceipts(driverId: driverId);
+      if (status != null) {
+        receipts = receipts.where((r) => r.status.name == status).toList();
+      }
+      return receipts;
+    }
+
     try {
       final queryParams = <String, dynamic>{};
       if (driverId != null) queryParams['driver_id'] = driverId;

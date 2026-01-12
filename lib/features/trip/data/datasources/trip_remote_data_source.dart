@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/config/app_config.dart';
+import '../../../../core/mock/mock_data_service.dart';
 import '../models/trip_detail_model.dart';
+import '../../domain/entities/trip_detail.dart';
 
 abstract class TripRemoteDataSource {
   Future<List<TripDetailModel>> getTrips({String? driverId, String? status});
@@ -19,6 +22,12 @@ class TripRemoteDataSourceImpl implements TripRemoteDataSource {
     String? driverId,
     String? status,
   }) async {
+    // Use mock data if enabled
+    if (AppConfig.USE_MOCK_DATA) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+      return MockDataService.getMockTripDetails(driverId: driverId);
+    }
+
     try {
       final queryParams = <String, dynamic>{};
       if (driverId != null) queryParams['driver_id'] = driverId;
@@ -54,6 +63,16 @@ class TripRemoteDataSourceImpl implements TripRemoteDataSource {
 
   @override
   Future<TripDetailModel> getTripDetail(String tripId) async {
+    // Use mock data if enabled
+    if (AppConfig.USE_MOCK_DATA) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+      final trips = MockDataService.getMockTripDetails();
+      return trips.firstWhere(
+        (t) => t.id == tripId,
+        orElse: () => trips.first,
+      );
+    }
+
     try {
       final response = await dio.get('/trips/$tripId');
 
@@ -83,6 +102,26 @@ class TripRemoteDataSourceImpl implements TripRemoteDataSource {
 
   @override
   Future<TripDetailModel> startTrip(String tripId, int startOdometer) async {
+    // Use mock data if enabled
+    if (AppConfig.USE_MOCK_DATA) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+      final now = DateTime.now();
+      return TripDetailModel(
+        id: tripId,
+        vehicleId: 'AP39UD6009',
+        vehicleName: 'Toyota Camry',
+        route: 'NA',
+        customer: 'TESCO',
+        location: 'Silkboard',
+        pickupDrop: 'PICK UP',
+        scheduleStart: DateTime(now.year, now.month, now.day, 18, 30),
+        actualStart: now,
+        status: TripDetailStatus.started,
+        tripStartOdometer: startOdometer,
+        createdAt: now.subtract(const Duration(days: 1)),
+      );
+    }
+
     try {
       final response = await dio.post(
         '/trips/$tripId/start',
@@ -115,6 +154,28 @@ class TripRemoteDataSourceImpl implements TripRemoteDataSource {
 
   @override
   Future<TripDetailModel> endTrip(String tripId, int endOdometer) async {
+    // Use mock data if enabled
+    if (AppConfig.USE_MOCK_DATA) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+      final now = DateTime.now();
+      return TripDetailModel(
+        id: tripId,
+        vehicleId: 'AP39UD6009',
+        vehicleName: 'Toyota Camry',
+        route: 'NA',
+        customer: 'TESCO',
+        location: 'Silkboard',
+        pickupDrop: 'PICK UP',
+        scheduleStart: DateTime(now.year, now.month, now.day, 18, 30),
+        actualStart: DateTime(now.year, now.month, now.day, 18, 35),
+        actualEnd: now,
+        status: TripDetailStatus.completed,
+        tripStartOdometer: 38200,
+        tripEndOdometer: endOdometer,
+        createdAt: now.subtract(const Duration(days: 1)),
+      );
+    }
+
     try {
       final response = await dio.post(
         '/trips/$tripId/end',
