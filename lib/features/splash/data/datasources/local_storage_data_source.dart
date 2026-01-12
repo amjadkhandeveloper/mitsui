@@ -7,6 +7,8 @@ abstract class LocalStorageDataSource {
   Future<Map<String, dynamic>?> getAppConfig();
   Future<bool> isFirstLaunch();
   Future<void> setFirstLaunchComplete();
+  Future<bool> isIntroductionCompleted();
+  Future<void> setIntroductionCompleted();
 }
 
 class LocalStorageDataSourceImpl implements LocalStorageDataSource {
@@ -63,6 +65,25 @@ class LocalStorageDataSourceImpl implements LocalStorageDataSource {
   Future<void> setFirstLaunchComplete() async {
     try {
       await sharedPreferences.setBool('first_launch_complete', true);
+    } catch (e) {
+      // Handle error silently
+    }
+  }
+
+  @override
+  Future<bool> isIntroductionCompleted() async {
+    try {
+      final value = sharedPreferences.getBool('introduction_completed');
+      return value == true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> setIntroductionCompleted() async {
+    try {
+      await sharedPreferences.setBool('introduction_completed', true);
     } catch (e) {
       // Handle error silently
     }

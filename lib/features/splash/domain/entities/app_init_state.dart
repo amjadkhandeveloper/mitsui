@@ -4,6 +4,7 @@ import '../../../../core/error/failures.dart';
 enum AppInitStatus {
   initial,
   checkingAuth,
+  showIntroduction,
   authenticated,
   unauthenticated,
   error,

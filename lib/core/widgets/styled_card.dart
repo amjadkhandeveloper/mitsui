@@ -27,15 +27,19 @@ class StyledCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+            spreadRadius: 0,
           ),
         ],
       ),
-      child: Padding(
-        padding: padding ?? const EdgeInsets.all(16),
-        child: child,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Padding(
+          padding: padding ?? const EdgeInsets.all(16),
+          child: child,
+        ),
       ),
     );
   }

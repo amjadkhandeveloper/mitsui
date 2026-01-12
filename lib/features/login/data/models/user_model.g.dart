@@ -12,6 +12,10 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       email: json['email'] as String,
       token: json['token'] as String?,
       refreshToken: json['refreshToken'] as String?,
+      role: json['role'] == null
+          ? UserRole.driver
+          : const UserRoleConverter().fromJson(json['role'] as String),
+      name: json['name'] as String?,
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -20,4 +24,6 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'email': instance.email,
       'token': instance.token,
       'refreshToken': instance.refreshToken,
+      'role': const UserRoleConverter().toJson(instance.role),
+      'name': instance.name,
     };

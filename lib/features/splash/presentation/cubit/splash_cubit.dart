@@ -58,6 +58,18 @@ class SplashCubit extends Cubit<SplashState> {
       // Wait for minimum splash duration (2 seconds)
       await Future.delayed(const Duration(milliseconds: 2000));
 
+      // Check if introduction is completed
+      final isIntroductionCompleted = await localStorageDataSource.isIntroductionCompleted();
+
+      if (!isIntroductionCompleted) {
+        // Show introduction screens on first launch
+        emit(state.copyWith(
+          isLoading: false,
+          initStatus: AppInitStatus.showIntroduction,
+        ));
+        return;
+      }
+
       // Check authentication token
       final authToken = await localStorageDataSource.getAuthToken();
 

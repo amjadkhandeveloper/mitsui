@@ -58,7 +58,7 @@ class DashboardCubit extends Cubit<DashboardState> {
         title: 'Driver Attendance',
         subtitle: 'View details',
         icon: Icons.people,
-        route: '/driver-attendance',
+        route: '/attendance',
       ),
       const DashboardFeature(
         id: 'trips',
@@ -68,11 +68,11 @@ class DashboardCubit extends Cubit<DashboardState> {
         route: '/trips',
       ),
       const DashboardFeature(
-        id: 'add_free_slot',
-        title: 'Add Free Slot',
-        subtitle: 'Schedule time',
-        icon: Icons.add_circle_outline,
-        route: '/add-free-slot',
+        id: 'receipt',
+        title: 'Receipt',
+        subtitle: 'Manage receipts',
+        icon: Icons.receipt_long,
+        route: '/receipts',
       ),
       const DashboardFeature(
         id: 'trip_history',
@@ -86,7 +86,7 @@ class DashboardCubit extends Cubit<DashboardState> {
         title: 'Reports',
         subtitle: 'View reports',
         icon: Icons.bar_chart,
-        route: '/reports',
+        route: '/attendance-report',
       ),
     ];
 

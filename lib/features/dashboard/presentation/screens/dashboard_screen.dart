@@ -6,9 +6,40 @@ import '../widgets/quick_action_button.dart';
 import '../widgets/feature_card.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/routes/app_routes.dart';
+import '../../../login/domain/repositories/auth_repository.dart';
+import '../../../login/domain/entities/user.dart';
+import '../../../../core/di/injection_container.dart' as di;
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  User? currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final authRepository = di.sl<AuthRepository>();
+    final result = await authRepository.getCurrentUser();
+    result.fold(
+      (failure) => null,
+      (user) {
+        if (mounted) {
+          setState(() {
+            currentUser = user;
+          });
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +97,7 @@ class DashboardScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           QuickActionButton(
                             type: QuickActionType.checkIn,
@@ -80,10 +112,10 @@ class DashboardScreen extends StatelessWidget {
                           QuickActionButton(
                             type: QuickActionType.applyLeave,
                             onTap: () {
-                              // Handle apply leave
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Apply Leave clicked')),
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.leaveList,
+                                arguments: currentUser,
                               );
                             },
                           ),
@@ -112,12 +144,13 @@ class DashboardScreen extends StatelessWidget {
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 1.1,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
+                          childAspectRatio: 1.05,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
                         ),
                         itemCount: state.features.length,
                         itemBuilder: (context, index) {
@@ -126,13 +159,30 @@ class DashboardScreen extends StatelessWidget {
                             feature: feature,
                             index: index,
                             onTap: () {
-                              // Handle feature tap
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text('${feature.title} tapped')),
-                              );
-                              // Navigate to feature screen
-                              // Navigator.pushNamed(context, feature.route);
+                              if (feature.route == AppRoutes.attendance) {
+                                Navigator.pushNamed(
+                                  context,
+                                  feature.route,
+                                  arguments: currentUser,
+                                );
+                              } else if (feature.route ==
+                                  AppRoutes.vehicleSchedule) {
+                                Navigator.pushNamed(context, feature.route);
+                              } else if (feature.route ==
+                                  AppRoutes.attendanceReport) {
+                                Navigator.pushNamed(context, feature.route);
+                              } else if (feature.route == AppRoutes.tripList) {
+                                Navigator.pushNamed(context, feature.route);
+                              } else if (feature.route == AppRoutes.receipts) {
+                                Navigator.pushNamed(context, feature.route);
+                              } else {
+                                // Handle other feature taps
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('${feature.title} tapped'),
+                                  ),
+                                );
+                              }
                             },
                           );
                         },

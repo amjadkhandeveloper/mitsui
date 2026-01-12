@@ -20,51 +20,61 @@ class FeatureCard extends StatelessWidget {
     return FadeSlideAnimation(
       delay: Duration(milliseconds: 500 + (index * 100)),
       beginOffset: const Offset(0, 0.2),
-      child: GestureDetector(
-        onTap: onTap,
-        child: StyledCard(
-          padding: const EdgeInsets.all(20),
-          margin: const EdgeInsets.all(8),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Icon Circle
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  shape: BoxShape.circle,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(24),
+          child: StyledCard(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            margin: EdgeInsets.zero,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Icon Circle
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    feature.icon,
+                    color: Colors.white,
+                    size: 28,
+                  ),
                 ),
-                child: Icon(
-                  feature.icon,
-                  color: Colors.white,
-                  size: 28,
+                const SizedBox(height: 10),
+                // Title
+                Text(
+                  feature.title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const SizedBox(height: 12),
-              // Title
-              Text(
-                feature.title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
+                const SizedBox(height: 4),
+                // Subtitle
+                Text(
+                  feature.subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              // Subtitle
-              Text(
-                feature.subtitle,
-                style: TextStyle(
-                  fontSize: 12,
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

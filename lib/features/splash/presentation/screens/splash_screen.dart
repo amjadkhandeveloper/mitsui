@@ -30,12 +30,16 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     switch (status) {
+      case AppInitStatus.showIntroduction:
+        // Navigate to Introduction Screen
+        Navigator.of(context).pushReplacementNamed(AppRoutes.introduction);
+        break;
       case AppInitStatus.authenticated:
         // Navigate to Home Screen
         Navigator.of(context).pushReplacementNamed(AppRoutes.home);
         break;
       case AppInitStatus.unauthenticated:
-        // Navigate to Login/Onboarding Screen
+        // Navigate to Login Screen
         Navigator.of(context).pushReplacementNamed(AppRoutes.login);
         break;
       case AppInitStatus.error:
@@ -53,7 +57,8 @@ class _SplashScreenState extends State<SplashScreen> {
       body: BlocListener<SplashCubit, SplashState>(
         listener: (context, state) {
           // Handle navigation when initialization completes
-          if (state.initStatus == AppInitStatus.authenticated ||
+          if (state.initStatus == AppInitStatus.showIntroduction ||
+              state.initStatus == AppInitStatus.authenticated ||
               state.initStatus == AppInitStatus.unauthenticated ||
               state.initStatus == AppInitStatus.error) {
             _handleNavigation(state.initStatus);

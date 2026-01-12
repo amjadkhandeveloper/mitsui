@@ -55,6 +55,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 Toast.showError(context, state.errorMessage!);
                 // Clear error after showing toast
                 context.read<LoginCubit>().clearError();
+
+                // Navigate to home screen on successful login
+                Navigator.of(context).pushReplacementNamed(AppRoutes.home);
               }
             },
             child: BlocBuilder<LoginCubit, LoginState>(
