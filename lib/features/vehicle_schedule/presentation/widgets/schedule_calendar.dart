@@ -107,7 +107,7 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
             const SizedBox(height: 16),
             // Calendar
             TableCalendar(
-              firstDay: DateTime.utc(2020, 1, 1),
+              firstDay: DateTime.now(),
               lastDay: DateTime.utc(2030, 12, 31),
               focusedDay: _focusedDay,
               onPageChanged: (focusedDay) {
@@ -118,13 +118,21 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
               selectedDayPredicate: (day) {
                 return isSameDay(widget.selectedDate, day);
               },
+              enabledDayPredicate: (day) {
+                // Only allow today and future dates
+                final today = DateTime.now();
+                final todayStart = DateTime(today.year, today.month, today.day);
+                final dayStart = DateTime(day.year, day.month, day.day);
+                return dayStart
+                    .isAfter(todayStart.subtract(const Duration(days: 1)));
+              },
               calendarFormat: CalendarFormat.month,
               startingDayOfWeek: StartingDayOfWeek.sunday,
               headerVisible: false,
               daysOfWeekVisible: true,
               calendarStyle: CalendarStyle(
                 outsideDaysVisible: false,
-                selectedDecoration: BoxDecoration(
+                selectedDecoration: const BoxDecoration(
                   color: AppTheme.mitsuiBlue,
                   shape: BoxShape.circle,
                 ),
@@ -132,7 +140,7 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
                   color: Colors.green.shade400,
                   shape: BoxShape.circle,
                 ),
-                markerDecoration: BoxDecoration(
+                markerDecoration: const BoxDecoration(
                   color: AppTheme.mitsuiDarkBlue,
                   shape: BoxShape.circle,
                 ),
@@ -153,6 +161,10 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
                   fontSize: 14,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
+                ),
+                disabledTextStyle: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade300,
                 ),
               ),
               daysOfWeekStyle: const DaysOfWeekStyle(
@@ -196,4 +208,3 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
     return months[month - 1];
   }
 }
-

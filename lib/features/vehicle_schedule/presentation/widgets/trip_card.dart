@@ -7,13 +7,11 @@ import '../../domain/entities/trip.dart';
 class TripCard extends StatelessWidget {
   final Trip trip;
   final int index;
-  final Function(Trip, TripStatus) onStatusUpdate;
 
   const TripCard({
     super.key,
     required this.trip,
     required this.index,
-    required this.onStatusUpdate,
   });
 
   @override
@@ -134,98 +132,65 @@ class TripCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (trip.status == TripStatus.pending) ...[
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        onStatusUpdate(trip, TripStatus.accepted);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade600,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Accept',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        onStatusUpdate(trip, TripStatus.rejected);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red.shade600,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Reject',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ] else ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: trip.status == TripStatus.accepted
-                      ? Colors.green.shade100
-                      : Colors.red.shade100,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      trip.status == TripStatus.accepted
-                          ? Icons.check_circle
-                          : Icons.cancel,
-                      size: 16,
-                      color: trip.status == TripStatus.accepted
-                          ? Colors.green.shade700
-                          : Colors.red.shade700,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      trip.status == TripStatus.accepted ? 'Accepted' : 'Rejected',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: trip.status == TripStatus.accepted
-                            ? Colors.green.shade700
-                            : Colors.red.shade700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            const SizedBox(height: 12),
+            _buildStatusBadge(trip.status),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(TripStatus status) {
+    Color backgroundColor;
+    Color textColor;
+    IconData icon;
+    String statusText;
+
+    switch (status) {
+      case TripStatus.pending:
+        backgroundColor = Colors.orange.shade100;
+        textColor = Colors.orange.shade700;
+        icon = Icons.access_time;
+        statusText = 'Assigned';
+        break;
+      case TripStatus.accepted:
+        backgroundColor = Colors.green.shade100;
+        textColor = Colors.green.shade700;
+        icon = Icons.check_circle;
+        statusText = 'Accepted';
+        break;
+      case TripStatus.rejected:
+        backgroundColor = Colors.red.shade100;
+        textColor = Colors.red.shade700;
+        icon = Icons.cancel;
+        statusText = 'Rejected';
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: textColor,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            statusText,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -25,6 +25,7 @@ class VehicleScheduleHeader extends StatelessWidget {
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.max,
           children: [
             Container(
               width: 64,
@@ -62,4 +63,3 @@ class VehicleScheduleHeader extends StatelessWidget {
     );
   }
 }
-

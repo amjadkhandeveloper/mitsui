@@ -81,7 +81,9 @@ class _VehicleScheduleScreenState extends State<VehicleScheduleScreen> {
                       _selectedDay = selectedDay;
                       _focusedDay = focusedDay;
                     });
-                    context.read<VehicleScheduleCubit>().selectDate(selectedDay);
+                    context
+                        .read<VehicleScheduleCubit>()
+                        .selectDate(selectedDay);
                   },
                 ),
                 Padding(
@@ -137,11 +139,6 @@ class _VehicleScheduleScreenState extends State<VehicleScheduleScreen> {
                                   return TripCard(
                                     trip: state.trips[index],
                                     index: index,
-                                    onStatusUpdate: (trip, status) {
-                                      context
-                                          .read<VehicleScheduleCubit>()
-                                          .updateStatus(trip.id, status);
-                                    },
                                   );
                                 },
                               )
@@ -159,4 +156,3 @@ class _VehicleScheduleScreenState extends State<VehicleScheduleScreen> {
     );
   }
 }
-
