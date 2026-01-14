@@ -5,7 +5,8 @@ import '../../../login/domain/entities/user.dart';
 import '../cubit/attendance_cubit.dart';
 import '../widgets/todays_attendance_card.dart';
 import '../widgets/driver_dropdown.dart';
-import '../widgets/attendance_list_item.dart';
+import '../widgets/attendance_calendar.dart';
+import '../../domain/entities/attendance_record.dart';
 
 class AttendanceScreen extends StatefulWidget {
   final User? currentUser;
@@ -20,6 +21,9 @@ class AttendanceScreen extends StatefulWidget {
 }
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
+  DateTime _selectedDay = DateTime.now();
+  DateTime _focusedDay = DateTime.now();
+
   @override
   void initState() {
     super.initState();
@@ -30,10 +34,21 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       cubit.loadDrivers();
     } else {
       // Load attendance for driver directly
-      cubit.loadAttendanceRecords(
-        driverId: widget.currentUser?.id,
-      );
+      _loadAttendanceForMonth(_focusedDay);
     }
+  }
+
+  void _loadAttendanceForMonth(DateTime month) {
+    final startDate = DateTime(month.year, month.month, 1);
+    final endDate = DateTime(month.year, month.month + 1, 0);
+    
+    context.read<AttendanceCubit>().loadAttendanceRecords(
+      driverId: widget.currentUser?.role == UserRole.driver 
+          ? widget.currentUser?.id 
+          : null,
+      startDate: startDate,
+      endDate: endDate,
+    );
   }
 
   @override
@@ -69,7 +84,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           }
 
           if (state is AttendanceLoaded) {
-            return _buildAttendanceListView(context, state);
+            return _buildAttendanceCalendarView(context, state);
           }
 
           return const Center(
@@ -93,9 +108,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           selectedDriver: state.selectedDriver,
           onDriverSelected: (driver) {
             context.read<AttendanceCubit>().selectDriver(driver);
+            // Load attendance for selected driver and current month
+            final startDate = DateTime(_focusedDay.year, _focusedDay.month, 1);
+            final endDate = DateTime(_focusedDay.year, _focusedDay.month + 1, 0);
             context.read<AttendanceCubit>().loadAttendanceRecords(
-                  driverId: driver?.id,
-                );
+              driverId: driver?.id,
+              startDate: startDate,
+              endDate: endDate,
+            );
           },
         ),
         Expanded(
@@ -105,7 +125,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
               if (state is AttendanceLoaded) {
-                return _buildAttendanceListView(context, state);
+                return _buildAttendanceCalendarView(context, state);
               }
               return const Center(
                 child: Text('Select a driver to view attendance'),
@@ -117,98 +137,194 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     );
   }
 
-  Widget _buildAttendanceListView(BuildContext context, AttendanceLoaded state) {
-    if (state.records.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.event_busy,
-              size: 64,
-              color: Colors.grey.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No attendance records found',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.withOpacity(0.7),
-              ),
-            ),
-          ],
-        ),
+  Widget _buildAttendanceCalendarView(BuildContext context, AttendanceLoaded state) {
+    // Create a map of dates to attendance status
+    final Map<DateTime, AttendanceStatus> attendanceMap = {};
+    for (var record in state.records) {
+      final normalizedDate = DateTime(
+        record.date.year,
+        record.date.month,
+        record.date.day,
       );
+      attendanceMap[normalizedDate] = record.status;
     }
 
-    return Column(
-      children: [
-        // List Header
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.1),
-            border: Border(
-              bottom: BorderSide(
-                color: Colors.grey.withOpacity(0.2),
-                width: 1,
-              ),
-            ),
+    // Get selected day's attendance record
+    AttendanceRecord? selectedRecord;
+    final normalizedSelected = DateTime(
+      _selectedDay.year,
+      _selectedDay.month,
+      _selectedDay.day,
+    );
+    try {
+      selectedRecord = state.records.firstWhere(
+        (record) {
+          final normalizedDate = DateTime(
+            record.date.year,
+            record.date.month,
+            record.date.day,
+          );
+          return normalizedDate == normalizedSelected;
+        },
+      );
+    } catch (e) {
+      selectedRecord = null;
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          AttendanceCalendar(
+            selectedDate: _selectedDay,
+            focusedDay: _focusedDay,
+            attendanceMap: attendanceMap,
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
+            },
+            onMonthChanged: (month) {
+              setState(() {
+                _focusedDay = month;
+              });
+              _loadAttendanceForMonth(month);
+            },
           ),
-          child: Row(
+          // Selected Day Details
+          if (selectedRecord != null)
+            _buildSelectedDayDetails(context, selectedRecord),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSelectedDayDetails(BuildContext context, AttendanceRecord record) {
+    final dateFormat = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
+    final isPresent = record.status == AttendanceStatus.present;
+    
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isPresent ? Colors.green.shade200 : Colors.red.shade200,
+          width: 2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              SizedBox(
-                width: 100,
-                child: Text(
-                  'Date',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isPresent ? Colors.green.shade100 : Colors.red.shade100,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isPresent ? Icons.check_circle : Icons.cancel,
+                      size: 16,
+                      color: isPresent ? Colors.green.shade700 : Colors.red.shade700,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      isPresent ? 'Present' : 'Absent',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isPresent ? Colors.green.shade700 : Colors.red.shade700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  'Name',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              SizedBox(
-                width: 60,
-                child: Text(
-                  'Present',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  ),
-                  textAlign: TextAlign.center,
+              const Spacer(),
+              Text(
+                '${dateFormat.day}-${_getMonthAbbr(dateFormat.month)}-${dateFormat.year}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
               ),
             ],
           ),
-        ),
-        // Attendance List
-        Expanded(
-          child: ListView.builder(
-            itemCount: state.records.length,
-            itemBuilder: (context, index) {
-              return AttendanceListItem(
-                record: state.records[index],
-                index: index,
-              );
-            },
-          ),
-        ),
-      ],
+          if (isPresent && record.checkInTime != null) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(Icons.login, size: 16, color: Colors.grey.shade600),
+                const SizedBox(width: 8),
+                Text(
+                  'Check In: ${_formatTime(record.checkInTime!)}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (isPresent && record.checkOutTime != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.logout, size: 16, color: Colors.grey.shade600),
+                const SizedBox(width: 8),
+                Text(
+                  'Check Out: ${_formatTime(record.checkOutTime!)}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (record.location != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.location_on, size: 16, color: Colors.grey.shade600),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    record.location!,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
+  }
+
+  String _formatTime(DateTime time) {
+    final hour = time.hour > 12 ? time.hour - 12 : (time.hour == 0 ? 12 : time.hour);
+    final minute = time.minute.toString().padLeft(2, '0');
+    final period = time.hour >= 12 ? 'PM' : 'AM';
+    return '$hour:$minute $period';
+  }
+
+  String _getMonthAbbr(int month) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return months[month - 1];
   }
 }
 
