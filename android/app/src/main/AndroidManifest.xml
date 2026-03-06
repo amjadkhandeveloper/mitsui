@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Android embedding V2 (required by plugins e.g. geolocator_android) -->
     <!-- Internet permission required for API calls in release builds -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Location for driver check-in/check-out -->
