@@ -79,7 +79,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
         return;
       }
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.medium),
+        desiredAccuracy: LocationAccuracy.medium,
       );
       if (mounted) {
         setState(() {
@@ -643,7 +643,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
           }
         }
         final position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(accuracy: LocationAccuracy.medium),
+          desiredAccuracy: LocationAccuracy.medium,
         );
         lat = position.latitude;
         lon = position.longitude;
