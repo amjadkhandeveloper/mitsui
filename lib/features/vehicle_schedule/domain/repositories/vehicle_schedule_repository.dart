@@ -4,6 +4,8 @@ import '../entities/free_slot.dart';
 
 abstract class VehicleScheduleRepository {
   FutureResult<List<Trip>> getTrips({
+    String? userId,
+    String? driverId,
     DateTime? date,
     DateTime? startDate,
     DateTime? endDate,

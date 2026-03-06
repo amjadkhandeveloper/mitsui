@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/config/app_config.dart';
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/extensions/json_extensions.dart';
 import '../../../../core/mock/mock_data_service.dart';
 import '../models/trip_model.dart';
 import '../models/free_slot_model.dart';
@@ -8,6 +10,8 @@ import '../../domain/entities/trip.dart';
 
 abstract class VehicleScheduleRemoteDataSource {
   Future<List<TripModel>> getTrips({
+    String? userId,
+    String? driverId,
     DateTime? date,
     DateTime? startDate,
     DateTime? endDate,
@@ -25,6 +29,8 @@ class VehicleScheduleRemoteDataSourceImpl
 
   @override
   Future<List<TripModel>> getTrips({
+    String? userId,
+    String? driverId,
     DateTime? date,
     DateTime? startDate,
     DateTime? endDate,
@@ -36,25 +42,94 @@ class VehicleScheduleRemoteDataSourceImpl
     }
 
     try {
-      final queryParams = <String, dynamic>{};
-      if (date != null) {
-        queryParams['date'] = date.toIso8601String();
-      }
-      if (startDate != null) {
-        queryParams['start_date'] = startDate.toIso8601String();
-      }
-      if (endDate != null) {
-        queryParams['end_date'] = endDate.toIso8601String();
+      // Resolve user_id / driver_id similar to TripDetails API:
+      // - If expat:  user_id = <userid>, driver_id = "0"
+      // - If driver: user_id = "0",       driver_id = <driverid>
+      String resolvedUserId = '0';
+      String resolvedDriverId = '0';
+      if (userId != null && userId.isNotEmpty) {
+        resolvedUserId = userId;
+        resolvedDriverId = '0';
+      } else if (driverId != null && driverId.isNotEmpty) {
+        resolvedUserId = '0';
+        resolvedDriverId = driverId;
       }
 
-      final response = await dio.get(
-        '/trips',
-        queryParameters: queryParams,
+      // Call TripListRequest API (same as trip list) for all trips; we will filter by date in the cubit.
+      final response = await dio.post(
+        ApiConstants.tripListRequest,
+        data: {
+          'user_id': resolvedUserId,
+          'driver_id': resolvedDriverId,
+        },
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data['data'] ?? response.data;
-        return data.map((json) => TripModel.fromJson(json)).toList();
+        final responseData = response.data;
+        final apiStatus = responseData['status'];
+        final apiMessage = responseData['message'] as String?;
+
+        if ((apiStatus == 200 || apiStatus == 1 || apiStatus == 'success') &&
+            responseData['data'] != null) {
+          final List<dynamic> data = responseData['data'] as List<dynamic>;
+
+          return data.map((raw) {
+            final json = raw as Map<String, dynamic>;
+
+            // Map TripListRequest fields to TripModel fields using safe extensions
+            final tripRequestId = json.getStringOr('TripRequestId', '');
+            final tripName = json.getStringOr('TripName', '');
+
+            final startDateTime = json.getDateTimeSafe('TripStartDate') ?? DateTime.now();
+            final endDateTime = json.getDateTimeSafe('TripEndDate') ?? startDateTime;
+
+            // Map string status to simple TripStatus
+            final statusStr = (json.getStringSafe('Trip Status') ??
+                              json.getStringSafe('TripStatus') ??
+                              '').toLowerCase();
+            TripStatus status;
+            if (statusStr.contains('approved')) {
+              status = TripStatus.accepted;
+            } else if (statusStr.contains('rejected')) {
+              status = TripStatus.rejected;
+            } else {
+              // Pending / confirmation pending / requested
+              status = TripStatus.pending;
+            }
+
+            // Extract additional fields from API response using safe extensions
+            final driverId = json.getStringSafe('DriverId');
+            final driverName = json.getStringSafe('DriverName');
+            final mobileNo = json.getStringSafe('MobileNo');
+            final tripType = json.getStringSafe('TripType');
+            final pickupLocation = json.getStringOr('PickupLocation', '');
+            final dropLocation = json.getStringOr('DropLocation', '');
+            final destination = pickupLocation.isNotEmpty && dropLocation.isNotEmpty
+                ? '$pickupLocation → $dropLocation'
+                : (pickupLocation.isNotEmpty ? pickupLocation : dropLocation);
+
+            // Create TripModel directly
+            return TripModel(
+              id: tripRequestId,
+              vehicleId: tripRequestId,
+              vehicleName: tripName,
+              date: DateTime(startDateTime.year, startDateTime.month, startDateTime.day),
+              startTime: startDateTime,
+              endTime: endDateTime,
+              status: status,
+              driverId: driverId,
+              driverName: driverName,
+              mobileNo: mobileNo,
+              tripType: tripType,
+              destination: destination.isNotEmpty ? destination : null,
+              purpose: null,
+              createdAt: startDateTime,
+              updatedAt: null,
+            );
+          }).toList();
+        } else {
+          throw ServerException(apiMessage ?? 'Failed to fetch trips');
+        }
       } else {
         throw ServerException('Failed to fetch trips');
       }

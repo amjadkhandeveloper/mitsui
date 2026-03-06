@@ -33,8 +33,34 @@ class LeaveStatusConverter implements JsonConverter<LeaveStatus, String> {
   }
 }
 
+class LeaveTypeConverter implements JsonConverter<LeaveType, String> {
+  const LeaveTypeConverter();
+
+  @override
+  LeaveType fromJson(String json) {
+    switch (json.toLowerCase()) {
+      case 'half':
+        return LeaveType.half;
+      case 'full':
+        return LeaveType.full;
+      default:
+        return LeaveType.full;
+    }
+  }
+
+  @override
+  String toJson(LeaveType object) {
+    switch (object) {
+      case LeaveType.half:
+        return 'half';
+      case LeaveType.full:
+        return 'full';
+    }
+  }
+}
+
 @JsonSerializable(
-  converters: [LeaveStatusConverter()],
+  converters: [LeaveStatusConverter(), LeaveTypeConverter()],
 )
 class LeaveRequestModel extends LeaveRequest {
   const LeaveRequestModel({
@@ -45,9 +71,16 @@ class LeaveRequestModel extends LeaveRequest {
     required super.endDate,
     required super.startTime,
     required super.endTime,
+    super.leaveTypeId,
+    super.rawLeaveDate,
+    super.rawStartTime,
+    super.rawEndTime,
     required super.status,
+    super.leaveType = LeaveType.full,
     super.reason,
+    super.remark,
     super.adminNote,
+    super.documentUrl,
     required super.createdAt,
     super.updatedAt,
   });
@@ -66,9 +99,16 @@ class LeaveRequestModel extends LeaveRequest {
       endDate: endDate,
       startTime: startTime,
       endTime: endTime,
+      leaveTypeId: leaveTypeId,
+      rawLeaveDate: rawLeaveDate,
+      rawStartTime: rawStartTime,
+      rawEndTime: rawEndTime,
       status: status,
+      leaveType: leaveType,
       reason: reason,
+      remark: remark,
       adminNote: adminNote,
+      documentUrl: documentUrl,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

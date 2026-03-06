@@ -1,12 +1,16 @@
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 import '../constants/api_constants.dart';
 import '../error/exceptions.dart';
 
 class DioClient {
   late Dio _dio;
+  final SharedPreferences sharedPreferences;
 
-  DioClient() {
+  DioClient({required this.sharedPreferences}) {
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiConstants.baseUrl,
@@ -21,6 +25,18 @@ class DioClient {
       ),
     );
 
+    // Configure SSL certificate handling
+    // NOTE: This accepts certificates for the API host - use only for development/testing
+    // For production, ensure proper SSL certificates are installed
+    (_dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate = (HttpClient client) {
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+        // Accept certificate for the API host only
+        final apiHost = Uri.parse(ApiConstants.baseUrl).host;
+        return host == apiHost;
+      };
+      return client;
+    };
+
     _dio.interceptors.add(
       PrettyDioLogger(
         requestHeader: true,
@@ -33,15 +49,15 @@ class DioClient {
       ),
     );
 
-    // Add auth interceptor if needed
+    // Add auth interceptor to include auth token in requests
     _dio.interceptors.add(
       InterceptorsWrapper(
-        onRequest: (options, handler) {
+        onRequest: (options, handler) async {
           // Add auth token if available
-          // final token = getAuthToken();
-          // if (token != null) {
-          //   options.headers['Authorization'] = 'Bearer $token';
-          // }
+          final token = sharedPreferences.getString('auth_token');
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
           return handler.next(options);
         },
         onError: (error, handler) {

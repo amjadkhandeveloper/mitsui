@@ -11,6 +11,15 @@ class AttendanceRecord extends Equatable {
   final DateTime? checkInTime;
   final DateTime? checkOutTime;
   final String? location;
+  // New fields from API
+  final int? attendanceId;
+  final String? clientName;
+  final String? zoneName;
+  final double? checkInLat;
+  final double? checkInLon;
+  final double? checkOutLat;
+  final double? checkOutLon;
+  final String? driverStatus;
 
   const AttendanceRecord({
     required this.id,
@@ -21,7 +30,21 @@ class AttendanceRecord extends Equatable {
     this.checkInTime,
     this.checkOutTime,
     this.location,
+    this.attendanceId,
+    this.clientName,
+    this.zoneName,
+    this.checkInLat,
+    this.checkInLon,
+    this.checkOutLat,
+    this.checkOutLon,
+    this.driverStatus,
   });
+
+  // Helper method to check if check-in needs approval
+  bool get needsCheckInApproval => checkInTime != null && checkOutTime == null;
+
+  // Helper method to check if check-out needs approval
+  bool get needsCheckOutApproval => checkInTime != null && checkOutTime != null && checkOutLat == null && checkOutLon == null;
 
   @override
   List<Object?> get props => [
@@ -33,6 +56,14 @@ class AttendanceRecord extends Equatable {
         checkInTime,
         checkOutTime,
         location,
+        attendanceId,
+        clientName,
+        zoneName,
+        checkInLat,
+        checkInLon,
+        checkOutLat,
+        checkOutLon,
+        driverStatus,
       ];
 }
 

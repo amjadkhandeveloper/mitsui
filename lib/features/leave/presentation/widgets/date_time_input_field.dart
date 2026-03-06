@@ -8,6 +8,8 @@ class DateTimeInputField extends StatelessWidget {
   final bool isDate;
   final Function(DateTime) onTap;
   final String? errorText;
+  final DateTime? minDate;
+  final DateTime? maxDate;
 
   const DateTimeInputField({
     super.key,
@@ -16,6 +18,8 @@ class DateTimeInputField extends StatelessWidget {
     required this.isDate,
     required this.onTap,
     this.errorText,
+    this.minDate,
+    this.maxDate,
   });
 
   @override
@@ -31,11 +35,16 @@ class DateTimeInputField extends StatelessWidget {
         onTap: () async {
           DateTime? picked;
           if (isDate) {
+            final now = DateTime.now();
+            final first = minDate ?? now;
+            final last = maxDate ?? now.add(const Duration(days: 365));
             picked = await showDatePicker(
               context: context,
-              initialDate: value ?? DateTime.now(),
-              firstDate: DateTime.now(),
-              lastDate: DateTime.now().add(const Duration(days: 365)),
+              initialDate: value != null
+                  ? (value!.isBefore(first) ? first : value!)
+                  : (now.isBefore(first) ? first : now),
+              firstDate: first,
+              lastDate: last,
             );
           } else {
             final time = await showTimePicker(

@@ -35,28 +35,61 @@ class UserRoleConverter implements JsonConverter<UserRole, String> {
 class UserModel extends User {
   const UserModel({
     required super.id,
+    super.driverId,
     required super.username,
     required super.email,
     super.token,
-    super.refreshToken,
     super.role = UserRole.driver,
     super.name,
+    super.clientId,
+    super.zoneId,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) =>
-      _$UserModelFromJson(json);
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    final model = _$UserModelFromJson(json);
+    return UserModel(
+      id: model.id,
+      driverId: model.driverId,
+      username: model.username,
+      email: model.email,
+      token: model.token,
+      role: model.role,
+      name: model.name,
+      clientId: json['clientId'] is int 
+          ? json['clientId'] as int 
+          : (json['clientId'] is num 
+              ? (json['clientId'] as num).toInt() 
+              : null),
+      zoneId: json['zoneId'] is int
+          ? json['zoneId'] as int
+          : (json['zoneId'] is num
+              ? (json['zoneId'] as num).toInt()
+              : null),
+    );
+  }
 
-  Map<String, dynamic> toJson() => _$UserModelToJson(this);
+  Map<String, dynamic> toJson() {
+    final json = _$UserModelToJson(this);
+    if (clientId != null) {
+      json['clientId'] = clientId;
+    }
+    if (zoneId != null) {
+      json['zoneId'] = zoneId;
+    }
+    return json;
+  }
 
   User toEntity() {
     return User(
       id: id,
+      driverId: driverId,
       username: username,
       email: email,
       token: token,
-      refreshToken: refreshToken,
       role: role,
       name: name,
+      clientId: clientId,
+      zoneId: zoneId,
     );
   }
 }

@@ -75,6 +75,8 @@ class _SplashScreenState extends State<SplashScreen> {
                   // Logo Section
                   Center(
                     child: SplashLogo(
+                      // Use small logo for splash
+                      logoPath: 'assets/images/ic_mitsui_logo_tran.png',
                       onAnimationComplete: () {
                         context.read<SplashCubit>().showLogo();
                       },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/di/injection_container.dart' as di;
 import 'core/routes/app_routes.dart';
@@ -7,6 +8,12 @@ import 'features/splash/presentation/cubit/splash_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Lock device orientation to portrait mode only
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   // Initialize dependency injection
   await di.init();
@@ -30,7 +37,16 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return BlocProvider<SplashCubit>(
           create: (_) => di.sl<SplashCubit>(),
-          child: child ?? const SizedBox.shrink(),
+          child: SafeArea(
+            top: false,
+            left: false,
+            right: false,
+            bottom: true,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 50),
+              child: child ?? const SizedBox.shrink(),
+            ),
+          ),
         );
       },
     );

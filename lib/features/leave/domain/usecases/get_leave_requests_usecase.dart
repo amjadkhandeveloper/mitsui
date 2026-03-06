@@ -7,8 +7,8 @@ class GetLeaveRequestsUseCase {
 
   GetLeaveRequestsUseCase({required this.repository});
 
-  FutureResult<List<LeaveRequest>> call({String? userId}) async {
-    return await repository.getLeaveRequests(userId: userId);
+  FutureResult<List<LeaveRequest>> call({String? userId, String? driverId}) async {
+    return await repository.getLeaveRequests(userId: userId, driverId: driverId);
   }
 }
 

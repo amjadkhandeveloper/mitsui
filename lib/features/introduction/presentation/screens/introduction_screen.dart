@@ -68,6 +68,15 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
     }
   }
 
+  void _previousPage() {
+    if (_currentPage > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   void _skip() {
     _completeIntroduction();
   }
@@ -108,26 +117,108 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                   ],
                 ),
               ),
-              // Page View
+              // Page View with Navigation Arrows
               Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  onPageChanged: _onPageChanged,
-                  itemCount: _slides.length,
-                  itemBuilder: (context, index) {
-                    return _buildSlide(_slides[index], index);
-                  },
+                child: Stack(
+                  children: [
+                    PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: _onPageChanged,
+                      itemCount: _slides.length,
+                      itemBuilder: (context, index) {
+                        return _buildSlide(_slides[index], index);
+                      },
+                    ),
+                    // Left Arrow
+                    if (_currentPage > 0)
+                      Positioned(
+                        left: 8,
+                        top: 0,
+                        bottom: 0,
+                        child: Center(
+                          child: IconButton(
+                            onPressed: _previousPage,
+                            icon: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.9),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                Icons.arrow_back_ios,
+                                color: AppTheme.mitsuiBlue,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    // Right Arrow
+                    if (_currentPage < _slides.length - 1)
+                      Positioned(
+                        right: 8,
+                        top: 0,
+                        bottom: 0,
+                        child: Center(
+                          child: IconButton(
+                            onPressed: _nextPage,
+                            icon: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.9),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                Icons.arrow_forward_ios,
+                                color: AppTheme.mitsuiBlue,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-              // Page Indicator
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  _slides.length,
-                  (index) => _buildPageIndicator(index == _currentPage),
+              // Current Count and Page Indicator
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Current Count (e.g., "1 / 3")
+                    Text(
+                      '${_currentPage + 1} / ${_slides.length}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.mitsuiBlue,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Page Indicator Dots
+                    ...List.generate(
+                      _slides.length,
+                      (index) => _buildPageIndicator(index == _currentPage),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               // Next/Get Started Button
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -170,56 +261,70 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
 
   Widget _buildSlide(IntroductionSlide slide, int index) {
     return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FadeSlideAnimation(
-            delay: Duration(milliseconds: 100 + (index * 100)),
-            beginOffset: const Offset(0, 0.3),
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                color: slide.color.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                slide.icon,
-                size: 100,
-                color: slide.color,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FadeSlideAnimation(
+              delay: Duration(milliseconds: 100 + (index * 100)),
+              beginOffset: const Offset(0, 0.3),
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: slide.color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  slide.icon,
+                  size: 100,
+                  color: slide.color,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 48),
-          FadeSlideAnimation(
-            delay: Duration(milliseconds: 200 + (index * 100)),
-            beginOffset: const Offset(0, 0.2),
-            child: Text(
-              slide.title,
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+            const SizedBox(height: 48),
+            FadeSlideAnimation(
+              delay: Duration(milliseconds: 200 + (index * 100)),
+              beginOffset: const Offset(0, 0.2),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  slide.title,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 3,
+                  overflow: TextOverflow.visible,
+                  softWrap: true,
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
-          const SizedBox(height: 24),
-          FadeSlideAnimation(
-            delay: Duration(milliseconds: 300 + (index * 100)),
-            beginOffset: const Offset(0, 0.2),
-            child: Text(
-              slide.description,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade700,
-                height: 1.5,
+            const SizedBox(height: 24),
+            FadeSlideAnimation(
+              delay: Duration(milliseconds: 300 + (index * 100)),
+              beginOffset: const Offset(0, 0.2),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  slide.description,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey.shade700,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 5,
+                  overflow: TextOverflow.visible,
+                  softWrap: true,
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -7,8 +7,16 @@ class GetTripDetailsUseCase {
 
   GetTripDetailsUseCase({required this.repository});
 
-  FutureResult<List<TripDetail>> call({String? driverId, String? status}) async {
-    return await repository.getTrips(driverId: driverId, status: status);
+  FutureResult<List<TripDetail>> call({
+    String? userId,
+    String? driverId,
+    String? status,
+  }) async {
+    return await repository.getTrips(
+      userId: userId,
+      driverId: driverId,
+      status: status,
+    );
   }
 }
 

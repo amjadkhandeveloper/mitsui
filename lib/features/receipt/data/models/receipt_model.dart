@@ -56,10 +56,24 @@ class ReceiptStatusConverter {
   }
 }
 
+int _mapTypeToExpenseTypeId(ReceiptType type) {
+  switch (type) {
+    case ReceiptType.fuel:
+      return 2;
+    case ReceiptType.parking:
+      return 3;
+    case ReceiptType.toll:
+      return 4;
+    case ReceiptType.other:
+      return 5;
+  }
+}
+
 class ReceiptModel extends Receipt {
   const ReceiptModel({
     required super.id,
     required super.type,
+    required super.expenseTypeId,
     required super.amount,
     required super.description,
     required super.receiptDate,
@@ -81,9 +95,25 @@ class ReceiptModel extends Receipt {
   factory ReceiptModel.fromJson(Map<String, dynamic> json) {
     final typeConverter = ReceiptTypeConverter();
     final statusConverter = ReceiptStatusConverter();
+    final type = typeConverter.fromJson(json['type'] as String);
+
+    // Support multiple possible keys for expense type id from API; default from type.
+    int? expenseTypeId;
+    final dynamic rawId = json['expense_type_id'] ??
+        json['expenseTypeId'] ??
+        json['ExpenseTypeId'] ??
+        json['typeId'];
+    if (rawId is int) {
+      expenseTypeId = rawId;
+    } else if (rawId is String && rawId.isNotEmpty) {
+      expenseTypeId = int.tryParse(rawId);
+    }
+    expenseTypeId ??= _mapTypeToExpenseTypeId(type);
+
     return ReceiptModel(
       id: json['id'] as String,
-      type: typeConverter.fromJson(json['type'] as String),
+      type: type,
+      expenseTypeId: expenseTypeId,
       amount: (json['amount'] as num).toDouble(),
       description: json['description'] as String,
       receiptDate: DateTime.parse(json['receipt_date'] ?? json['receiptDate']),
@@ -119,6 +149,7 @@ class ReceiptModel extends Receipt {
     return {
       'id': id,
       'type': typeConverter.toJson(type),
+      'expense_type_id': expenseTypeId,
       'amount': amount,
       'description': description,
       'receipt_date': receiptDate.toIso8601String(),
@@ -142,6 +173,7 @@ class ReceiptModel extends Receipt {
     return Receipt(
       id: id,
       type: type,
+      expenseTypeId: expenseTypeId,
       amount: amount,
       description: description,
       receiptDate: receiptDate,

@@ -20,6 +20,8 @@ import '../../features/attendance/data/repositories/attendance_repository_impl.d
 import '../../features/attendance/domain/repositories/attendance_repository.dart';
 import '../../features/attendance/domain/usecases/get_attendance_records_usecase.dart';
 import '../../features/attendance/domain/usecases/get_drivers_usecase.dart';
+import '../../features/attendance/domain/usecases/approve_check_in_usecase.dart';
+import '../../features/attendance/domain/usecases/approve_check_out_usecase.dart';
 import '../../features/attendance/presentation/cubit/attendance_cubit.dart';
 import '../../features/leave/data/datasources/leave_remote_data_source.dart';
 import '../../features/leave/data/repositories/leave_repository_impl.dart';
@@ -27,6 +29,7 @@ import '../../features/leave/domain/repositories/leave_repository.dart';
 import '../../features/leave/domain/usecases/get_leave_requests_usecase.dart';
 import '../../features/leave/domain/usecases/apply_leave_usecase.dart';
 import '../../features/leave/domain/usecases/update_leave_status_usecase.dart';
+import '../../features/leave/domain/usecases/get_leave_types_usecase.dart';
 import '../../features/leave/presentation/cubit/leave_cubit.dart';
 import '../../features/vehicle_schedule/data/datasources/vehicle_schedule_remote_data_source.dart';
 import '../../features/vehicle_schedule/data/repositories/vehicle_schedule_repository_impl.dart';
@@ -105,10 +108,18 @@ Future<void> init() async {
   sl.registerLazySingleton(
     () => GetDriversUseCase(repository: sl<AttendanceRepository>()),
   );
+  sl.registerLazySingleton(
+    () => ApproveCheckInUseCase(repository: sl<AttendanceRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => ApproveCheckOutUseCase(repository: sl<AttendanceRepository>()),
+  );
   sl.registerFactory(
     () => AttendanceCubit(
       getAttendanceRecordsUseCase: sl<GetAttendanceRecordsUseCase>(),
       getDriversUseCase: sl<GetDriversUseCase>(),
+      approveCheckInUseCase: sl<ApproveCheckInUseCase>(),
+      approveCheckOutUseCase: sl<ApproveCheckOutUseCase>(),
     ),
   );
 
@@ -130,11 +141,15 @@ Future<void> init() async {
   sl.registerLazySingleton(
     () => UpdateLeaveStatusUseCase(repository: sl<LeaveRepository>()),
   );
+  sl.registerLazySingleton(
+    () => GetLeaveTypesUseCase(repository: sl<LeaveRepository>()),
+  );
   sl.registerFactory(
     () => LeaveCubit(
       getLeaveRequestsUseCase: sl<GetLeaveRequestsUseCase>(),
       applyLeaveUseCase: sl<ApplyLeaveUseCase>(),
       updateLeaveStatusUseCase: sl<UpdateLeaveStatusUseCase>(),
+      getLeaveTypesUseCase: sl<GetLeaveTypesUseCase>(),
     ),
   );
 
@@ -166,7 +181,10 @@ Future<void> init() async {
 
   //! Attendance Report Feature
   sl.registerLazySingleton<AttendanceReportRemoteDataSource>(
-    () => AttendanceReportRemoteDataSourceImpl(dio: sl<Dio>()),
+    () => AttendanceReportRemoteDataSourceImpl(
+      dio: sl<Dio>(),
+      localStorageDataSource: sl<LocalStorageDataSource>(),
+    ),
   );
   sl.registerLazySingleton<AttendanceReportRepository>(
     () => AttendanceReportRepositoryImpl(
@@ -211,6 +229,7 @@ Future<void> init() async {
       getTripDetailUseCase: sl<GetTripDetailUseCase>(),
       startTripUseCase: sl<StartTripUseCase>(),
       endTripUseCase: sl<EndTripUseCase>(),
+      tripRepository: sl<TripRepository>(),
     ),
   );
 
@@ -237,7 +256,7 @@ Future<void> init() async {
   );
 
   //! Core
-  sl.registerLazySingleton(() => DioClient());
+  sl.registerLazySingleton(() => DioClient(sharedPreferences: sl<SharedPreferences>()));
   sl.registerLazySingleton<Dio>(() => sl<DioClient>().dio);
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl<Dio>()));
 

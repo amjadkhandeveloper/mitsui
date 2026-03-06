@@ -30,8 +30,8 @@ class ReceiptRemoteDataSourceImpl implements ReceiptRemoteDataSource {
     String? driverId,
     String? status,
   }) async {
-    // Use mock data if enabled
-    if (AppConfig.USE_MOCK_DATA) {
+    // Use mock data if enabled for receipt
+    if (AppConfig.USE_MOCK_DATA || AppConfig.USE_MOCK_DATA_RECEIPT) {
       await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
       var receipts = MockDataService.getMockReceipts(driverId: driverId);
       if (status != null) {
@@ -87,8 +87,10 @@ class ReceiptRemoteDataSourceImpl implements ReceiptRemoteDataSource {
       final formData = FormData();
 
       final typeConverter = ReceiptTypeConverter();
+      final expenseTypeId = _mapTypeToExpenseTypeId(type);
       formData.fields.addAll([
         MapEntry('type', typeConverter.toJson(type)),
+        MapEntry('expense_type_id', expenseTypeId.toString()),
         MapEntry('amount', amount.toString()),
         MapEntry('description', description),
         MapEntry('receipt_date', receiptDate.toIso8601String()),
@@ -137,6 +139,19 @@ class ReceiptRemoteDataSourceImpl implements ReceiptRemoteDataSource {
     } catch (e) {
       throw ServerException('An unexpected error occurred: $e');
     }
+  }
+}
+
+int _mapTypeToExpenseTypeId(ReceiptType type) {
+  switch (type) {
+    case ReceiptType.fuel:
+      return 2;
+    case ReceiptType.parking:
+      return 3;
+    case ReceiptType.toll:
+      return 4;
+    case ReceiptType.other:
+      return 5;
   }
 }
 

@@ -10,17 +10,24 @@ class LoginUseCase implements UseCase<User, LoginParams> {
 
   @override
   FutureResult<User> call(LoginParams params) async {
-    return await repository.login(params.username, params.password);
+    return await repository.login(
+      params.username,
+      params.password,
+      params.roleId,
+    );
   }
 }
 
 class LoginParams {
   final String username;
   final String password;
+  // 1 = expat, 2 = driver
+  final int roleId;
 
   LoginParams({
     required this.username,
     required this.password,
+    required this.roleId,
   });
 }
 

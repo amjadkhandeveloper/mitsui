@@ -7,11 +7,11 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mitsui App'),
+        title: const Text('Mitsui FleetPlus'),
       ),
       body: const Center(
         child: Text(
-          'Welcome to Mitsui App\n\nClean Architecture with BLoC/Cubit is ready!',
+          'Welcome to Mitsui FleetPlus\n\nClean Architecture with BLoC/Cubit is ready!',
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 18),
         ),

@@ -12,6 +12,8 @@ class Trip extends Equatable {
   final TripStatus status;
   final String? driverId;
   final String? driverName;
+  final String? mobileNo;
+  final String? tripType;
   final String? destination;
   final String? purpose;
   final DateTime createdAt;
@@ -27,6 +29,8 @@ class Trip extends Equatable {
     required this.status,
     this.driverId,
     this.driverName,
+    this.mobileNo,
+    this.tripType,
     this.destination,
     this.purpose,
     required this.createdAt,
@@ -44,6 +48,8 @@ class Trip extends Equatable {
         status,
         driverId,
         driverName,
+        mobileNo,
+        tripType,
         destination,
         purpose,
         createdAt,

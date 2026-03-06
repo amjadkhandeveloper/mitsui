@@ -7,12 +7,20 @@ class UpdateLeaveStatusUseCase {
 
   UpdateLeaveStatusUseCase({required this.repository});
 
-  FutureResult<LeaveRequest> call(
-    String leaveId,
-    LeaveStatus status,
-    String? adminNote,
-  ) async {
-    return await repository.updateLeaveStatus(leaveId, status, adminNote);
+  FutureResult<String> call({
+    required LeaveRequest request,
+    required LeaveStatus status,
+    required String currentUserId,
+    String? remark,
+    int? clientId,
+  }) async {
+    return await repository.updateLeaveStatus(
+      request: request,
+      status: status,
+      currentUserId: currentUserId,
+      remark: remark,
+      clientId: clientId,
+    );
   }
 }
 

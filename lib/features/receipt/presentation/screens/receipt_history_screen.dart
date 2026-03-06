@@ -51,6 +51,13 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
         elevation: 0,
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              _loadReceipts();
+            },
+            tooltip: 'Refresh',
+          ),
+          IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
               showModalBottomSheet(
@@ -124,30 +131,46 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
           if (state is ReceiptsLoaded) {
             return Column(
               children: [
-                // Summary Cards
+                // Summary Cards - Horizontal Scrollable
                 Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      SummaryCard(
-                        icon: Icons.receipt_long,
-                        iconColor: Colors.blue,
-                        value: '${state.total} Total',
-                        label: 'Total',
-                      ),
-                      SummaryCard(
-                        icon: Icons.check_circle,
-                        iconColor: Colors.green,
-                        value: '${state.approved} Approved',
-                        label: 'Approved',
-                      ),
-                      SummaryCard(
-                        icon: Icons.access_time,
-                        iconColor: Colors.orange,
-                        value: '${state.pending} Pending',
-                        label: 'Pending',
-                      ),
-                    ],
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: SizedBox(
+                    height: 100,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          child: SummaryCard(
+                            icon: Icons.receipt_long,
+                            iconColor: Colors.blue,
+                            value: '${state.total}',
+                            label: 'Total',
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          child: SummaryCard(
+                            icon: Icons.check_circle,
+                            iconColor: Colors.green,
+                            value: '${state.approved}',
+                            label: 'Approved',
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          child: SummaryCard(
+                            icon: Icons.access_time,
+                            iconColor: Colors.orange,
+                            value: '${state.pending}',
+                            label: 'Pending',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 // Receipt List
@@ -178,7 +201,7 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                             await _loadReceipts();
                           },
                           child: ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
                             itemCount: state.receipts.length,
                             itemBuilder: (context, index) {
                               return ReceiptListItem(

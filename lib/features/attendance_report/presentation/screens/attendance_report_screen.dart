@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/toast.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../cubit/attendance_report_cubit.dart';
-import '../widgets/monthly_report_header.dart';
-import '../widgets/statistic_card.dart';
+// MonthlyReportHeader and StatisticCard are no longer used after
+// simplifying the attendance report UI.
 import '../widgets/daily_record_card.dart';
 import '../../../attendance/domain/usecases/get_drivers_usecase.dart';
 import '../../../attendance/domain/entities/driver.dart';
@@ -58,6 +58,15 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
         title: const Text('Attendance Report'),
         backgroundColor: AppTheme.mitsuiDarkBlue,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              _loadReport();
+            },
+            tooltip: 'Refresh',
+          ),
+        ],
       ),
       body: BlocConsumer<AttendanceReportCubit, AttendanceReportState>(
         listener: (context, state) {
@@ -74,162 +83,73 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
             final report = state.report;
 
             return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  MonthlyReportHeader(
-                    drivers: drivers,
-                    selectedDriver: selectedDriver,
-                    selectedMonth: selectedMonth,
-                    onDriverSelected: (driver) {
-                      setState(() {
-                        selectedDriver = driver;
-                      });
-                      context.read<AttendanceReportCubit>().loadReport(
-                            driverId: driver?.id,
-                            month: selectedMonth.month,
-                            year: selectedMonth.year,
-                          );
-                    },
-                    onMonthSelected: (month) {
-                      setState(() {
-                        selectedMonth = month;
-                      });
-                      context.read<AttendanceReportCubit>().loadReport(
-                            driverId: selectedDriver?.id,
-                            month: month.month,
-                            year: month.year,
-                          );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Summary Statistics
-                        const Text(
-                          'Summary Statistics',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            color: AppTheme.mitsuiBlue,
+                            size: 20,
                           ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Daily Attendance Records',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        '${report.dailyRecords.length} records',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
                         ),
-                        const SizedBox(height: 12),
-                        GridView.count(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 0.85,
-                          children: [
-                            StatisticCard(
-                              icon: Icons.calendar_today,
-                              iconColor: Colors.blue,
-                              value: report.totalDays.toString(),
-                              label: 'Total Days',
-                            ),
-                            StatisticCard(
-                              icon: Icons.check_circle,
-                              iconColor: Colors.green,
-                              value: report.presentDays.toString(),
-                              label: 'Present',
-                            ),
-                            StatisticCard(
-                              icon: Icons.cancel,
-                              iconColor: Colors.red,
-                              value: report.absentDays.toString(),
-                              label: 'Absent',
-                            ),
-                            StatisticCard(
-                              icon: Icons.event_busy,
-                              iconColor: Colors.orange,
-                              value: report.leaveDays.toString(),
-                              label: 'Leave',
-                            ),
-                            StatisticCard(
-                              icon: Icons.trending_up,
-                              iconColor: Colors.blue,
-                              value: '${report.attendanceRate.toStringAsFixed(1)}%',
-                              label: 'Attendance Rate',
-                            ),
-                            StatisticCard(
-                              icon: Icons.access_time,
-                              iconColor: Colors.green,
-                              value: _formatDuration(report.totalHours),
-                              label: 'Total Hours',
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        // Daily Attendance Records
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.calendar_today,
-                                  color: AppTheme.mitsuiBlue,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'Daily Attendance Records',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              '${report.dailyRecords.length} records',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        if (report.dailyRecords.isEmpty)
-                          Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(32.0),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.event_busy,
-                                    size: 64,
-                                    color: Colors.grey.withOpacity(0.5),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'No records found',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey.withOpacity(0.7),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        else
-                          ...report.dailyRecords.map((record) {
-                            return DailyRecordCard(
-                              record: record,
-                              index: report.dailyRecords.indexOf(record),
-                            );
-                          }),
-                        const SizedBox(height: 32),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 12),
+                  if (report.dailyRecords.isEmpty)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.event_busy,
+                              size: 64,
+                              color: Colors.grey.withOpacity(0.5),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No records found',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey.withOpacity(0.7),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    ...report.dailyRecords.map((record) {
+                      return DailyRecordCard(
+                        record: record,
+                        index: report.dailyRecords.indexOf(record),
+                      );
+                    }),
+                  const SizedBox(height: 80),
                 ],
               ),
             );
@@ -243,10 +163,6 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
     );
   }
 
-  String _formatDuration(Duration duration) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
-    return '${hours}h ${minutes}m';
-  }
+  // _formatDuration no longer used since summary statistics were removed.
 }
 

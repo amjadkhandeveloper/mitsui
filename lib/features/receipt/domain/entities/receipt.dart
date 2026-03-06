@@ -6,6 +6,10 @@ enum ReceiptStatus { pending, approved, rejected }
 class Receipt extends Equatable {
   final String id;
   final ReceiptType type;
+  /// Expense type id mapping:
+  /// 1 = All, 2 = Fuel, 3 = Parking, 4 = Toll Fee, 5 = Other
+  /// For individual receipts we use 2–5 based on [type].
+  final int expenseTypeId;
   final double amount;
   final String description;
   final DateTime receiptDate;
@@ -27,6 +31,7 @@ class Receipt extends Equatable {
   const Receipt({
     required this.id,
     required this.type,
+    required this.expenseTypeId,
     required this.amount,
     required this.description,
     required this.receiptDate,
@@ -49,6 +54,7 @@ class Receipt extends Equatable {
   List<Object?> get props => [
         id,
         type,
+        expenseTypeId,
         amount,
         description,
         receiptDate,

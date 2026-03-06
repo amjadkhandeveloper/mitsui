@@ -3,15 +3,17 @@ import '../../features/attendance/data/models/driver_model.dart';
 import '../../features/attendance_report/data/models/attendance_report_model.dart';
 import '../../features/leave/data/models/leave_request_model.dart';
 import '../../features/vehicle_schedule/data/models/trip_model.dart';
-import '../../features/vehicle_schedule/domain/entities/trip.dart';
+import '../../features/vehicle_schedule/domain/entities/trip.dart' as vehicle_schedule;
 import '../../features/trip/data/models/trip_detail_model.dart';
 import '../../features/receipt/data/models/receipt_model.dart';
 import '../../features/attendance/domain/entities/attendance_record.dart';
-import '../../features/leave/domain/entities/leave_request.dart';
 import '../../features/trip/domain/entities/trip_detail.dart';
 import '../../features/receipt/domain/entities/receipt.dart';
 
 class MockDataService {
+  // Store split trips (tripId -> list of split trips)
+  static final Map<String, List<TripDetailModel>> _splitTrips = {};
+
   // Mock Drivers
   static List<DriverModel> getMockDrivers() {
     return [
@@ -93,47 +95,94 @@ class MockDataService {
 
   // Mock Leave Requests
   static List<LeaveRequestModel> getMockLeaveRequests({String? userId}) {
-    final now = DateTime.now();
-    return [
-      LeaveRequestModel(
-        id: 'leave_1',
-        userId: userId ?? '1',
-        userName: 'John Doe',
-        startDate: now.add(const Duration(days: 5)),
-        endDate: now.add(const Duration(days: 7)),
-        startTime: DateTime(now.year, now.month, now.day + 5, 9, 0),
-        endTime: DateTime(now.year, now.month, now.day + 7, 18, 0),
-        reason: 'Family emergency',
-        status: LeaveStatus.pending,
-        createdAt: now.subtract(const Duration(days: 2)),
-      ),
-      LeaveRequestModel(
-        id: 'leave_2',
-        userId: userId ?? '1',
-        userName: 'John Doe',
-        startDate: now.subtract(const Duration(days: 10)),
-        endDate: now.subtract(const Duration(days: 8)),
-        startTime: DateTime(now.year, now.month, now.day - 10, 9, 0),
-        endTime: DateTime(now.year, now.month, now.day - 8, 18, 0),
-        reason: 'Sick leave',
-        status: LeaveStatus.approved,
-        adminNote: 'Approved by Manager',
-        createdAt: now.subtract(const Duration(days: 15)),
-      ),
-      LeaveRequestModel(
-        id: 'leave_3',
-        userId: userId ?? '1',
-        userName: 'John Doe',
-        startDate: now.subtract(const Duration(days: 20)),
-        endDate: now.subtract(const Duration(days: 18)),
-        startTime: DateTime(now.year, now.month, now.day - 20, 9, 0),
-        endTime: DateTime(now.year, now.month, now.day - 18, 18, 0),
-        reason: 'Personal work',
-        status: LeaveStatus.rejected,
-        adminNote: 'Not enough notice',
-        createdAt: now.subtract(const Duration(days: 25)),
-      ),
-    ];
+    // Mock JSON payload (same structure as LeaveList API)
+    const mockJson = {
+      "status": 200,
+      "message": "successfully",
+      "data": [
+        {
+          "LeaveRequestId": 3,
+          "LeaveTypeId": 1,
+          "LeaveDate": "2026-02-02T00:00:00.000Z",
+          "StartTime": "",
+          "EndTime": "",
+          "LeaveReason": "testing",
+          "LeaveStatus": 1,
+          "RequestedUserId": 1,
+          "RequestedDateTime": "2026-02-02T18:19:01.353Z",
+          "ApprovedBy": "",
+          "ApproverId": "",
+          "ApprovedDateTime": ""
+        },
+        {
+          "LeaveRequestId": 7,
+          "LeaveTypeId": 1,
+          "LeaveDate": "2026-03-05T00:00:00.000Z",
+          "StartTime": "",
+          "EndTime": "",
+          "LeaveReason": "testing",
+          "LeaveStatus": 1,
+          "RequestedUserId": 1,
+          "RequestedDateTime": "2026-02-02T18:32:02.993Z",
+          "ApprovedBy": "",
+          "ApproverId": "",
+          "ApprovedDateTime": ""
+        },
+        {
+          "LeaveRequestId": 8,
+          "LeaveTypeId": 1,
+          "LeaveDate": "2026-03-06T00:00:00.000Z",
+          "StartTime": "",
+          "EndTime": "",
+          "LeaveReason": "testing",
+          "LeaveStatus": 1,
+          "RequestedUserId": 1,
+          "RequestedDateTime": "2026-02-02T18:32:02.993Z",
+          "ApprovedBy": "",
+          "ApproverId": "",
+          "ApprovedDateTime": ""
+        },
+        {
+          "LeaveRequestId": 2,
+          "LeaveTypeId": 1,
+          "LeaveDate": "2030-12-31T00:00:00.000Z",
+          "StartTime": "",
+          "EndTime": "",
+          "LeaveReason": "Testing",
+          "LeaveStatus": 1,
+          "RequestedUserId": 1,
+          "RequestedDateTime": "2026-02-02T18:11:33.247Z",
+          "ApprovedBy": "",
+          "ApproverId": "",
+          "ApprovedDateTime": ""
+        }
+      ]
+    };
+
+    final List<dynamic> data = mockJson['data'] as List<dynamic>;
+
+    return data.map((raw) {
+      final json = raw as Map<String, dynamic>;
+
+      // Normalize to what LeaveRequestModel.fromJson expects
+      final normalized = <String, dynamic>{
+        'leaveRequestId': json['LeaveRequestId'],
+        'driverId': json['RequestedUserId'],
+        'requestedUserId': json['RequestedUserId'],
+        'leaveTypeId': json['LeaveTypeId'],
+        'leaveFromDate': json['LeaveDate'],
+        'leaveToDate': json['LeaveDate'],
+        'leaveReason': json['LeaveReason'],
+        'leaveStatusAt': json['LeaveStatus'],
+        'approveId': json['ApproverId'],
+        'createdAt': json['RequestedDateTime'],
+        'rawLeaveDate': json['LeaveDate'],
+        'rawStartTime': json['StartTime'],
+        'rawEndTime': json['EndTime'],
+      };
+
+      return LeaveRequestModel.fromJson(normalized);
+    }).toList();
   }
 
   // Mock Trips (Vehicle Schedule)
@@ -147,7 +196,7 @@ class MockDataService {
         date: targetDate,
         startTime: DateTime(targetDate.year, targetDate.month, targetDate.day, 9, 0),
         endTime: DateTime(targetDate.year, targetDate.month, targetDate.day, 17, 0),
-        status: TripStatus.pending,
+        status: vehicle_schedule.TripStatus.pending,
         driverId: '1',
         driverName: 'John Doe',
         destination: 'Airport',
@@ -161,7 +210,7 @@ class MockDataService {
         date: targetDate,
         startTime: DateTime(targetDate.year, targetDate.month, targetDate.day, 10, 0),
         endTime: DateTime(targetDate.year, targetDate.month, targetDate.day, 16, 0),
-        status: TripStatus.accepted,
+        status: vehicle_schedule.TripStatus.accepted,
         driverId: '2',
         driverName: 'Jane Smith',
         destination: 'Downtown',
@@ -171,10 +220,15 @@ class MockDataService {
     ];
   }
 
+  // Add split trips to the mock data
+  static void addSplitTrips(String originalTripId, TripDetailModel pickupTrip, TripDetailModel dropTrip) {
+    _splitTrips[originalTripId] = [pickupTrip, dropTrip];
+  }
+
   // Mock Trip Details
   static List<TripDetailModel> getMockTripDetails({String? driverId}) {
     final now = DateTime.now();
-    return [
+    final trips = <TripDetailModel>[
       TripDetailModel(
         id: 'trip_detail_1',
         vehicleId: 'AP39UD6009',
@@ -184,7 +238,11 @@ class MockDataService {
         location: 'Silkboard',
         pickupDrop: 'PICK UP',
         scheduleStart: DateTime(now.year, now.month, now.day, 18, 30),
+        scheduleEnd: DateTime(now.year, now.month, now.day, 20, 30),
         status: TripDetailStatus.scheduled,
+        tripStatus: 1, // Trip Requested
+        driverId: driverId ?? '1',
+        driverName: 'John Doe',
         createdAt: now.subtract(const Duration(days: 1)),
       ),
       TripDetailModel(
@@ -196,12 +254,39 @@ class MockDataService {
         location: 'City Center',
         pickupDrop: 'DROP',
         scheduleStart: DateTime(now.year, now.month, now.day, 14, 0),
+        scheduleEnd: DateTime(now.year, now.month, now.day, 16, 0),
         actualStart: DateTime(now.year, now.month, now.day, 14, 5),
         status: TripDetailStatus.started,
+        tripStatus: 2, // Trip Scheduled
         tripStartOdometer: 38200,
+        driverId: driverId ?? '2',
+        driverName: 'Jane Smith',
         createdAt: now.subtract(const Duration(days: 1)),
       ),
+      TripDetailModel(
+        id: 'trip_detail_3',
+        vehicleId: 'V003',
+        vehicleName: 'Ford Focus',
+        route: 'Route 202',
+        customer: 'Target',
+        location: 'Airport',
+        pickupDrop: 'PICK UP',
+        scheduleStart: DateTime(now.year, now.month, now.day + 1, 10, 0),
+        scheduleEnd: DateTime(now.year, now.month, now.day + 1, 12, 0),
+        status: TripDetailStatus.scheduled,
+        tripStatus: 2, // Trip Scheduled
+        driverId: driverId ?? '1',
+        driverName: 'John Doe',
+        createdAt: now.subtract(const Duration(days: 2)),
+      ),
     ];
+    
+    // Add split trips to the list
+    for (final splitTripList in _splitTrips.values) {
+      trips.addAll(splitTripList);
+    }
+    
+    return trips;
   }
 
   // Mock Receipts
@@ -211,6 +296,7 @@ class MockDataService {
       ReceiptModel(
         id: 'receipt_1',
         type: ReceiptType.fuel,
+        expenseTypeId: 2, // Fuel
         amount: 2500,
         description: 'Petrol for Mumbai trip',
         receiptDate: DateTime(2025, 10, 22),
@@ -227,6 +313,7 @@ class MockDataService {
       ReceiptModel(
         id: 'receipt_2',
         type: ReceiptType.parking,
+        expenseTypeId: 3, // Parking
         amount: 150,
         description: 'Airport parking',
         receiptDate: DateTime(2025, 10, 21),
@@ -239,6 +326,7 @@ class MockDataService {
       ReceiptModel(
         id: 'receipt_3',
         type: ReceiptType.toll,
+        expenseTypeId: 4, // Toll Fee
         amount: 300,
         description: 'Highway toll charges',
         receiptDate: DateTime(2025, 10, 20),
@@ -253,6 +341,7 @@ class MockDataService {
       ReceiptModel(
         id: 'receipt_4',
         type: ReceiptType.fuel,
+        expenseTypeId: 2, // Fuel
         amount: 1800,
         description: 'Diesel for delivery',
         receiptDate: DateTime(2025, 10, 19),
@@ -269,6 +358,7 @@ class MockDataService {
       ReceiptModel(
         id: 'receipt_5',
         type: ReceiptType.other,
+        expenseTypeId: 5, // Other
         amount: 500,
         description: 'Vehicle maintenance',
         receiptDate: DateTime(2025, 10, 18),

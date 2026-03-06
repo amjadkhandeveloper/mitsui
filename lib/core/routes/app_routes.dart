@@ -3,8 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/splash/presentation/cubit/splash_cubit.dart';
 import '../../features/login/presentation/screens/login_screen.dart';
+import '../../features/login/presentation/screens/reset_password_screen.dart';
 import '../../features/login/presentation/cubit/login_cubit.dart';
-import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
+import '../../features/dashboard/presentation/screens/expat_dashboard_screen.dart';
+import '../../features/dashboard/presentation/screens/driver_dashboard_screen.dart';
+import '../../features/dashboard/presentation/screens/about_app_screen.dart';
+import '../../features/splash/data/datasources/local_storage_data_source.dart';
 import '../../features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import '../../features/attendance/presentation/screens/attendance_screen.dart';
 import '../../features/attendance/presentation/cubit/attendance_cubit.dart';
@@ -23,6 +27,7 @@ import '../../features/receipt/presentation/screens/receipt_history_screen.dart'
 import '../../features/receipt/presentation/screens/add_receipt_screen.dart';
 import '../../features/receipt/presentation/cubit/receipt_cubit.dart';
 import '../../features/introduction/presentation/screens/introduction_screen.dart';
+import '../../features/dashboard/presentation/screens/admin_contact_screen.dart';
 import '../../features/login/domain/entities/user.dart';
 import '../di/injection_container.dart' as di;
 
@@ -30,6 +35,7 @@ class AppRoutes {
   static const String splash = '/';
   static const String introduction = '/introduction';
   static const String login = '/login';
+  static const String resetPassword = '/reset-password';
   static const String home = '/home';
   static const String dashboard = '/dashboard';
   static const String attendance = '/attendance';
@@ -42,6 +48,18 @@ class AppRoutes {
   static const String tripDetail = '/trip-detail';
   static const String receipts = '/receipts';
   static const String addReceipt = '/add-receipt';
+  static const String adminContact = '/admin-contact';
+  static const String aboutApp = '/about-app';
+
+  static Future<String?> _getUserRole() async {
+    try {
+      final localStorage = di.sl<LocalStorageDataSource>();
+      final role = await localStorage.getUserRole();
+      return role;
+    } catch (e) {
+      return 'driver'; // Default to driver
+    }
+  }
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -58,11 +76,24 @@ class AppRoutes {
         );
       case home:
       case dashboard:
+        // Determine which dashboard to show based on user role
         return MaterialPageRoute(
-          builder: (_) => BlocProvider<DashboardCubit>(
-            create: (_) => di.sl<DashboardCubit>(),
-            child: const DashboardScreen(),
-          ),
+          builder: (_) {
+            return FutureBuilder<String?>(
+              future: _getUserRole(),
+              builder: (context, snapshot) {
+                final role = snapshot.data ?? 'driver';
+                final isExpat = role == 'expat';
+                
+                return BlocProvider<DashboardCubit>(
+                  create: (_) => di.sl<DashboardCubit>(),
+                  child: isExpat 
+                      ? const ExpatDashboardScreen()
+                      : const DriverDashboardScreen(),
+                );
+              },
+            );
+          },
         );
       case login:
         return MaterialPageRoute(
@@ -70,6 +101,10 @@ class AppRoutes {
             create: (_) => di.sl<LoginCubit>(),
             child: const LoginScreen(),
           ),
+        );
+      case resetPassword:
+        return MaterialPageRoute(
+          builder: (_) => const ResetPasswordScreen(),
         );
       case attendance:
         final user = settings.arguments as User?;
@@ -97,8 +132,15 @@ class AppRoutes {
         );
       case vehicleSchedule:
         return MaterialPageRoute(
-          builder: (_) => BlocProvider<VehicleScheduleCubit>(
-            create: (_) => di.sl<VehicleScheduleCubit>(),
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider<VehicleScheduleCubit>(
+                create: (_) => di.sl<VehicleScheduleCubit>(),
+              ),
+              BlocProvider<TripCubit>(
+                create: (_) => di.sl<TripCubit>(),
+              ),
+            ],
             child: const VehicleScheduleScreen(),
           ),
         );
@@ -144,6 +186,14 @@ class AppRoutes {
             create: (_) => di.sl<ReceiptCubit>(),
             child: const AddReceiptScreen(),
           ),
+        );
+      case adminContact:
+        return MaterialPageRoute(
+          builder: (_) => const AdminContactScreen(),
+        );
+      case aboutApp:
+        return MaterialPageRoute(
+          builder: (_) => const AboutAppScreen(),
         );
       default:
         return MaterialPageRoute(

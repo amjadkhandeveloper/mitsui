@@ -125,6 +125,16 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Section: Receipt details
+                  Text(
+                    'Receipt details',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   // Receipt Date
                   FadeSlideAnimation(
                     delay: const Duration(milliseconds: 100),
@@ -145,17 +155,42 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                     delay: const Duration(milliseconds: 150),
                     beginOffset: const Offset(0, 0.2),
                     child: StyledCard(
-                      padding: EdgeInsets.zero,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       margin: const EdgeInsets.only(bottom: 16),
                       child: InkWell(
                         onTap: () {
                           showModalBottomSheet(
                             context: context,
-                            builder: (context) => Container(
-                              padding: const EdgeInsets.all(20),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
+                            ),
+                            builder: (context) => Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  Center(
+                                    child: Container(
+                                      width: 40,
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade400,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const Text(
+                                    'Select receipt type',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
                                   ListTile(
                                     leading: const Icon(Icons.local_gas_station),
                                     title: const Text('Fuel'),
@@ -245,7 +280,7 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                     delay: const Duration(milliseconds: 200),
                     beginOffset: const Offset(0, 0.2),
                     child: StyledCard(
-                      padding: EdgeInsets.zero,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       margin: const EdgeInsets.only(bottom: 16),
                       child: TextFormField(
                         controller: _amountController,
@@ -277,12 +312,22 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                     ),
                   ),
                   // Fueled Liters (only for Fuel type)
-                  if (_selectedType == ReceiptType.fuel)
+                  if (_selectedType == ReceiptType.fuel) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'Fuel details',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     FadeSlideAnimation(
                       delay: const Duration(milliseconds: 250),
                       beginOffset: const Offset(0, 0.2),
                       child: StyledCard(
-                        padding: EdgeInsets.zero,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         margin: const EdgeInsets.only(bottom: 16),
                         child: TextFormField(
                           controller: _fueledLitersController,
@@ -304,13 +349,14 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                         ),
                       ),
                     ),
+                  ],
                   // Odometer Reading (only for Fuel type)
                   if (_selectedType == ReceiptType.fuel)
                     FadeSlideAnimation(
                       delay: const Duration(milliseconds: 300),
                       beginOffset: const Offset(0, 0.2),
                       child: StyledCard(
-                        padding: EdgeInsets.zero,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         margin: const EdgeInsets.only(bottom: 16),
                         child: TextFormField(
                           controller: _odometerReadingController,
@@ -337,7 +383,7 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                     delay: const Duration(milliseconds: 350),
                     beginOffset: const Offset(0, 0.2),
                     child: StyledCard(
-                      padding: EdgeInsets.zero,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       margin: const EdgeInsets.only(bottom: 16),
                       child: TextFormField(
                         controller: _descriptionController,

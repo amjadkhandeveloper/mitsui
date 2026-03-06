@@ -97,4 +97,22 @@ class Toast {
       icon: Icons.warning_amber_rounded,
     );
   }
+
+  /// Helper to show different toast severity based on numeric status code.
+  /// - 2xx (<=200): success (green)
+  /// - >200 and <400: warning (orange)
+  /// - >=400 or null: error (red)
+  static void showForStatusCode(
+    BuildContext context, {
+    required int? statusCode,
+    required String message,
+  }) {
+    if (statusCode != null && statusCode <= 200) {
+      showSuccess(context, message);
+    } else if (statusCode != null && statusCode > 200 && statusCode < 400) {
+      showWarning(context, message);
+    } else {
+      showError(context, message);
+    }
+  }
 }

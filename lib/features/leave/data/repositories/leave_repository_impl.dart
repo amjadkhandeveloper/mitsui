@@ -3,6 +3,7 @@ import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/leave_request.dart';
+import '../../domain/entities/leave_type.dart';
 import '../../domain/repositories/leave_repository.dart';
 import '../datasources/leave_remote_data_source.dart';
 
@@ -12,9 +13,12 @@ class LeaveRepositoryImpl implements LeaveRepository {
   LeaveRepositoryImpl({required this.remoteDataSource});
 
   @override
-  FutureResult<List<LeaveRequest>> getLeaveRequests({String? userId}) async {
+  FutureResult<List<LeaveRequest>> getLeaveRequests({String? userId, String? driverId}) async {
     try {
-      final requests = await remoteDataSource.getLeaveRequests(userId: userId);
+      final requests = await remoteDataSource.getLeaveRequests(
+        userId: userId,
+        driverId: driverId,
+      );
       return Right(requests.map((model) => model.toEntity()).toList());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -26,10 +30,10 @@ class LeaveRepositoryImpl implements LeaveRepository {
   }
 
   @override
-  FutureResult<LeaveRequest> applyLeave(Map<String, dynamic> leaveData) async {
+  FutureResult<String> applyLeave(Map<String, dynamic> leaveData) async {
     try {
-      final request = await remoteDataSource.applyLeave(leaveData);
-      return Right(request.toEntity());
+      final message = await remoteDataSource.applyLeave(leaveData);
+      return Right(message);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } on NetworkException catch (e) {
@@ -40,18 +44,37 @@ class LeaveRepositoryImpl implements LeaveRepository {
   }
 
   @override
-  FutureResult<LeaveRequest> updateLeaveStatus(
-    String leaveId,
-    LeaveStatus status,
-    String? adminNote,
-  ) async {
+  FutureResult<String> updateLeaveStatus({
+    required LeaveRequest request,
+    required LeaveStatus status,
+    required String currentUserId,
+    String? remark,
+    int? clientId,
+  }) async {
     try {
-      final request = await remoteDataSource.updateLeaveStatus(
-        leaveId,
-        status,
-        adminNote,
+      final message = await remoteDataSource.updateLeaveStatus(
+        request: request,
+        status: status,
+        currentUserId: currentUserId,
+        remark: remark,
+        clientId: clientId,
       );
-      return Right(request.toEntity());
+      return Right(message);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure('An unexpected error occurred: $e'));
+    }
+  }
+
+  @override
+  FutureResult<List<LeaveTypeEntity>> getLeaveTypes() async {
+    try {
+      final leaveTypes = await remoteDataSource.getLeaveTypes();
+      // LeaveTypeModel extends LeaveTypeEntity, so we can return them directly
+      return Right(leaveTypes);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } on NetworkException catch (e) {

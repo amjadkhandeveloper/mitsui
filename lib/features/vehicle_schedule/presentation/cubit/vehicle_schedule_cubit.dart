@@ -19,35 +19,47 @@ class VehicleScheduleCubit extends Cubit<VehicleScheduleState> {
     required this.createFreeSlotUseCase,
   }) : super(VehicleScheduleInitial());
 
-  void selectDate(DateTime date) {
+  String? _userId;
+  String? _driverId;
+
+  void selectDate(DateTime date, {String? userId, String? driverId}) {
+    // Store latest IDs for subsequent reloads if needed
+    _userId = userId ?? _userId;
+    _driverId = driverId ?? _driverId;
     if (state is VehicleScheduleLoaded) {
       final currentState = state as VehicleScheduleLoaded;
       emit(VehicleScheduleLoaded(
         trips: currentState.trips,
         selectedDate: date,
       ));
-      loadTripsForDate(date);
+      loadTripsForDate(date, userId: _userId, driverId: _driverId);
     } else {
       emit(VehicleScheduleLoaded(selectedDate: date));
-      loadTripsForDate(date);
+      loadTripsForDate(date, userId: _userId, driverId: _driverId);
     }
   }
 
-  Future<void> loadTripsForDate(DateTime date) async {
+  Future<void> loadTripsForDate(
+    DateTime date, {
+    String? userId,
+    String? driverId,
+  }) async {
+    // Update stored IDs if provided
+    _userId = userId ?? _userId;
+    _driverId = driverId ?? _driverId;
+
     emit(VehicleScheduleLoading());
-    final result = await getTripsUseCase(date: date);
+    // Backend returns all trips for the user; keep all trips in state so the calendar
+    // can enable navigation to dates that have trips.
+    final result = await getTripsUseCase(
+      userId: _userId,
+      driverId: _driverId,
+    );
     result.fold(
       (failure) => emit(VehicleScheduleError(failure.message)),
       (trips) {
-        if (state is VehicleScheduleLoaded) {
-          final currentState = state as VehicleScheduleLoaded;
-          emit(VehicleScheduleLoaded(
-            trips: trips,
-            selectedDate: currentState.selectedDate ?? date,
-          ));
-        } else {
-          emit(VehicleScheduleLoaded(trips: trips, selectedDate: date));
-        }
+        // Keep all trips; UI will filter by selected date for list display.
+        emit(VehicleScheduleLoaded(trips: trips, selectedDate: date));
       },
     );
   }
@@ -82,7 +94,11 @@ class VehicleScheduleCubit extends Cubit<VehicleScheduleState> {
         if (state is VehicleScheduleLoaded) {
           final currentState = state as VehicleScheduleLoaded;
           if (currentState.selectedDate != null) {
-            loadTripsForDate(currentState.selectedDate!);
+            loadTripsForDate(
+              currentState.selectedDate!,
+              userId: _userId,
+              driverId: _driverId,
+            );
           }
         }
       },

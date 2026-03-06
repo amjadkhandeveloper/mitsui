@@ -1,5 +1,4 @@
 import '../../../../core/utils/result.dart';
-import '../entities/leave_request.dart';
 import '../repositories/leave_repository.dart';
 
 class ApplyLeaveUseCase {
@@ -7,7 +6,7 @@ class ApplyLeaveUseCase {
 
   ApplyLeaveUseCase({required this.repository});
 
-  FutureResult<LeaveRequest> call(Map<String, dynamic> leaveData) async {
+  FutureResult<String> call(Map<String, dynamic> leaveData) async {
     return await repository.applyLeave(leaveData);
   }
 }

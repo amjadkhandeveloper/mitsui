@@ -45,7 +45,11 @@ class LoginCubit extends Cubit<LoginState> {
     emit(state.copyWith(isPasswordVisible: !state.isPasswordVisible));
   }
 
-  Future<void> login(String username, String password) async {
+  Future<void> login(
+    String username,
+    String password,
+    int roleId,
+  ) async {
     if (username.isEmpty || password.isEmpty) {
       emit(state.copyWith(
         errorMessage: 'Please enter both username and password',
@@ -58,6 +62,7 @@ class LoginCubit extends Cubit<LoginState> {
     final result = await loginUseCase(LoginParams(
       username: username,
       password: password,
+      roleId: roleId,
     ));
 
     result.fold(

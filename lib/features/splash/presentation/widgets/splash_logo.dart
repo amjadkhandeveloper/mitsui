@@ -74,26 +74,19 @@ class _SplashLogoState extends State<SplashLogo>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo/Icon - White square with black icon
-                  Container(
+                  // Logo/Icon - show image directly without white background
+                  SizedBox(
                     width: 100,
                     height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
                     child: widget.logoPath != null
-                        ? Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Image.asset(
-                              widget.logoPath!,
-                              fit: BoxFit.contain,
-                            ),
+                        ? Image.asset(
+                            widget.logoPath!,
+                            fit: BoxFit.contain,
                           )
                         : const Icon(
                             Icons.business,
                             size: 60,
-                            color: Colors.black87,
+                            color: Colors.white,
                           ),
                   ),
                   const SizedBox(height: 16),
@@ -101,7 +94,7 @@ class _SplashLogoState extends State<SplashLogo>
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: const Text(
-                      'MITSUI & CO.',
+                      'MITSUI & CO. INDIA PVT LTD',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -114,7 +107,7 @@ class _SplashLogoState extends State<SplashLogo>
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: const Text(
-                      'Fleet Management System',
+                      'Mitsui FleetPulse',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white,

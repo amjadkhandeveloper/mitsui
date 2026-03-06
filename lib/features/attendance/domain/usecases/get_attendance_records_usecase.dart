@@ -8,14 +8,12 @@ class GetAttendanceRecordsUseCase {
   GetAttendanceRecordsUseCase({required this.repository});
 
   FutureResult<List<AttendanceRecord>> call({
-    String? driverId,
-    DateTime? startDate,
-    DateTime? endDate,
+    required int? driverId,
+    required int? userId,
   }) async {
     return await repository.getAttendanceRecords(
       driverId: driverId,
-      startDate: startDate,
-      endDate: endDate,
+      userId: userId,
     );
   }
 }

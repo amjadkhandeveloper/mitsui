@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/animations.dart';
+import '../../../login/domain/entities/user.dart';
 
 class UserProfileCard extends StatelessWidget {
   final String userName;
   final String? userImageUrl;
+  final UserRole? userRole;
 
   const UserProfileCard({
     super.key,
     required this.userName,
     this.userImageUrl,
+    this.userRole,
   });
 
   @override
@@ -56,7 +59,9 @@ class UserProfileCard extends StatelessWidget {
                       ),
                     )
                   : Icon(
-                      Icons.person,
+                      userRole == UserRole.driver
+                          ? Icons.directions_car
+                          : Icons.person,
                       size: 32,
                       color: Theme.of(context).colorScheme.primary,
                     ),

@@ -49,6 +49,16 @@ class TripEnded extends TripState {
   List<Object?> get props => [trip];
 }
 
+/// Generic success state for trip actions (approve/reject, etc.)
+class TripActionSuccess extends TripState {
+  final String message;
+
+  const TripActionSuccess(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
 class TripError extends TripState {
   final String message;
 

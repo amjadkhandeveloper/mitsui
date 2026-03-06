@@ -14,12 +14,16 @@ class VehicleScheduleRepositoryImpl implements VehicleScheduleRepository {
 
   @override
   FutureResult<List<Trip>> getTrips({
+    String? userId,
+    String? driverId,
     DateTime? date,
     DateTime? startDate,
     DateTime? endDate,
   }) async {
     try {
       final trips = await remoteDataSource.getTrips(
+        userId: userId,
+        driverId: driverId,
         date: date,
         startDate: startDate,
         endDate: endDate,

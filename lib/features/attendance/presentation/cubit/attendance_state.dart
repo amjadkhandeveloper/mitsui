@@ -46,3 +46,21 @@ class AttendanceError extends AttendanceState {
   List<Object?> get props => [message];
 }
 
+class CheckInApproved extends AttendanceState {
+  final int attendanceId;
+
+  const CheckInApproved({required this.attendanceId});
+
+  @override
+  List<Object?> get props => [attendanceId];
+}
+
+class CheckOutApproved extends AttendanceState {
+  final int attendanceId;
+
+  const CheckOutApproved({required this.attendanceId});
+
+  @override
+  List<Object?> get props => [attendanceId];
+}
+

@@ -44,7 +44,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     // For now, using placeholder
     final userName = 'LOKESH PUJARI';
 
-    // Initialize features
+    // Initialize features (hide Receipt card for release)
     final features = [
       const DashboardFeature(
         id: 'vehicle_schedule',
@@ -66,13 +66,6 @@ class DashboardCubit extends Cubit<DashboardState> {
         subtitle: 'Create or manage trip',
         icon: Icons.directions_car,
         route: '/trips',
-      ),
-      const DashboardFeature(
-        id: 'receipt',
-        title: 'Receipt',
-        subtitle: 'Manage receipts',
-        icon: Icons.receipt_long,
-        route: '/receipts',
       ),
       const DashboardFeature(
         id: 'trip_history',

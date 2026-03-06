@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Allow cleartext and user-added CAs for our API domain if ever needed -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">mitsuiv16pocmobapi.infotracktelematics.com</domain>
+    </domain-config>
+</network-security-config>
+
+

@@ -23,21 +23,21 @@ class LeaveLoaded extends LeaveState {
 }
 
 class LeaveSubmitted extends LeaveState {
-  final LeaveRequest request;
+  final String message;
 
-  const LeaveSubmitted({required this.request});
+  const LeaveSubmitted({required this.message});
 
   @override
-  List<Object?> get props => [request];
+  List<Object?> get props => [message];
 }
 
 class LeaveStatusUpdated extends LeaveState {
-  final LeaveRequest request;
+  final String message;
 
-  const LeaveStatusUpdated({required this.request});
+  const LeaveStatusUpdated({required this.message});
 
   @override
-  List<Object?> get props => [request];
+  List<Object?> get props => [message];
 }
 
 class LeaveError extends LeaveState {
@@ -47,5 +47,14 @@ class LeaveError extends LeaveState {
 
   @override
   List<Object?> get props => [message];
+}
+
+class LeaveTypesLoaded extends LeaveState {
+  final List<LeaveTypeEntity> leaveTypes;
+
+  const LeaveTypesLoaded({required this.leaveTypes});
+
+  @override
+  List<Object?> get props => [leaveTypes];
 }
 

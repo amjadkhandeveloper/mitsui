@@ -14,17 +14,59 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
 
   @override
   FutureResult<List<AttendanceRecord>> getAttendanceRecords({
-    String? driverId,
-    DateTime? startDate,
-    DateTime? endDate,
+    required int? driverId,
+    required int? userId,
   }) async {
     try {
       final records = await remoteDataSource.getAttendanceRecords(
         driverId: driverId,
-        startDate: startDate,
-        endDate: endDate,
+        userId: userId,
       );
       return Right(records.map((model) => model.toEntity()).toList());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure('An unexpected error occurred: $e'));
+    }
+  }
+  
+  @override
+  FutureResult<void> approveCheckIn({
+    required int attendanceId,
+    required int userId,
+    required String remark,
+  }) async {
+    try {
+      await remoteDataSource.approveCheckIn(
+        attendanceId: attendanceId,
+        userId: userId,
+        remark: remark,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure('An unexpected error occurred: $e'));
+    }
+  }
+  
+  @override
+  FutureResult<void> approveCheckOut({
+    required int attendanceId,
+    required int userId,
+    required String remark,
+  }) async {
+    try {
+      await remoteDataSource.approveCheckOut(
+        attendanceId: attendanceId,
+        userId: userId,
+        remark: remark,
+      );
+      return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } on NetworkException catch (e) {
