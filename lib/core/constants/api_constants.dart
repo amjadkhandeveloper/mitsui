@@ -1,8 +1,8 @@
 class ApiConstants {
   // Base URL - Mitsui Fleet Management API
   static const String baseUrl =
-      "https://mitsuiv16pocmobapi.infotracktelematics.com:8443/";
-  //  'https://mitsuiv16mobapi.infotracktelematics.com/';
+    //   "https://mitsuiv16pocmobapi.infotracktelematics.com:8443/";
+   'https://mitsuiv16mobapi.infotracktelematics.com/';
 
   // API Endpoints
   static const String login = '/api/Auth/UserLogin';
@@ -44,4 +44,9 @@ class ApiConstants {
   // Timeouts
   static const int connectTimeout = 30000; // 30 seconds
   static const int receiveTimeout = 30000; // 30 seconds
+
+  // ── About App (update these before each release) ──
+  static const String appName = 'Mitsui FleetPlus';
+  static const String appVersion = '1.0.1';
+  static const String releaseDate = '09-Mar-2026';
 }

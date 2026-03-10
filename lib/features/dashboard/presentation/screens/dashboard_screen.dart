@@ -26,6 +26,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   User? currentUser;
   double? _currentLat;
   double? _currentLon;
+  double? _officeLat;
+  double? _officeLon;
   bool _locationLoading = true;
   String? _locationError;
 
@@ -34,6 +36,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     _loadCurrentUser();
     _loadLocation();
+    _loadOfficeLocation();
   }
 
   Future<void> _loadLocation() async {
@@ -104,6 +107,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       },
     );
+  }
+
+  Future<void> _loadOfficeLocation() async {
+    try {
+      final localStorage = di.sl<LocalStorageDataSource>();
+      final driverIdString = await localStorage.getDriverId();
+      final userIdString = await localStorage.getUserId();
+
+      final driverId = int.tryParse(driverIdString ?? '') ?? 0;
+      final userId = int.tryParse(userIdString ?? '') ?? 0;
+
+      if (driverId == 0 && userId == 0) return;
+
+      final dio = di.sl<Dio>();
+      final response = await dio.post(
+        ApiConstants.driverDashboard,
+        data: {'driverId': driverId, 'userId': userId},
+      );
+
+      if (!mounted || response.statusCode != 200) return;
+
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        final list = data['data'];
+        if (list is List && list.isNotEmpty) {
+          final first = list.first;
+          if (first is Map<String, dynamic>) {
+            final latValue = first['Lat'] ?? first['lat'];
+            final lonValue =
+                first['Lon'] ?? first['lon'] ?? first['Lng'] ?? first['lng'];
+            double? officeLat;
+            double? officeLon;
+            if (latValue is num) {
+              officeLat = latValue.toDouble();
+            } else if (latValue is String && latValue.isNotEmpty) {
+              officeLat = double.tryParse(latValue);
+            }
+            if (lonValue is num) {
+              officeLon = lonValue.toDouble();
+            } else if (lonValue is String && lonValue.isNotEmpty) {
+              officeLon = double.tryParse(lonValue);
+            }
+            if (officeLat != null && officeLon != null) {
+              _officeLat = officeLat;
+              _officeLon = officeLon;
+            }
+          }
+        }
+      }
+    } catch (_) {
+      // Silently ignore; geofence will block with a clear message if coords are missing
+    }
   }
 
   @override

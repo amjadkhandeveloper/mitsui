@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/config/app_config.dart';
+import '../../../../core/constants/api_constants.dart';
 
 class AboutAppScreen extends StatelessWidget {
   const AboutAppScreen({super.key});
@@ -46,7 +46,7 @@ class AboutAppScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               const Text(
-                'Mitsui FleetPlus',
+                ApiConstants.appName,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -55,7 +55,7 @@ class AboutAppScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Version ${AppConfig.APP_VERSION}',
+                'Version ${ApiConstants.appVersion}',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey.shade700,
@@ -63,7 +63,7 @@ class AboutAppScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Release date: 06-Mar-2026',
+                'Release date: ${ApiConstants.releaseDate}',
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.grey.shade600,

@@ -654,25 +654,6 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
         return;
       }
 
-      // If we have an office/reference location from dashboard, enforce 500m radius
-      if (_officeLat != null && _officeLon != null) {
-        final distanceMeters = Geolocator.distanceBetween(
-          _officeLat!,
-          _officeLon!,
-          lat,
-          lon,
-        );
-        if (distanceMeters > 500) {
-          if (mounted) {
-            Toast.showError(
-              context,
-              'Please check-in from the office location',
-            );
-          }
-          return;
-        }
-      }
-
       final dio = di.sl<Dio>();
       final now = DateTime.now().toIso8601String();
 
