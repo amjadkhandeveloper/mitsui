@@ -379,6 +379,13 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
               route: '/attendance',
             ),
             const DashboardFeature(
+              id: 'receipts',
+              title: 'Receipts',
+              subtitle: 'View receipts',
+              icon: Icons.receipt_long,
+              route: '/receipts',
+            ),
+            const DashboardFeature(
               id: 'trips',
               title: 'My Trips',
               subtitle: 'View my trips',

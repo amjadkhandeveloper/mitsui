@@ -74,6 +74,13 @@ class ReceiptModel extends Receipt {
     required super.id,
     required super.type,
     required super.expenseTypeId,
+    super.expenseId,
+    super.vehicleId,
+    super.expenseStatusId,
+    super.lat,
+    super.lon,
+    super.expLocation,
+    super.receiptImageUrl2,
     required super.amount,
     required super.description,
     required super.receiptDate,
@@ -92,7 +99,130 @@ class ReceiptModel extends Receipt {
     super.updatedAt,
   });
 
+  static ReceiptType _typeFromExpenseTypeId(int? expenseTypeId) {
+    switch (expenseTypeId) {
+      case 1:
+      case 2:
+        return ReceiptType.fuel;
+      case 3:
+        return ReceiptType.parking;
+      case 4:
+        return ReceiptType.toll;
+      case 5:
+        return ReceiptType.other;
+      default:
+        return ReceiptType.other;
+    }
+  }
+
+  /// Expense list API: 1 = approved, 2 = pending, 3 = rejected
+  static ReceiptStatus _statusFromExpenseStatusId(int? expenseStatusId) {
+    switch (expenseStatusId) {
+      case 1:
+        return ReceiptStatus.approved;
+      case 2:
+        return ReceiptStatus.pending;
+      case 3:
+        return ReceiptStatus.rejected;
+      default:
+        return ReceiptStatus.pending;
+    }
+  }
+
   factory ReceiptModel.fromJson(Map<String, dynamic> json) {
+    // Support Mitsui "Expense" receipt JSON shape:
+    // { ID, DriverID, VehicleID, ExpenseTypeID, ExpenseStatusID, ExpenseDt, Lat, Lon,
+    //   ExpLocation, ExpenseReceipt1, ExpenseReceipt2, ExpenseDesc, ExpenseRemark, expenseamount, ... }
+    final isExpenseShape = json.containsKey('ID') ||
+        json.containsKey('ExpenseTypeID') ||
+        json.containsKey('ExpenseDt') ||
+        json.containsKey('expenseamount');
+
+    if (isExpenseShape) {
+      final expenseIdRaw = json['ID'];
+      final expenseTypeIdRaw = json['ExpenseTypeID'] ?? json['expenseTypeId'];
+      final expenseStatusIdRaw = json['ExpenseStatusID'] ?? json['expenseStatusId'];
+
+      final int? expenseId = expenseIdRaw is num
+          ? expenseIdRaw.toInt()
+          : int.tryParse(expenseIdRaw?.toString() ?? '');
+      final int? expenseTypeId = expenseTypeIdRaw is num
+          ? expenseTypeIdRaw.toInt()
+          : int.tryParse(expenseTypeIdRaw?.toString() ?? '');
+      final int? expenseStatusId = expenseStatusIdRaw is num
+          ? expenseStatusIdRaw.toInt()
+          : int.tryParse(expenseStatusIdRaw?.toString() ?? '');
+
+      final vehicleIdRaw = json['VehicleID'] ?? json['vehicleId'];
+      final int? vehicleId = vehicleIdRaw is num
+          ? vehicleIdRaw.toInt()
+          : int.tryParse(vehicleIdRaw?.toString() ?? '');
+
+      final driverIdRaw = json['DriverID'] ?? json['driverId'];
+      final driverId = driverIdRaw?.toString();
+
+      final amountRaw = json['expenseamount'] ?? json['Amount'] ?? json['amount'];
+      final double amount = amountRaw is num
+          ? amountRaw.toDouble()
+          : double.tryParse(amountRaw?.toString() ?? '') ?? 0;
+
+      final expLocation = (json['ExpLocation'] ?? json['expLocation'])?.toString();
+      final receipt1 = (json['ExpenseReceipt1'] ?? json['expenseReceipt1'])?.toString();
+      final receipt2 = (json['ExpenseReceipt2'] ?? json['expenseReceipt2'])?.toString();
+
+      final desc = (json['ExpenseDesc'] ?? json['expenseDesc'])?.toString();
+      final remark = (json['ExpenseRemark'] ?? json['expenseRemark'])?.toString();
+      final description = (desc != null && desc.trim().isNotEmpty)
+          ? desc
+          : (remark != null && remark.trim().isNotEmpty)
+              ? remark
+              : (expLocation != null && expLocation.trim().isNotEmpty)
+                  ? expLocation
+                  : 'Expense receipt';
+
+      final dtRaw = (json['ExpenseDt'] ?? json['expenseDt'])?.toString();
+      DateTime receiptDate;
+      try {
+        receiptDate = DateTime.parse(dtRaw ?? DateTime.now().toIso8601String());
+      } catch (_) {
+        receiptDate = DateTime.now();
+      }
+
+      final latRaw = json['Lat'] ?? json['lat'];
+      final lonRaw = json['Lon'] ?? json['lon'] ?? json['Lng'] ?? json['lng'];
+      final double? lat = latRaw is num ? latRaw.toDouble() : double.tryParse(latRaw?.toString() ?? '');
+      final double? lon = lonRaw is num ? lonRaw.toDouble() : double.tryParse(lonRaw?.toString() ?? '');
+
+      final type = _typeFromExpenseTypeId(expenseTypeId);
+      final status = _statusFromExpenseStatusId(expenseStatusId);
+
+      return ReceiptModel(
+        id: (expenseId ?? json['id'] ?? '').toString(),
+        type: type,
+        expenseTypeId: expenseTypeId ?? _mapTypeToExpenseTypeId(type),
+        expenseId: expenseId,
+        vehicleId: vehicleId,
+        expenseStatusId: expenseStatusId,
+        lat: lat,
+        lon: lon,
+        expLocation: expLocation,
+        receiptImageUrl: (receipt1 != null && receipt1.trim().isNotEmpty) ? receipt1 : null,
+        receiptImageUrl2: (receipt2 != null && receipt2.trim().isNotEmpty) ? receipt2 : null,
+        amount: amount,
+        description: description,
+        receiptDate: receiptDate,
+        status: status,
+        approvedBy: (json['ApproverName'] ?? json['ApprovedBy'] ?? json['approvedBy'])?.toString(),
+        submittedAt: receiptDate,
+        driverId: driverId,
+        driverName: null,
+        fueledLiters: null,
+        odometerReading: null,
+        createdAt: receiptDate,
+        updatedAt: null,
+      );
+    }
+
     final typeConverter = ReceiptTypeConverter();
     final statusConverter = ReceiptStatusConverter();
     final type = typeConverter.fromJson(json['type'] as String);
@@ -110,6 +240,8 @@ class ReceiptModel extends Receipt {
     }
     expenseTypeId ??= _mapTypeToExpenseTypeId(type);
 
+    final receiptImageUrl = json['receipt_image_url'] ?? json['receiptImageUrl'] as String?;
+    final receiptImageUrl2 = json['receipt_image_url_2'] ?? json['receiptImageUrl2'] as String?;
     return ReceiptModel(
       id: json['id'] as String,
       type: type,
@@ -118,7 +250,8 @@ class ReceiptModel extends Receipt {
       description: json['description'] as String,
       receiptDate: DateTime.parse(json['receipt_date'] ?? json['receiptDate']),
       status: statusConverter.fromJson(json['status'] as String),
-      receiptImageUrl: json['receipt_image_url'] ?? json['receiptImageUrl'] as String?,
+      receiptImageUrl: receiptImageUrl,
+      receiptImageUrl2: receiptImageUrl2,
       approvedBy: json['approved_by'] ?? json['approvedBy'] as String?,
       approvedAt: json['approved_at'] != null
           ? DateTime.parse(json['approved_at'] as String)
@@ -150,11 +283,18 @@ class ReceiptModel extends Receipt {
       'id': id,
       'type': typeConverter.toJson(type),
       'expense_type_id': expenseTypeId,
+      if (expenseId != null) 'expense_id': expenseId,
+      if (vehicleId != null) 'vehicle_id': vehicleId,
+      if (expenseStatusId != null) 'expense_status_id': expenseStatusId,
+      if (lat != null) 'lat': lat,
+      if (lon != null) 'lon': lon,
+      if (expLocation != null) 'exp_location': expLocation,
       'amount': amount,
       'description': description,
       'receipt_date': receiptDate.toIso8601String(),
       'status': statusConverter.toJson(status),
       if (receiptImageUrl != null) 'receipt_image_url': receiptImageUrl,
+      if (receiptImageUrl2 != null) 'receipt_image_url_2': receiptImageUrl2,
       if (approvedBy != null) 'approved_by': approvedBy,
       if (approvedAt != null) 'approved_at': approvedAt!.toIso8601String(),
       if (rejectedAt != null) 'rejected_at': rejectedAt!.toIso8601String(),
@@ -174,6 +314,13 @@ class ReceiptModel extends Receipt {
       id: id,
       type: type,
       expenseTypeId: expenseTypeId,
+      expenseId: expenseId,
+      vehicleId: vehicleId,
+      expenseStatusId: expenseStatusId,
+      lat: lat,
+      lon: lon,
+      expLocation: expLocation,
+      receiptImageUrl2: receiptImageUrl2,
       amount: amount,
       description: description,
       receiptDate: receiptDate,

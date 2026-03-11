@@ -10,6 +10,14 @@ class Receipt extends Equatable {
   /// 1 = All, 2 = Fuel, 3 = Parking, 4 = Toll Fee, 5 = Other
   /// For individual receipts we use 2–5 based on [type].
   final int expenseTypeId;
+  // Raw backend ids (Expense module)
+  final int? expenseId;
+  final int? vehicleId;
+  final int? expenseStatusId;
+  final double? lat;
+  final double? lon;
+  final String? expLocation;
+  final String? receiptImageUrl2;
   final double amount;
   final String description;
   final DateTime receiptDate;
@@ -32,6 +40,13 @@ class Receipt extends Equatable {
     required this.id,
     required this.type,
     required this.expenseTypeId,
+    this.expenseId,
+    this.vehicleId,
+    this.expenseStatusId,
+    this.lat,
+    this.lon,
+    this.expLocation,
+    this.receiptImageUrl2,
     required this.amount,
     required this.description,
     required this.receiptDate,
@@ -55,6 +70,13 @@ class Receipt extends Equatable {
         id,
         type,
         expenseTypeId,
+        expenseId,
+        vehicleId,
+        expenseStatusId,
+        lat,
+        lon,
+        expLocation,
+        receiptImageUrl2,
         amount,
         description,
         receiptDate,

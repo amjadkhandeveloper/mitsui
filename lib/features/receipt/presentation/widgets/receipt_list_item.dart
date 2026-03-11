@@ -7,11 +7,17 @@ import '../../domain/entities/receipt.dart';
 class ReceiptListItem extends StatelessWidget {
   final Receipt receipt;
   final int index;
+  final bool showApprovalActions;
+  final VoidCallback? onApprove;
+  final VoidCallback? onReject;
 
   const ReceiptListItem({
     super.key,
     required this.receipt,
     required this.index,
+    this.showApprovalActions = false,
+    this.onApprove,
+    this.onReject,
   });
 
   Color _getTypeColor() {
@@ -167,6 +173,30 @@ class ReceiptListItem extends StatelessWidget {
                           color: Colors.grey.shade700,
                         ),
                       ),
+                      if (receipt.expLocation != null &&
+                          receipt.expLocation!.trim().isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.location_on_outlined,
+                              size: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                receipt.expLocation!,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade600,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -212,6 +242,37 @@ class ReceiptListItem extends StatelessWidget {
                   ),
               ],
             ),
+            if (showApprovalActions &&
+                receipt.status == ReceiptStatus.pending) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onReject,
+                      icon: const Icon(Icons.close, size: 16),
+                      label: const Text('Reject'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: BorderSide(color: Colors.red.shade300),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: onApprove,
+                      icon: const Icon(Icons.check, size: 16),
+                      label: const Text('Approve'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

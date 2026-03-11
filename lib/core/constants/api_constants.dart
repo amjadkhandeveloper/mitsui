@@ -1,8 +1,8 @@
 class ApiConstants {
   // Base URL - Mitsui Fleet Management API
   static const String baseUrl =
-    //   "https://mitsuiv16pocmobapi.infotracktelematics.com:8443/";
-   'https://mitsuiv16mobapi.infotracktelematics.com/';
+      "https://mitsuiv16pocmobapi.infotracktelematics.com:8443/";
+//    'https://mitsuiv16mobapi.infotracktelematics.com/';
 
   // API Endpoints
   static const String login = '/api/Auth/UserLogin';
@@ -40,6 +40,12 @@ class ApiConstants {
 
   // Driver daily attendance summary (attendance report)
   static const String driverDailySummary = '/DriverDailySummary';
+
+  // Receipts (Expense module)
+  // NOTE: Update these endpoints to match backend routes.
+  static const String receiptList = '/ListExpenseDetails';
+  static const String receiptStatusUpdate = '/ExpenseStatusUpdate';
+  static const String expenseDetails = '/ExpenseDetails';
 
   // Timeouts
   static const int connectTimeout = 30000; // 30 seconds

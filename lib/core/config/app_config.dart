@@ -12,7 +12,7 @@ class AppConfig {
   // Feature-specific mock data flags
   // Only Receipt uses mock data, rest are live
   static const bool USE_MOCK_DATA_ATTENDANCE = false;
-  static const bool USE_MOCK_DATA_RECEIPT = true;
+  static const bool USE_MOCK_DATA_RECEIPT = false;
 
   // API Base URL (only used when USE_MOCK_DATA is false)
   static const String BASE_URL = 'https://api.example.com';

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "16221229200",
+    "firebase_url": "https://infoassure-dad6a.firebaseio.com",
+    "project_id": "infoassure-dad6a",
+    "storage_bucket": "infoassure-dad6a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:16221229200:android:70cb5f01b64f589eadc815",
+        "android_client_info": {
+          "package_name": "com.infotrack.mitsuifleet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTqrduwhZ_QN5LutGSKxemQ3YqcZiwCSM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

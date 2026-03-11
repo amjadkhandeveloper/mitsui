@@ -6,8 +6,10 @@ import '../../../../core/routes/app_routes.dart';
 import '../cubit/receipt_cubit.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/receipt_list_item.dart';
+import 'receipt_detail_screen.dart';
 import '../../../login/domain/repositories/auth_repository.dart';
 import '../../../login/domain/entities/user.dart';
+import '../../../splash/data/datasources/local_storage_data_source.dart';
 import '../../../../core/di/injection_container.dart' as di;
 
 class ReceiptHistoryScreen extends StatefulWidget {
@@ -18,7 +20,8 @@ class ReceiptHistoryScreen extends StatefulWidget {
 }
 
 class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
-  String? selectedStatus;
+  UserRole? _role;
+  int? _approvedByUserId;
 
   @override
   void initState() {
@@ -29,16 +32,35 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
   Future<void> _loadReceipts() async {
     final authRepository = di.sl<AuthRepository>();
     final result = await authRepository.getCurrentUser();
-    result.fold(
-      (failure) => null,
-      (user) {
-        final driverId = user?.role == UserRole.driver ? user?.id : null;
-        context.read<ReceiptCubit>().loadReceipts(
-              driverId: driverId,
-              status: selectedStatus,
-            );
-      },
-    );
+    User? user;
+    result.fold((_) => null, (u) => user = u);
+    if (user == null) return;
+
+    _role = user!.role;
+
+    final localStorage = di.sl<LocalStorageDataSource>();
+    final uid = await localStorage.getUserId();
+    _approvedByUserId = int.tryParse(uid ?? '');
+
+    String? driverId;
+    String? userId;
+    final storedDriverId = await localStorage.getDriverId();
+
+    if (user!.role == UserRole.driver) {
+      driverId = (storedDriverId != null && storedDriverId.isNotEmpty)
+          ? storedDriverId
+          : user!.id;
+      userId = '0';
+    } else {
+      driverId = '0';
+      userId = (uid != null && uid.isNotEmpty) ? uid : user!.id;
+    }
+
+    if (!mounted) return;
+    context.read<ReceiptCubit>().loadReceipts(
+          driverId: driverId,
+          userId: userId,
+        );
   }
 
   @override
@@ -57,62 +79,6 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
             },
             tooltip: 'Refresh',
           ),
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                builder: (context) => Container(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        title: const Text('All'),
-                        onTap: () {
-                          setState(() {
-                            selectedStatus = null;
-                          });
-                          Navigator.pop(context);
-                          _loadReceipts();
-                        },
-                      ),
-                      ListTile(
-                        title: const Text('Approved'),
-                        onTap: () {
-                          setState(() {
-                            selectedStatus = 'approved';
-                          });
-                          Navigator.pop(context);
-                          _loadReceipts();
-                        },
-                      ),
-                      ListTile(
-                        title: const Text('Pending'),
-                        onTap: () {
-                          setState(() {
-                            selectedStatus = 'pending';
-                          });
-                          Navigator.pop(context);
-                          _loadReceipts();
-                        },
-                      ),
-                      ListTile(
-                        title: const Text('Rejected'),
-                        onTap: () {
-                          setState(() {
-                            selectedStatus = 'rejected';
-                          });
-                          Navigator.pop(context);
-                          _loadReceipts();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
         ],
       ),
       body: BlocConsumer<ReceiptCubit, ReceiptState>(
@@ -121,6 +87,8 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
             Toast.showError(context, state.message);
           } else if (state is ReceiptCreated) {
             Toast.showSuccess(context, 'Receipt submitted successfully');
+          } else if (state is ReceiptStatusUpdated) {
+            Toast.showSuccess(context, 'Status updated successfully');
           }
         },
         builder: (context, state) {
@@ -204,9 +172,47 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
                             itemCount: state.receipts.length,
                             itemBuilder: (context, index) {
-                              return ReceiptListItem(
-                                receipt: state.receipts[index],
-                                index: index,
+                              final receipt = state.receipts[index];
+                              final expenseId = receipt.expenseId ??
+                                  int.tryParse(receipt.id);
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => ReceiptDetailScreen(
+                                        receipt: receipt,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: ReceiptListItem(
+                                  receipt: receipt,
+                                  index: index,
+                                  showApprovalActions: _role == UserRole.expat,
+                                  onApprove: (_role == UserRole.expat &&
+                                          expenseId != null &&
+                                          _approvedByUserId != null)
+                                      ? () {
+                                          context.read<ReceiptCubit>().approveReceipt(
+                                                expenseId: expenseId,
+                                                approvedByUserId: _approvedByUserId!,
+                                              );
+                                        }
+                                      : null,
+                                  onReject: (_role == UserRole.expat &&
+                                          expenseId != null &&
+                                          _approvedByUserId != null)
+                                      ? () async {
+                                          final remark = await _showRejectRemarkDialog(context);
+                                          if (remark == null || remark.trim().isEmpty) return;
+                                          context.read<ReceiptCubit>().rejectReceipt(
+                                                expenseId: expenseId,
+                                                approvedByUserId: _approvedByUserId!,
+                                                remark: remark.trim(),
+                                              );
+                                        }
+                                      : null,
+                                ),
                               );
                             },
                           ),
@@ -223,11 +229,48 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, AppRoutes.addReceipt);
+          // Driver can add receipts; users/expats typically only approve/reject.
+          if (_role == UserRole.driver) {
+            Navigator.pushNamed(context, AppRoutes.addReceipt);
+          } else {
+            Toast.showError(context, 'Only drivers can add receipts');
+          }
         },
         backgroundColor: AppTheme.mitsuiDarkBlue,
         child: const Icon(Icons.add, color: Colors.white),
       ),
+    );
+  }
+
+  Future<String?> _showRejectRemarkDialog(BuildContext context) async {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Reject Receipt'),
+          content: TextField(
+            controller: controller,
+            maxLines: 3,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: 'Remark *',
+              hintText: 'Enter rejection remark',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, null),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dialogContext, controller.text),
+              child: const Text('Submit'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

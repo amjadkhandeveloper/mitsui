@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mitsui"
+    namespace = "com.infotrack.mitsuifleet"
     compileSdk = 36  // Compile with Android SDK 36 to satisfy plugin requirements
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.mitsui"
+        applicationId = "com.infotrack.mitsuifleet"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion  // Android 5.1 (Lollipop) - supports devices with API > 21

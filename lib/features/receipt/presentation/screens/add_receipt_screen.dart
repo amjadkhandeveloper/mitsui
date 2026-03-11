@@ -6,6 +6,9 @@ import '../../../../core/utils/toast.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/styled_card.dart';
 import '../../../../core/utils/animations.dart';
+import '../../../splash/data/datasources/local_storage_data_source.dart';
+import 'package:geolocator/geolocator.dart';
+import '../../../../core/di/injection_container.dart' as di;
 import '../../../leave/presentation/widgets/date_time_input_field.dart';
 import '../cubit/receipt_cubit.dart';
 import '../../domain/entities/receipt.dart';
@@ -26,7 +29,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
 
   ReceiptType _selectedType = ReceiptType.fuel;
   DateTime? _receiptDate;
-  File? _receiptImage;
+  File? _receiptImage1;
+  File? _receiptImage2;
 
   @override
   void initState() {
@@ -43,7 +47,7 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage({required int slot}) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(
       source: ImageSource.gallery,
@@ -52,7 +56,12 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
 
     if (pickedFile != null) {
       setState(() {
-        _receiptImage = File(pickedFile.path);
+        final file = File(pickedFile.path);
+        if (slot == 1) {
+          _receiptImage1 = file;
+        } else {
+          _receiptImage2 = file;
+        }
       });
     }
   }
@@ -69,6 +78,10 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
         Toast.showError(context, 'Please enter a valid amount');
         return;
       }
+      if (amount > 50000) {
+        Toast.showError(context, 'Maximum allowed amount is ₹50,000');
+        return;
+      }
 
       final description = _descriptionController.text.trim();
       if (description.isEmpty) {
@@ -76,14 +89,64 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
         return;
       }
 
-      double? fueledLiters;
-      if (_selectedType == ReceiptType.fuel && _fueledLitersController.text.isNotEmpty) {
-        fueledLiters = double.tryParse(_fueledLitersController.text);
+      if (_receiptImage1 == null && _receiptImage2 == null) {
+        Toast.showError(context, 'Please upload at least one receipt image');
+        return;
       }
 
-      int? odometerReading;
-      if (_selectedType == ReceiptType.fuel && _odometerReadingController.text.isNotEmpty) {
-        odometerReading = int.tryParse(_odometerReadingController.text);
+      _createExpenseOnServer(
+        amount: amount,
+        description: description,
+      );
+    }
+  }
+
+  Future<void> _createExpenseOnServer({
+    required double amount,
+    required String description,
+  }) async {
+    try {
+      final localStorage = di.sl<LocalStorageDataSource>();
+      final driverIdStr = await localStorage.getDriverId();
+      final zoneId = await localStorage.getZoneId() ?? 0;
+      final driverId = int.tryParse(driverIdStr ?? '');
+      if (driverId == null) {
+        Toast.showError(context, 'Driver ID not found. Please login again.');
+        return;
+      }
+
+      double lat = 0;
+      double lon = 0;
+      try {
+        final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) {
+          if (mounted) {
+            Toast.showError(context, 'Opening location settings. Enable location and try again.');
+            await Geolocator.openLocationSettings();
+          }
+          return;
+        }
+        LocationPermission permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+          if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+            if (mounted) {
+              Toast.showError(context, 'Opening app settings. Grant location permission and try again.');
+              await Geolocator.openAppSettings();
+            }
+            return;
+          }
+        }
+        final position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.medium,
+        );
+        lat = position.latitude;
+        lon = position.longitude;
+      } catch (e) {
+        if (mounted) {
+          Toast.showError(context, 'Could not get location. Please try again.');
+        }
+        return;
       }
 
       context.read<ReceiptCubit>().createReceipt(
@@ -91,13 +154,17 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
             amount: amount,
             description: description,
             receiptDate: _receiptDate!,
-            receiptImage: _receiptImage,
-            fueledLiters: fueledLiters,
-            odometerReading: odometerReading,
+            receiptImage1: _receiptImage1,
+            receiptImage2: _receiptImage2,
+            driverId: driverId,
+            zoneId: zoneId,
+            lat: lat,
+            lon: lon,
           );
+    } catch (e) {
+      Toast.showError(context, 'Failed to submit receipt: $e');
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -411,7 +478,7 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                       ),
                     ),
                   ),
-                  // Receipt Image
+                  // Receipt Images (up to 2)
                   FadeSlideAnimation(
                     delay: const Duration(milliseconds: 400),
                     beginOffset: const Offset(0, 0.2),
@@ -419,70 +486,137 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Receipt Image',
+                          'Receipt Images',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        StyledCard(
-                          padding: EdgeInsets.zero,
-                          margin: EdgeInsets.zero,
-                          child: InkWell(
-                            onTap: _pickImage,
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              height: 200,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: _receiptImage != null
-                                  ? Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(12),
-                                          child: Image.file(
-                                            _receiptImage!,
-                                            width: double.infinity,
-                                            height: 200,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        Positioned(
-                                          top: 8,
-                                          right: 8,
-                                          child: IconButton(
-                                            icon: const Icon(Icons.close),
-                                            onPressed: () {
-                                              setState(() {
-                                                _receiptImage = null;
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  : Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.add_photo_alternate,
-                                          size: 48,
-                                          color: Colors.grey.shade400,
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Tap to add receipt image',
-                                          style: TextStyle(
-                                            color: Colors.grey.shade600,
-                                          ),
-                                        ),
-                                      ],
+                        Row(
+                          children: [
+                            Expanded(
+                              child: StyledCard(
+                                padding: EdgeInsets.zero,
+                                margin: EdgeInsets.zero,
+                                child: InkWell(
+                                  onTap: () => _pickImage(slot: 1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
+                                    height: 160,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
+                                    child: _receiptImage1 != null
+                                        ? Stack(
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius: BorderRadius.circular(12),
+                                                child: Image.file(
+                                                  _receiptImage1!,
+                                                  width: double.infinity,
+                                                  height: 160,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 8,
+                                                right: 8,
+                                                child: IconButton(
+                                                  icon: const Icon(Icons.close),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      _receiptImage1 = null;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.add_photo_alternate,
+                                                size: 36,
+                                                color: Colors.grey.shade400,
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'Receipt 1',
+                                                style: TextStyle(
+                                                  color: Colors.grey.shade600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: StyledCard(
+                                padding: EdgeInsets.zero,
+                                margin: EdgeInsets.zero,
+                                child: InkWell(
+                                  onTap: () => _pickImage(slot: 2),
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
+                                    height: 160,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: _receiptImage2 != null
+                                        ? Stack(
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius: BorderRadius.circular(12),
+                                                child: Image.file(
+                                                  _receiptImage2!,
+                                                  width: double.infinity,
+                                                  height: 160,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 8,
+                                                right: 8,
+                                                child: IconButton(
+                                                  icon: const Icon(Icons.close),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      _receiptImage2 = null;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.add_photo_alternate,
+                                                size: 36,
+                                                color: Colors.grey.shade400,
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'Receipt 2',
+                                                style: TextStyle(
+                                                  color: Colors.grey.shade600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

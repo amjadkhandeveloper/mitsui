@@ -39,6 +39,13 @@ class ReceiptCreated extends ReceiptState {
   List<Object?> get props => [receipt];
 }
 
+class ReceiptStatusUpdated extends ReceiptState {
+  const ReceiptStatusUpdated();
+
+  @override
+  List<Object?> get props => [];
+}
+
 class ReceiptError extends ReceiptState {
   final String message;
 

@@ -85,6 +85,13 @@ class _ExpatDashboardScreenState extends State<ExpatDashboardScreen> {
               route: '/attendance',
             ),
             const DashboardFeature(
+              id: 'receipts',
+              title: 'Receipts',
+              subtitle: 'Approve / reject',
+              icon: Icons.receipt_long,
+              route: '/receipts',
+            ),
+            const DashboardFeature(
               id: 'vehicle_schedule',
               title: 'Vehicle Schedule',
               subtitle: 'Manage schedules',

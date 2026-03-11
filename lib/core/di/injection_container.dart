@@ -57,6 +57,7 @@ import '../../features/receipt/data/repositories/receipt_repository_impl.dart';
 import '../../features/receipt/domain/repositories/receipt_repository.dart';
 import '../../features/receipt/domain/usecases/get_receipts_usecase.dart';
 import '../../features/receipt/domain/usecases/create_receipt_usecase.dart';
+import '../../features/receipt/domain/usecases/update_receipt_status_usecase.dart';
 import '../../features/receipt/presentation/cubit/receipt_cubit.dart';
 
 final sl = GetIt.instance;
@@ -248,10 +249,14 @@ Future<void> init() async {
   sl.registerLazySingleton(
     () => CreateReceiptUseCase(repository: sl<ReceiptRepository>()),
   );
+  sl.registerLazySingleton(
+    () => UpdateReceiptStatusUseCase(repository: sl<ReceiptRepository>()),
+  );
   sl.registerFactory(
     () => ReceiptCubit(
       getReceiptsUseCase: sl<GetReceiptsUseCase>(),
       createReceiptUseCase: sl<CreateReceiptUseCase>(),
+      updateReceiptStatusUseCase: sl<UpdateReceiptStatusUseCase>(),
     ),
   );
 

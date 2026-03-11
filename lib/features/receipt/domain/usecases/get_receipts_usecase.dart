@@ -7,8 +7,16 @@ class GetReceiptsUseCase {
 
   GetReceiptsUseCase({required this.repository});
 
-  FutureResult<List<Receipt>> call({String? driverId, String? status}) async {
-    return await repository.getReceipts(driverId: driverId, status: status);
+  FutureResult<List<Receipt>> call({
+    String? driverId,
+    String? userId,
+    String? status,
+  }) async {
+    return await repository.getReceipts(
+      driverId: driverId,
+      userId: userId,
+      status: status,
+    );
   }
 }
 
