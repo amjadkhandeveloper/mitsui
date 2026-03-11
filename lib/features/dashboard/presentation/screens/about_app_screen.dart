@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/api_constants.dart';
+import '../../../../utils/app_globals.dart';
 
 class AboutAppScreen extends StatelessWidget {
   const AboutAppScreen({super.key});
@@ -67,6 +69,61 @@ class AboutAppScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.grey.shade600,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.notifications_active_outlined, size: 18),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'FCM Token',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          tooltip: 'Copy',
+                          onPressed: (Global.fcmToken == null || Global.fcmToken!.isEmpty)
+                              ? null
+                              : () async {
+                                  await Clipboard.setData(
+                                    ClipboardData(text: Global.fcmToken!),
+                                  );
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('FCM token copied')),
+                                  );
+                                },
+                          icon: const Icon(Icons.copy, size: 18),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    SelectableText(
+                      (Global.fcmToken == null || Global.fcmToken!.isEmpty)
+                          ? 'Token not available yet. Open app and allow notifications.'
+                          : Global.fcmToken!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

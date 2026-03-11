@@ -16,6 +16,8 @@ import '../../../../core/utils/toast.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import 'package:dio/dio.dart';
 import 'package:geolocator/geolocator.dart';
+import '../../../../core/services/fcm_token_service.dart';
+import '../../../../utils/app_globals.dart';
 
 class DriverDashboardScreen extends StatefulWidget {
   const DriverDashboardScreen({super.key});
@@ -43,6 +45,23 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
     _loadCurrentUser();
     _loadDriverStatus();
     _loadLocation();
+    _registerFcmToken();
+  }
+
+  Future<void> _registerFcmToken() async {
+    try {
+      final localStorage = di.sl<LocalStorageDataSource>();
+      final token = Global.fcmToken ?? await localStorage.getFcmToken();
+      final driverIdStr = await localStorage.getDriverId();
+      final driverId = int.tryParse(driverIdStr ?? '') ?? 0;
+      await di.sl<FcmTokenService>().registerTokenIfNeeded(
+            token: token,
+            appVersion: ApiConstants.appVersion,
+            userIdOverride: driverId,
+          );
+    } catch (_) {
+      // ignore - do not block dashboard UI
+    }
   }
 
   Future<void> _loadLocation() async {

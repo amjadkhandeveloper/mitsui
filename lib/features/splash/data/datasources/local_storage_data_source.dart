@@ -24,6 +24,12 @@ abstract class LocalStorageDataSource {
   Future<void> saveLoginCredentials(String username, String password);
   Future<Map<String, String>?> getSavedLoginCredentials();
   Future<void> clearSavedLoginCredentials();
+
+  // FCM token
+  Future<String?> getFcmToken();
+  Future<void> setFcmToken(String? token);
+  Future<String?> getLastRegisteredFcmToken();
+  Future<void> setLastRegisteredFcmToken(String? token);
 }
 
 class LocalStorageDataSourceImpl implements LocalStorageDataSource {
@@ -233,6 +239,50 @@ class LocalStorageDataSourceImpl implements LocalStorageDataSource {
       await sharedPreferences.remove('saved_password');
     } catch (e) {
       // Handle error silently
+    }
+  }
+
+  @override
+  Future<String?> getFcmToken() async {
+    try {
+      return sharedPreferences.getString('fcm_token');
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> setFcmToken(String? token) async {
+    try {
+      if (token == null || token.trim().isEmpty) {
+        await sharedPreferences.remove('fcm_token');
+      } else {
+        await sharedPreferences.setString('fcm_token', token.trim());
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  @override
+  Future<String?> getLastRegisteredFcmToken() async {
+    try {
+      return sharedPreferences.getString('last_registered_fcm_token');
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> setLastRegisteredFcmToken(String? token) async {
+    try {
+      if (token == null || token.trim().isEmpty) {
+        await sharedPreferences.remove('last_registered_fcm_token');
+      } else {
+        await sharedPreferences.setString('last_registered_fcm_token', token.trim());
+      }
+    } catch (e) {
+      // ignore
     }
   }
 }

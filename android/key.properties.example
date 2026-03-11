@@ -1,0 +1,6 @@
+## Copy this file to android/key.properties and fill values for release signing.
+## NOTE: storeFile should be a path relative to the android/ folder, e.g. ../keystore/release.jks
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=YOUR_KEY_ALIAS
+storeFile=../keystore/release.jks

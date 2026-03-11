@@ -10,6 +10,10 @@ import '../../../../core/routes/app_routes.dart';
 import '../../../login/domain/repositories/auth_repository.dart';
 import '../../../login/domain/entities/user.dart';
 import '../../../../core/di/injection_container.dart' as di;
+import '../../../splash/data/datasources/local_storage_data_source.dart';
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/services/fcm_token_service.dart';
+import '../../../../utils/app_globals.dart';
 
 class ExpatDashboardScreen extends StatefulWidget {
   const ExpatDashboardScreen({super.key});
@@ -25,6 +29,23 @@ class _ExpatDashboardScreenState extends State<ExpatDashboardScreen> {
   void initState() {
     super.initState();
     _loadCurrentUser();
+    _registerFcmToken();
+  }
+
+  Future<void> _registerFcmToken() async {
+    try {
+      final localStorage = di.sl<LocalStorageDataSource>();
+      final token = Global.fcmToken ?? await localStorage.getFcmToken();
+      final userIdStr = await localStorage.getUserId();
+      final userId = int.tryParse(userIdStr ?? '') ?? 0;
+      await di.sl<FcmTokenService>().registerTokenIfNeeded(
+            token: token,
+            appVersion: ApiConstants.appVersion,
+            userIdOverride: userId,
+          );
+    } catch (_) {
+      // ignore - do not block dashboard UI
+    }
   }
 
   Future<void> _loadCurrentUser() async {

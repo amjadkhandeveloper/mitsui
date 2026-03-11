@@ -47,6 +47,9 @@ class ApiConstants {
   static const String receiptStatusUpdate = '/ExpenseStatusUpdate';
   static const String expenseDetails = '/ExpenseDetails';
 
+  // FCM Token
+  static const String registerFcmToken = '/api/FcmToken/RegisterToken';
+
   // Timeouts
   static const int connectTimeout = 30000; // 30 seconds
   static const int receiveTimeout = 30000; // 30 seconds

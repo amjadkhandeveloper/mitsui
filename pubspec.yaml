@@ -65,6 +65,12 @@ dependencies:
   # Open URLs (e.g. PDF doc preview)
   url_launcher: ^6.2.5
 
+  # Firebase (FCM)
+  firebase_core: ^4.5.0
+  firebase_messaging: ^16.1.2
+  flutter_local_notifications: ^21.0.0
+  device_info_plus: ^11.5.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
