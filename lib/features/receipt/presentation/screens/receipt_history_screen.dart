@@ -7,6 +7,7 @@ import '../cubit/receipt_cubit.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/receipt_list_item.dart';
 import 'receipt_detail_screen.dart';
+import '../../domain/entities/receipt.dart';
 import '../../../login/domain/repositories/auth_repository.dart';
 import '../../../login/domain/entities/user.dart';
 import '../../../splash/data/datasources/local_storage_data_source.dart';
@@ -36,11 +37,15 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
     result.fold((_) => null, (u) => user = u);
     if (user == null) return;
 
-    _role = user!.role;
-
     final localStorage = di.sl<LocalStorageDataSource>();
     final uid = await localStorage.getUserId();
-    _approvedByUserId = int.tryParse(uid ?? '');
+
+    if (mounted) {
+      setState(() {
+        _role = user!.role;
+        _approvedByUserId = int.tryParse(uid ?? '');
+      });
+    }
 
     String? driverId;
     String? userId;
@@ -187,10 +192,12 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                                   );
                                 },
                                 child: ReceiptListItem(
-                                  receipt: receipt,
-                                  index: index,
-                                  showApprovalActions: _role == UserRole.expat,
+                                      receipt: receipt,
+                                      index: index,
+                                      showApprovalActions: _role == UserRole.expat &&
+                                          receipt.type != ReceiptType.fuel,
                                   onApprove: (_role == UserRole.expat &&
+                                              receipt.type != ReceiptType.fuel &&
                                           expenseId != null &&
                                           _approvedByUserId != null)
                                       ? () async {
@@ -205,6 +212,7 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                                         }
                                       : null,
                                   onReject: (_role == UserRole.expat &&
+                                              receipt.type != ReceiptType.fuel &&
                                           expenseId != null &&
                                           _approvedByUserId != null)
                                       ? () async {
@@ -233,18 +241,15 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Driver can add receipts; users/expats typically only approve/reject.
-          if (_role == UserRole.driver) {
-            Navigator.pushNamed(context, AppRoutes.addReceipt);
-          } else {
-            Toast.showError(context, 'Only drivers can add receipts');
-          }
-        },
-        backgroundColor: AppTheme.mitsuiDarkBlue,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+      floatingActionButton: _role == UserRole.driver
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.pushNamed(context, AppRoutes.addReceipt);
+              },
+              backgroundColor: AppTheme.mitsuiDarkBlue,
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
     );
   }
 

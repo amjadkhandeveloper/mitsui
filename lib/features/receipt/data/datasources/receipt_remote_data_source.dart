@@ -115,23 +115,23 @@ class ReceiptRemoteDataSourceImpl implements ReceiptRemoteDataSource {
 
       final body = {
         'insertMode': 1, // 1 = insert
-        'expenseID': 1,
+        'expenseID': 0,
         'driverID': driverId,
         'vehicleID': 1,
         'zoneID': zoneId,
         'expenseTypeID': expenseTypeId,
-        'expenseStatusID': 1,
-        'approvedByUserId': 1,
+        'expenseStatusID': 2,
+        'approvedByUserId': 0,
         'expenseDt': receiptDate.toIso8601String(),
         'lat': lat,
         'lon': lon,
         'expLocation': '',
-        // Backend currently expects only a single image; send first as base64 and keep second empty.
+        // Send up to two images as base64 strings (second can be empty).
         'expenseReceipt1': encodeFileToBase64(receiptImage1),
-        'expenseReceipt2': '',
+        'expenseReceipt2': encodeFileToBase64(receiptImage2),
         'expenseRemark': description,
         'expenseAmount': amount,
-        'userID': 1,
+        'userID': 0,
       };
 
       final response = await dio.post(
@@ -140,8 +140,41 @@ class ReceiptRemoteDataSourceImpl implements ReceiptRemoteDataSource {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return ReceiptModel.fromJson(
-          response.data['data'] ?? response.data,
+        final data = response.data;
+        final dynamic payload = (data is Map<String, dynamic>) ? data['data'] : null;
+
+        if (payload != null) {
+          return ReceiptModel.fromJson(payload as Map<String, dynamic>);
+        }
+
+        // Backend can return { status:200, message:'Success', data:null }.
+        // In that case, build a local model using the request body so UI
+        // can still show the created receipt without crashing.
+        final now = DateTime.now();
+        return ReceiptModel(
+          id: '', // no id from backend
+          type: type,
+          expenseTypeId: expenseTypeId,
+          expenseId: null,
+          vehicleId: null,
+          expenseStatusId: 0,
+          lat: body['lat'] as double?,
+          lon: body['lon'] as double?,
+          expLocation: body['expLocation'] as String?,
+          receiptImageUrl: body['expenseReceipt1'] as String?,
+          receiptImageUrl2: body['expenseReceipt2'] as String?,
+          amount: amount,
+          description: description,
+          receiptDate: receiptDate,
+          status: ReceiptStatus.pending,
+          approvedBy: null,
+          submittedAt: now,
+          driverId: driverId.toString(),
+          driverName: null,
+          fueledLiters: null,
+          odometerReading: null,
+          createdAt: now,
+          updatedAt: null,
         );
       } else {
         throw ServerException('Failed to create receipt');
