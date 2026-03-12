@@ -28,9 +28,10 @@ abstract class ReceiptRemoteDataSource {
   });
   Future<void> updateReceiptStatus({
     required int expenseId,
+    required int expenseTypeId,
     required int expenseStatusId,
     required int approvedByUserId,
-    String? remark,
+    required String remark,
   });
 }
 
@@ -165,22 +166,26 @@ class ReceiptRemoteDataSourceImpl implements ReceiptRemoteDataSource {
   @override
   Future<void> updateReceiptStatus({
     required int expenseId,
+    required int expenseTypeId,
     required int expenseStatusId,
     required int approvedByUserId,
-    String? remark,
+    required String remark,
   }) async {
     try {
       final response = await dio.post(
         ApiConstants.receiptStatusUpdate,
         data: {
-          'ID': expenseId,
-          'ExpenseStatusID': expenseStatusId,
-          'ApprovedByUserId': approvedByUserId,
-          if (remark != null) 'ExpenseRemark': remark,
+          'expenseID': expenseId,
+          'expenseTypeID': expenseTypeId,
+          'approvedByUserId': approvedByUserId,
+          'expenseRemark': remark,
+          'expenseStatusID': expenseStatusId,
         },
       );
 
-      if (response.statusCode == 200) {
+      final data = response.data;
+      final status = (data is Map<String, dynamic>) ? data['status'] : null;
+      if (response.statusCode == 200 || status == 200) {
         return;
       }
       throw ServerException('Failed to update receipt status');

@@ -44,7 +44,7 @@ class ApiConstants {
   // Receipts (Expense module)
   // NOTE: Update these endpoints to match backend routes.
   static const String receiptList = '/ListExpenseDetails';
-  static const String receiptStatusUpdate = '/ExpenseStatusUpdate';
+  static const String receiptStatusUpdate = '/ExpenseApproveStatus';
   static const String expenseDetails = '/ExpenseDetails';
 
   // FCM Token

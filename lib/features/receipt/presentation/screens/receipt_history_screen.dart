@@ -175,6 +175,7 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                               final receipt = state.receipts[index];
                               final expenseId = receipt.expenseId ??
                                   int.tryParse(receipt.id);
+                              final expenseTypeId = receipt.expenseTypeId;
                               return GestureDetector(
                                 onTap: () {
                                   Navigator.of(context).push(
@@ -192,10 +193,14 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                                   onApprove: (_role == UserRole.expat &&
                                           expenseId != null &&
                                           _approvedByUserId != null)
-                                      ? () {
+                                      ? () async {
+                                          final remark = await _showApproveRemarkDialog(context);
+                                          if (remark == null || remark.trim().isEmpty) return;
                                           context.read<ReceiptCubit>().approveReceipt(
                                                 expenseId: expenseId,
+                                                expenseTypeId: expenseTypeId,
                                                 approvedByUserId: _approvedByUserId!,
+                                                remark: remark.trim(),
                                               );
                                         }
                                       : null,
@@ -207,6 +212,7 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                                           if (remark == null || remark.trim().isEmpty) return;
                                           context.read<ReceiptCubit>().rejectReceipt(
                                                 expenseId: expenseId,
+                                                expenseTypeId: expenseTypeId,
                                                 approvedByUserId: _approvedByUserId!,
                                                 remark: remark.trim(),
                                               );
@@ -256,6 +262,38 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
             decoration: const InputDecoration(
               labelText: 'Remark *',
               hintText: 'Enter rejection remark',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, null),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dialogContext, controller.text),
+              child: const Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<String?> _showApproveRemarkDialog(BuildContext context) async {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Approve Receipt'),
+          content: TextField(
+            controller: controller,
+            maxLines: 3,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: 'Remark *',
+              hintText: 'Enter approval remark',
               border: OutlineInputBorder(),
             ),
           ),

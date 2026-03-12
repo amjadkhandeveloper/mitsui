@@ -41,7 +41,8 @@ class _ExpatDashboardScreenState extends State<ExpatDashboardScreen> {
       await di.sl<FcmTokenService>().registerTokenIfNeeded(
             token: token,
             appVersion: ApiConstants.appVersion,
-            userIdOverride: userId,
+            userId: userId,
+            driverId: 0,
           );
     } catch (_) {
       // ignore - do not block dashboard UI

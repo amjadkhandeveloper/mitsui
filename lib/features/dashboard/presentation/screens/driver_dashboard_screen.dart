@@ -57,7 +57,8 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
       await di.sl<FcmTokenService>().registerTokenIfNeeded(
             token: token,
             appVersion: ApiConstants.appVersion,
-            userIdOverride: driverId,
+            userId: 0,
+            driverId: driverId,
           );
     } catch (_) {
       // ignore - do not block dashboard UI

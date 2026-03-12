@@ -10,9 +10,10 @@ abstract class ReceiptRepository {
   });
   FutureResult<void> updateReceiptStatus({
     required int expenseId,
+    required int expenseTypeId,
     required int expenseStatusId,
     required int approvedByUserId,
-    String? remark,
+    required String remark,
   });
   FutureResult<Receipt> createReceipt({
     required ReceiptType type,

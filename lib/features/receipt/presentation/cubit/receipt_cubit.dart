@@ -83,12 +83,14 @@ class ReceiptCubit extends Cubit<ReceiptState> {
 
   Future<void> approveReceipt({
     required int expenseId,
+    required int expenseTypeId,
     required int approvedByUserId,
-    String? remark,
+    required String remark,
   }) async {
     emit(ReceiptSubmitting());
     final result = await updateReceiptStatusUseCase(
       expenseId: expenseId,
+      expenseTypeId: expenseTypeId,
       expenseStatusId: 1, // 1 = approved
       approvedByUserId: approvedByUserId,
       remark: remark,
@@ -104,12 +106,14 @@ class ReceiptCubit extends Cubit<ReceiptState> {
 
   Future<void> rejectReceipt({
     required int expenseId,
+    required int expenseTypeId,
     required int approvedByUserId,
     required String remark,
   }) async {
     emit(ReceiptSubmitting());
     final result = await updateReceiptStatusUseCase(
       expenseId: expenseId,
+      expenseTypeId: expenseTypeId,
       expenseStatusId: 3, // 3 = rejected
       approvedByUserId: approvedByUserId,
       remark: remark,

@@ -16,10 +16,14 @@ class FcmTokenService {
     required this.localStorage,
   });
 
+  /// Registers FCM token with backend. Pass userId and driverId based on login:
+  /// - Driver login: userId = 0, driverId = actual driver id
+  /// - User/Expat login: userId = actual user id, driverId = 0
   Future<void> registerTokenIfNeeded({
     required String? token,
     required String appVersion,
-    int? userIdOverride,
+    int userId = 0,
+    int driverId = 0,
   }) async {
     final trimmed = token?.trim();
     if (trimmed == null || trimmed.isEmpty) {
@@ -27,18 +31,22 @@ class FcmTokenService {
       return;
     }
 
-    // If we already have a valid user id (from dashboard role-based storage),
-    // allow registration even if is_logged_in/auth_token isn't populated yet.
-    final hasValidUserIdOverride = (userIdOverride != null && userIdOverride > 0);
-    if (!hasValidUserIdOverride) {
+    if (userId <= 0 && driverId <= 0) {
       final loggedIn = await localStorage.isLoggedIn();
       if (!loggedIn) {
-        // Fallback: some flows rely on auth token presence rather than is_logged_in flag.
         final authToken = await localStorage.getAuthToken();
         if (authToken == null || authToken.trim().isEmpty) {
-          debugPrint('FCM registerToken: skipped (not logged in)');
+          debugPrint('FCM registerToken: skipped (not logged in, no userId/driverId)');
           return;
         }
+      }
+      // Fallback from storage if caller did not pass ids
+      final userIdStr = await localStorage.getUserId();
+      final driverIdStr = await localStorage.getDriverId();
+      if ((int.tryParse(userIdStr ?? '') ?? 0) <= 0 &&
+          (int.tryParse(driverIdStr ?? '') ?? 0) <= 0) {
+        debugPrint('FCM registerToken: skipped (userId and driverId both 0)');
+        return;
       }
     }
 
@@ -48,32 +56,35 @@ class FcmTokenService {
       return;
     }
 
-    String? userIdStr;
-    if (userIdOverride == null) {
-      userIdStr = await localStorage.getUserId();
-    }
     final clientId = await localStorage.getClientId();
     final zoneId = await localStorage.getZoneId();
 
-    final userId = userIdOverride ?? int.tryParse(userIdStr ?? '') ?? 0;
-    if (userId <= 0) {
-      debugPrint('FCM registerToken: skipped (userId is 0)');
+    final int payloadUserId = userId > 0 ? userId : (int.tryParse((await localStorage.getUserId()) ?? '') ?? 0);
+    final int payloadDriverId = driverId > 0 ? driverId : (int.tryParse((await localStorage.getDriverId()) ?? '') ?? 0);
+
+    if (payloadUserId <= 0 && payloadDriverId <= 0) {
+      debugPrint('FCM registerToken: skipped (userId and driverId both 0)');
       return;
     }
+
     final deviceId = await _getDeviceId();
     final platform = _platformString();
 
     final payload = {
       "clientId": clientId ?? 0,
       "zoneId": zoneId ?? 0,
-      "userId": userId,
+      "userId": payloadUserId,
+      "driverId": payloadDriverId,
       "fcmToken": trimmed,
       "deviceId": deviceId,
       "platform": platform,
       "appVersion": appVersion,
     };
 
-    debugPrint('FCM registerToken: calling ${ApiConstants.registerFcmToken}');
+    debugPrint(
+      'FCM registerToken: calling ${ApiConstants.registerFcmToken} '
+      'with payload=$payload',
+    );
     final res = await dio.post(ApiConstants.registerFcmToken, data: payload);
     final data = res.data;
     final status = (data is Map<String, dynamic>) ? data["status"] : null;
