@@ -7,6 +7,7 @@ class ApiConstants {
   // API Endpoints
   static const String login = '/api/Auth/UserLogin';
   static const String register = '/api/Auth/Register'; // reserved
+  static const String resetPassword = '/api/Auth/ResetPassword';
 
   // Trip APIs
   static const String tripDetails = '/api/Track/TripDetails'; // All trips

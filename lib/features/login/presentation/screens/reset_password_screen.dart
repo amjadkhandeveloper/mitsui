@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/toast.dart';
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/di/injection_container.dart' as di;
+import '../../../splash/data/datasources/local_storage_data_source.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -29,21 +33,90 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       return;
     }
 
+    final newPwd = _passwordController.text.trim();
+    if (newPwd.length < 6 || newPwd.length > 24) {
+      Toast.showError(
+        context,
+        'Password must be between 6 and 24 characters long.',
+      );
+      return;
+    }
+
     setState(() {
       _isSubmitting = true;
     });
 
-    // TODO: Integrate with real reset password API when available.
-    await Future.delayed(const Duration(milliseconds: 600));
+    try {
+      final localStorage = di.sl<LocalStorageDataSource>();
+      final userIdStr = await localStorage.getUserId();
+      final driverIdStr = await localStorage.getDriverId();
 
-    if (!mounted) return;
+      final userId = int.tryParse(userIdStr ?? '') ?? 0;
+      final driverId = int.tryParse(driverIdStr ?? '') ?? 0;
 
-    Toast.showSuccess(context, 'Password reset successfully.');
-    Navigator.pop(context);
+      if (userId == 0 && driverId == 0) {
+        if (mounted) {
+          Toast.showError(
+            context,
+            'User information not found. Please login again.',
+          );
+        }
+        setState(() {
+          _isSubmitting = false;
+        });
+        return;
+      }
 
-    setState(() {
-      _isSubmitting = false;
-    });
+      final dio = di.sl<Dio>();
+      final response = await dio.post(
+        ApiConstants.resetPassword,
+        data: {
+          'userid': userId,
+          'driverid': driverId,
+          'newPassword': newPwd,
+        },
+      );
+
+      int? status;
+      String? message;
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        status = data['status'] is int
+            ? data['status'] as int
+            : int.tryParse(data['status'].toString());
+        message = data['message']?.toString();
+      }
+
+      if (response.statusCode == 200 && status == 200) {
+        if (mounted) {
+          Toast.showSuccess(
+            context,
+            message ?? 'Password reset successfully.',
+          );
+          Navigator.pop(context);
+        }
+      } else {
+        if (mounted) {
+          Toast.showError(
+            context,
+            message ?? 'Failed to reset password.',
+          );
+        }
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        Toast.showError(
+          context,
+          'Failed to reset password: $e',
+        );
+      }
+      setState(() {
+        _isSubmitting = false;
+      });
+    }
   }
 
   @override
@@ -76,6 +149,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
+                  maxLength: 24,
                   decoration: InputDecoration(
                     labelText: 'New password',
                     border: OutlineInputBorder(
@@ -98,8 +172,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a new password';
                     }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                    if (value.length < 6 || value.length > 24) {
+                      return 'Password must be 6–24 characters long';
                     }
                     return null;
                   },
@@ -108,6 +182,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
+                  maxLength: 24,
                   decoration: InputDecoration(
                     labelText: 'Confirm password',
                     border: OutlineInputBorder(
