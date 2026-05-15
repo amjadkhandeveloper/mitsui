@@ -59,13 +59,13 @@ class ReceiptStatusConverter {
 int _mapTypeToExpenseTypeId(ReceiptType type) {
   switch (type) {
     case ReceiptType.fuel:
-      return 2;
+      return 1;
     case ReceiptType.parking:
-      return 3;
+      return 2;
     case ReceiptType.toll:
-      return 4;
+      return 3;
     case ReceiptType.other:
-      return 5;
+      return 4;
   }
 }
 
@@ -102,13 +102,12 @@ class ReceiptModel extends Receipt {
   static ReceiptType _typeFromExpenseTypeId(int? expenseTypeId) {
     switch (expenseTypeId) {
       case 1:
-      case 2:
         return ReceiptType.fuel;
-      case 3:
+      case 2:
         return ReceiptType.parking;
-      case 4:
+      case 3:
         return ReceiptType.toll;
-      case 5:
+      case 4:
         return ReceiptType.other;
       default:
         return ReceiptType.other;

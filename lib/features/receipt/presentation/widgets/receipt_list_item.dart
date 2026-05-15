@@ -243,7 +243,8 @@ class ReceiptListItem extends StatelessWidget {
               ],
             ),
             if (showApprovalActions &&
-                receipt.status == ReceiptStatus.pending) ...[
+                receipt.status == ReceiptStatus.pending &&
+                receipt.type != ReceiptType.fuel) ...[
               const SizedBox(height: 12),
               Row(
                 children: [

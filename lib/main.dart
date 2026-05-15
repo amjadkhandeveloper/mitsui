@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,20 +33,38 @@ void main() async {
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  // Local notifications: configure per-platform
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  final androidChannel = AndroidNotificationChannel(
-    'high_importance_channel',
-    'High Importance Notifications',
-    description: 'Used for important notifications.',
-    importance: Importance.high,
-  );
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(androidChannel);
+  AndroidNotificationChannel? androidChannel;
 
-  final androidInit = AndroidInitializationSettings('ic_mitsui_logo');
-  final initSettings = InitializationSettings(android: androidInit);
-  await flutterLocalNotificationsPlugin.initialize(settings: initSettings);
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    if (Platform.isAndroid) {
+      androidChannel = const AndroidNotificationChannel(
+        'high_importance_channel',
+        'High Importance Notifications',
+        description: 'Used for important notifications.',
+        importance: Importance.high,
+      );
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(androidChannel);
+    }
+
+    const androidInit = AndroidInitializationSettings('ic_mitsui_logo');
+    final iosInit = Platform.isIOS
+        ? const DarwinInitializationSettings(
+            requestAlertPermission: true,
+            requestBadgePermission: true,
+            requestSoundPermission: true,
+          )
+        : null;
+    final initSettings = InitializationSettings(
+      android: androidInit,
+      iOS: iosInit,
+    );
+    await flutterLocalNotificationsPlugin.initialize(initSettings);
+  }
 
   // Token can be retrieved even if notification permission is denied (esp. Android).
   final token = await FirebaseMessaging.instance.getToken();
@@ -85,28 +106,30 @@ void main() async {
 
   _setupNotificationTapHandling();
 
-  // Foreground messages: show local notification.
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    final notification = message.notification;
-    final android = message.notification?.android;
-    if (notification != null && android != null) {
-      flutterLocalNotificationsPlugin.show(
-        id: notification.hashCode,
-        title: notification.title,
-        body: notification.body,
-        notificationDetails: NotificationDetails(
-          android: AndroidNotificationDetails(
-            androidChannel.id,
-            androidChannel.name,
-            channelDescription: androidChannel.description,
-            icon: android.smallIcon ?? 'ic_mitsui_logo',
-            importance: Importance.high,
-            priority: Priority.high,
+  // Foreground messages: show local notification (Android only).
+  if (!kIsWeb && Platform.isAndroid && androidChannel != null) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      final notification = message.notification;
+      final android = message.notification?.android;
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              androidChannel.id,
+              androidChannel.name,
+              channelDescription: androidChannel.description,
+              icon: android.smallIcon ?? 'ic_mitsui_logo',
+              importance: Importance.high,
+              priority: Priority.high,
+            ),
           ),
-        ),
-      );
-    }
-  });
+        );
+      }
+    });
+  }
 
   runApp(const MyApp());
 }
@@ -114,7 +137,8 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {

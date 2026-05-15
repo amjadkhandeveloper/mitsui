@@ -18,8 +18,9 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # of the product and file versions while build-number is used as the build suffix.
 version: 1.0.0+1
 
+# FCM 16.x needs Dart >=3.4 (firebase_messaging_web). Use FVM: fvm use 3.41.4
 environment:
-  sdk: '>=3.3.3 <4.0.0'
+  sdk: '>=3.4.0 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -68,8 +69,10 @@ dependencies:
   # Firebase (FCM)
   firebase_core: ^4.5.0
   firebase_messaging: ^16.1.2
-  flutter_local_notifications: ^21.0.0
-  device_info_plus: ^11.5.0
+  # Local notifications: 15.x works with Dart 3.3.x 
+  flutter_local_notifications: ^17.0.0
+  # Device info: 10.x supports Dart >=3.3.0 <4.0.0
+  device_info_plus: ^10.1.2
 
 dev_dependencies:
   flutter_test:

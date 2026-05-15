@@ -88,6 +88,13 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
         Toast.showError(context, 'Please enter description');
         return;
       }
+      if (description.length > 500) {
+        Toast.showError(
+          context,
+          'Description cannot be longer than 500 characters',
+        );
+        return;
+      }
 
       if (_receiptImage1 == null && _receiptImage2 == null) {
         Toast.showError(context, 'Please upload at least one receipt image');
@@ -121,7 +128,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
         final serviceEnabled = await Geolocator.isLocationServiceEnabled();
         if (!serviceEnabled) {
           if (mounted) {
-            Toast.showError(context, 'Opening location settings. Enable location and try again.');
+            Toast.showError(context,
+                'Opening location settings. Enable location and try again.');
             await Geolocator.openLocationSettings();
           }
           return;
@@ -129,9 +137,11 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
         LocationPermission permission = await Geolocator.checkPermission();
         if (permission == LocationPermission.denied) {
           permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+          if (permission == LocationPermission.denied ||
+              permission == LocationPermission.deniedForever) {
             if (mounted) {
-              Toast.showError(context, 'Opening app settings. Grant location permission and try again.');
+              Toast.showError(context,
+                  'Opening app settings. Grant location permission and try again.');
               await Geolocator.openAppSettings();
             }
             return;
@@ -165,6 +175,7 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
       Toast.showError(context, 'Failed to submit receipt: $e');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -234,7 +245,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                               ),
                             ),
                             builder: (context) => Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 12, 16, 16),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,7 +271,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   ListTile(
-                                    leading: const Icon(Icons.local_gas_station),
+                                    leading:
+                                        const Icon(Icons.local_gas_station),
                                     title: const Text('Fuel'),
                                     onTap: () {
                                       setState(() {
@@ -305,7 +318,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                         },
                         borderRadius: BorderRadius.circular(24),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 16),
                           child: Row(
                             children: [
                               Icon(
@@ -455,6 +469,7 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                       child: TextFormField(
                         controller: _descriptionController,
                         maxLines: 3,
+                        maxLength: 500,
                         decoration: InputDecoration(
                           labelText: 'Description',
                           prefixIcon: const Icon(Icons.description),
@@ -470,7 +485,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                           ),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
+                          final text = value?.trim() ?? '';
+                          if (text.isEmpty) {
                             return 'Please enter description';
                           }
                           return null;
@@ -512,7 +528,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                                         ? Stack(
                                             children: [
                                               ClipRRect(
-                                                borderRadius: BorderRadius.circular(12),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
                                                 child: Image.file(
                                                   _receiptImage1!,
                                                   width: double.infinity,
@@ -535,7 +552,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                                             ],
                                           )
                                         : Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Icon(
                                                 Icons.add_photo_alternate,
@@ -573,7 +591,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                                         ? Stack(
                                             children: [
                                               ClipRRect(
-                                                borderRadius: BorderRadius.circular(12),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
                                                 child: Image.file(
                                                   _receiptImage2!,
                                                   width: double.infinity,
@@ -596,7 +615,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                                             ],
                                           )
                                         : Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Icon(
                                                 Icons.add_photo_alternate,
@@ -660,4 +680,3 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
     );
   }
 }
-

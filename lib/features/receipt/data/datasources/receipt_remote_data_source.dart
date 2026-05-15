@@ -243,13 +243,13 @@ class ReceiptRemoteDataSourceImpl implements ReceiptRemoteDataSource {
 int _mapTypeToExpenseTypeId(ReceiptType type) {
   switch (type) {
     case ReceiptType.fuel:
-      return 2;
+      return 1;
     case ReceiptType.parking:
-      return 3;
+      return 2;
     case ReceiptType.toll:
-      return 4;
+      return 3;
     case ReceiptType.other:
-      return 5;
+      return 4;
   }
 }
 
