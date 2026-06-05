@@ -296,7 +296,7 @@ class MockDataService {
       ReceiptModel(
         id: 'receipt_1',
         type: ReceiptType.fuel,
-        expenseTypeId: 2, // Fuel
+        expenseTypeId: 1, // Fuel
         amount: 2500,
         description: 'Petrol for Mumbai trip',
         receiptDate: DateTime(2025, 10, 22),
@@ -313,7 +313,7 @@ class MockDataService {
       ReceiptModel(
         id: 'receipt_2',
         type: ReceiptType.parking,
-        expenseTypeId: 3, // Parking
+        expenseTypeId: 2, // Parking
         amount: 150,
         description: 'Airport parking',
         receiptDate: DateTime(2025, 10, 21),
@@ -326,7 +326,7 @@ class MockDataService {
       ReceiptModel(
         id: 'receipt_3',
         type: ReceiptType.toll,
-        expenseTypeId: 4, // Toll Fee
+        expenseTypeId: 3, // Toll Fee
         amount: 300,
         description: 'Highway toll charges',
         receiptDate: DateTime(2025, 10, 20),
@@ -341,7 +341,7 @@ class MockDataService {
       ReceiptModel(
         id: 'receipt_4',
         type: ReceiptType.fuel,
-        expenseTypeId: 2, // Fuel
+        expenseTypeId: 1, // Fuel
         amount: 1800,
         description: 'Diesel for delivery',
         receiptDate: DateTime(2025, 10, 19),
@@ -358,7 +358,7 @@ class MockDataService {
       ReceiptModel(
         id: 'receipt_5',
         type: ReceiptType.other,
-        expenseTypeId: 5, // Other
+        expenseTypeId: 4, // Other
         amount: 500,
         description: 'Vehicle maintenance',
         receiptDate: DateTime(2025, 10, 18),

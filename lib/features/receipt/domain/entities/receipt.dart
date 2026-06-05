@@ -6,7 +6,7 @@ enum ReceiptStatus { pending, approved, rejected }
 class Receipt extends Equatable {
   final String id;
   final ReceiptType type;
-  /// Expense type id mapping (no \"All\" type):
+  /// Expense type id mapping (latest backend values):
   /// 1 = Fuel, 2 = Parking, 3 = Toll Fee, 4 = Other
   final int expenseTypeId;
   // Raw backend ids (Expense module)

@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 
 class SplashLogo extends StatefulWidget {
   final VoidCallback? onAnimationComplete;
-  final String? logoPath;
-  final String? appName;
 
   const SplashLogo({
     super.key,
     this.onAnimationComplete,
-    this.logoPath,
-    this.appName,
   });
 
   @override
@@ -74,22 +70,6 @@ class _SplashLogoState extends State<SplashLogo>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo/Icon - show image directly without white background
-                  SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: widget.logoPath != null
-                        ? Image.asset(
-                            widget.logoPath!,
-                            fit: BoxFit.contain,
-                          )
-                        : const Icon(
-                            Icons.business,
-                            size: 60,
-                            color: Colors.white,
-                          ),
-                  ),
-                  const SizedBox(height: 16),
                   // Company Name
                   FadeTransition(
                     opacity: _fadeAnimation,

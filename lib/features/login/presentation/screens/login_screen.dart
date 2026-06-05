@@ -47,7 +47,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final isSmallScreen = screenHeight < 700 || screenWidth < 360;
     
     // Responsive sizing
-    final logoSize = isSmallScreen ? 70.0 : 100.0;
     final companyNameFontSize = isSmallScreen ? 16.0 : 20.0;
     final appTitleFontSize = isSmallScreen ? 14.0 : 16.0;
     final signInTitleFontSize = isSmallScreen ? 20.0 : 24.0;
@@ -97,20 +96,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  // Logo Container with animation (full logo for login)
-                                  ScaleInAnimation(
-                                    duration: AnimationDurations.slow,
-                                    delay: AnimationDurations.fast,
-                                    child: SizedBox(
-                                      width: 104,
-                                      height: 86,
-                                      child: Image.asset(
-                                        'assets/images/ic_mitsui_logo_tran.png',
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: spacingSmall),
                                   // Company Name with animation
                                   FadeInAnimation(
                                     duration: AnimationDurations.normal,

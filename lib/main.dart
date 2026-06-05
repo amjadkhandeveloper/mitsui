@@ -112,6 +112,12 @@ void main() async {
       final notification = message.notification;
       final android = message.notification?.android;
       if (notification != null && android != null) {
+        final bigTextStyle = BigTextStyleInformation(
+          notification.body ?? '',
+          contentTitle: notification.title,
+          htmlFormatBigText: false,
+          htmlFormatContentTitle: false,
+        );
         flutterLocalNotificationsPlugin.show(
           notification.hashCode,
           notification.title,
@@ -124,6 +130,7 @@ void main() async {
               icon: android.smallIcon ?? 'ic_mitsui_logo',
               importance: Importance.high,
               priority: Priority.high,
+              styleInformation: bigTextStyle,
             ),
           ),
         );
@@ -159,10 +166,7 @@ class MyApp extends StatelessWidget {
             left: false,
             right: false,
             bottom: true,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 50),
-              child: child ?? const SizedBox.shrink(),
-            ),
+            child: child ?? const SizedBox.shrink(),
           ),
         );
       },

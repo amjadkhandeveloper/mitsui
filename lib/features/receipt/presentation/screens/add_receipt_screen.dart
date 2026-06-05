@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/utils/toast.dart';
@@ -470,6 +471,7 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                         controller: _descriptionController,
                         maxLines: 3,
                         maxLength: 500,
+                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
                         decoration: InputDecoration(
                           labelText: 'Description',
                           prefixIcon: const Icon(Icons.description),
