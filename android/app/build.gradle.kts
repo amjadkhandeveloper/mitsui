@@ -30,7 +30,7 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion  // Android 5.1 (Lollipop) - supports devices with API > 21
         targetSdk = 35  // Android 15 - supports devices with API < 36 (compileSdk can be higher)
-        versionCode = 2
+        versionCode = 3
         versionName = "1.0.1"
     }
 
