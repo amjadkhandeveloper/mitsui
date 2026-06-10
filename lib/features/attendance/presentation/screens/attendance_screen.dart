@@ -591,10 +591,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       if (remark == null) {
         return;
       }
-      if (remark.trim().isEmpty) {
-        Toast.showError(context, 'Please enter a remark for approval.');
-        return;
-      }
 
       final localStorage = di.sl<LocalStorageDataSource>();
       final useridString = await localStorage.getUserId();
@@ -608,7 +604,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       context.read<AttendanceCubit>().approveCheckIn(
         attendanceId: record.attendanceId!,
         userId: userId,
-        remark: remark.trim(),
+        remark: _resolveRemark(remark),
       );
     } catch (e) {
       Toast.showError(context, 'Failed to approve check-in: $e');
@@ -628,10 +624,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       if (remark == null) {
         return;
       }
-      if (remark.trim().isEmpty) {
-        Toast.showError(context, 'Please enter a remark for approval.');
-        return;
-      }
 
       final localStorage = di.sl<LocalStorageDataSource>();
       final useridString = await localStorage.getUserId();
@@ -645,11 +637,16 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       context.read<AttendanceCubit>().approveCheckOut(
         attendanceId: record.attendanceId!,
         userId: userId,
-        remark: remark.trim(),
+        remark: _resolveRemark(remark),
       );
     } catch (e) {
       Toast.showError(context, 'Failed to approve check-out: $e');
     }
+  }
+
+  String _resolveRemark(String remark) {
+    final trimmed = remark.trim();
+    return trimmed.isEmpty ? 'NA' : trimmed;
   }
 
   Future<String?> _showApprovalRemarkDialog(
@@ -667,8 +664,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             maxLines: 3,
             autofocus: true,
             decoration: const InputDecoration(
-              labelText: 'Remark *',
-              hintText: 'Enter remark',
+              labelText: 'Remark (optional)',
+              hintText: 'Enter remark or leave blank for NA',
               border: OutlineInputBorder(),
             ),
           ),

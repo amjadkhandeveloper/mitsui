@@ -107,7 +107,8 @@ void main() async {
   _setupNotificationTapHandling();
 
   // Foreground messages: show local notification (Android only).
-  if (!kIsWeb && Platform.isAndroid && androidChannel != null) {
+  final notificationChannel = androidChannel;
+  if (!kIsWeb && Platform.isAndroid && notificationChannel != null) {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final notification = message.notification;
       final android = message.notification?.android;
@@ -124,9 +125,9 @@ void main() async {
           notification.body,
           NotificationDetails(
             android: AndroidNotificationDetails(
-              androidChannel.id,
-              androidChannel.name,
-              channelDescription: androidChannel.description,
+              notificationChannel.id,
+              notificationChannel.name,
+              channelDescription: notificationChannel.description,
               icon: android.smallIcon ?? 'ic_mitsui_logo',
               importance: Importance.high,
               priority: Priority.high,
