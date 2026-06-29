@@ -8,6 +8,7 @@ class ApiConstants {
   static const String login = '/api/Auth/UserLogin';
   static const String register = '/api/Auth/Register'; // reserved
   static const String resetPassword = '/api/Auth/ResetPassword';
+  static const String forceUpdateClient = '/api/Auth/ForceUpdateClient';
 
   // Trip APIs
   static const String tripDetails = '/api/Track/TripDetails'; // All trips
@@ -59,4 +60,16 @@ class ApiConstants {
   static const String appName = 'Mitsui FleetPlus';
   static const String appVersion = '1.0.2';
   static const String releaseDate = '13-Mar-2026';
+
+  /// Integer build version used for force-update checks.
+  /// Update this before each release and compare with ForceUpdateClient API.
+  static const int localAppVersion = 11;
+
+  /// Fallback client id when none is stored after login.
+  static const int defaultClientId = 35;
+  
+  static const String androidPlayStoreUrl =
+      'https://play.google.com/store/apps/details?id=com.infotrack.mitsuifleet';
+  static const String iosAppStoreUrl =
+      'https://apps.apple.com/app/id0000000000';
 }

@@ -13,6 +13,7 @@ import '../../../../core/di/injection_container.dart' as di;
 import '../../../splash/data/datasources/local_storage_data_source.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/services/fcm_token_service.dart';
+import '../../../../core/widgets/force_update_helper.dart';
 import '../../../../utils/app_globals.dart';
 
 class ExpatDashboardScreen extends StatefulWidget {
@@ -30,6 +31,9 @@ class _ExpatDashboardScreenState extends State<ExpatDashboardScreen> {
     super.initState();
     _loadCurrentUser();
     _registerFcmToken();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ForceUpdateHelper.checkInBackground(context);
+    });
   }
 
   Future<void> _registerFcmToken() async {

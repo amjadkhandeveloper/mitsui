@@ -17,6 +17,7 @@ import '../../../../core/di/injection_container.dart' as di;
 import 'package:dio/dio.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../core/services/fcm_token_service.dart';
+import '../../../../core/widgets/force_update_helper.dart';
 import '../../../../utils/app_globals.dart';
 
 class DriverDashboardScreen extends StatefulWidget {
@@ -46,6 +47,9 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
     _loadDriverStatus();
     _loadLocation();
     _registerFcmToken();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ForceUpdateHelper.checkInBackground(context);
+    });
   }
 
   Future<void> _registerFcmToken() async {

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../network/dio_client.dart';
 import '../network/network_info.dart';
 import '../services/fcm_token_service.dart';
+import '../services/force_update_service.dart';
 import '../../data/datasources/remote_data_source.dart';
 import '../../data/datasources/local_data_source.dart';
 import '../../data/repositories/repository_impl.dart';
@@ -267,6 +268,9 @@ Future<void> init() async {
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl<Dio>()));
   sl.registerLazySingleton(
     () => FcmTokenService(dio: sl<Dio>(), localStorage: sl<LocalStorageDataSource>()),
+  );
+  sl.registerLazySingleton(
+    () => ForceUpdateService(dio: sl<Dio>(), localStorage: sl<LocalStorageDataSource>()),
   );
 
   //! Data sources
