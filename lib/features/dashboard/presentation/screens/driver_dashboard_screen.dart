@@ -18,6 +18,7 @@ import 'package:dio/dio.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../core/services/fcm_token_service.dart';
 import '../../../../core/widgets/force_update_helper.dart';
+import '../../../../core/widgets/logout_helper.dart';
 import '../../../../utils/app_globals.dart';
 
 class DriverDashboardScreen extends StatefulWidget {
@@ -377,7 +378,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
       ),
       drawer: DashboardDrawer(
         userName: currentUser?.username ?? currentUser?.name ?? 'Driver',
-        onLogout: () => _showLogoutConfirmation(context),
+        onLogout: () => LogoutHelper.showConfirmationAndLogout(context),
       ),
       body: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
@@ -779,38 +780,5 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
     );
   }
 
-  void _showLogoutConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text(
-          'Logout',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              final authRepository = di.sl<AuthRepository>();
-              await authRepository.logout();
-              if (mounted) {
-                Navigator.of(context).pushReplacementNamed(AppRoutes.login);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 

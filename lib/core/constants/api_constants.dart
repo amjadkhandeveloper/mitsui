@@ -51,6 +51,7 @@ class ApiConstants {
 
   // FCM Token
   static const String registerFcmToken = '/api/FcmToken/RegisterToken';
+  static const String logoutFcmToken = '/api/FcmToken/Logout';
 
   // Timeouts
   static const int connectTimeout = 30000; // 30 seconds

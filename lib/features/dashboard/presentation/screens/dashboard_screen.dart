@@ -11,6 +11,7 @@ import '../../../login/domain/entities/user.dart';
 import '../../../splash/data/datasources/local_storage_data_source.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/utils/toast.dart';
+import '../../../../core/widgets/logout_helper.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import 'package:dio/dio.dart';
 import 'package:geolocator/geolocator.dart';
@@ -178,7 +179,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () => _showLogoutConfirmation(context),
+            onPressed: () => LogoutHelper.showConfirmationAndLogout(context),
             tooltip: 'Logout',
           ),
         ],
@@ -494,33 +495,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  void _showLogoutConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text(
-          'Logout',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              Navigator.of(context).pushReplacementNamed(AppRoutes.login);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-  }
 }

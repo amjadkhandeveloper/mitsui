@@ -97,6 +97,68 @@ class FcmTokenService {
     }
   }
 
+  /// Logs out FCM token on backend.
+  /// Driver login: driverId set, userId = 0.
+  /// User/expat login: userId set, driverId = 0.
+  Future<bool> logoutFromServer({
+    int userId = 0,
+    int driverId = 0,
+  }) async {
+    try {
+      final role = await localStorage.getUserRole();
+      final storedUserId = int.tryParse((await localStorage.getUserId()) ?? '') ?? 0;
+      final storedDriverId =
+          int.tryParse((await localStorage.getDriverId()) ?? '') ?? 0;
+
+      final int payloadUserId;
+      final int payloadDriverId;
+
+      if (userId > 0 || driverId > 0) {
+        payloadUserId = userId;
+        payloadDriverId = driverId;
+      } else if (role == 'expat' || (storedUserId > 0 && storedDriverId <= 0)) {
+        payloadUserId = storedUserId;
+        payloadDriverId = 0;
+      } else {
+        payloadUserId = 0;
+        payloadDriverId = storedDriverId;
+      }
+
+      if (payloadUserId <= 0 && payloadDriverId <= 0) {
+        debugPrint('FCM logout: skipped (userId and driverId both 0)');
+        return false;
+      }
+
+      final payload = {
+        'driverId': payloadDriverId,
+        'userId': payloadUserId,
+      };
+
+      debugPrint(
+        'FCM logout: calling ${ApiConstants.logoutFcmToken} with payload=$payload',
+      );
+
+      final res = await dio.post(ApiConstants.logoutFcmToken, data: payload);
+      final data = res.data;
+      final status = (data is Map<String, dynamic>) ? data['status'] : null;
+      final success = res.statusCode == 200 || status == 200 || status == 1;
+
+      if (success) {
+        await localStorage.setLastRegisteredFcmToken(null);
+        debugPrint('FCM logout: success');
+      } else {
+        debugPrint(
+          'FCM logout: failed (statusCode=${res.statusCode}, status=$status)',
+        );
+      }
+
+      return success;
+    } catch (e, stack) {
+      debugPrint('FCM logout: failed: $e\n$stack');
+      return false;
+    }
+  }
+
   Future<String> _getDeviceId() async {
     try {
       final deviceInfo = DeviceInfoPlugin();

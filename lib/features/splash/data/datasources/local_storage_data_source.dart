@@ -30,12 +30,18 @@ abstract class LocalStorageDataSource {
   Future<void> setFcmToken(String? token);
   Future<String?> getLastRegisteredFcmToken();
   Future<void> setLastRegisteredFcmToken(String? token);
+
+  // Force logout tracking (per backend appversion)
+  Future<int?> getForceLogoutDoneAppVersion();
+  Future<void> setForceLogoutDoneAppVersion(int? appVersion);
 }
 
 class LocalStorageDataSourceImpl implements LocalStorageDataSource {
   final SharedPreferences sharedPreferences;
 
   LocalStorageDataSourceImpl({required this.sharedPreferences});
+
+  static const String _kForceLogoutDoneAppVersion = 'force_logout_done_appversion';
 
   @override
   Future<String?> getAuthToken() async {
@@ -282,6 +288,28 @@ class LocalStorageDataSourceImpl implements LocalStorageDataSource {
         await sharedPreferences.setString('last_registered_fcm_token', token.trim());
       }
     } catch (e) {
+      // ignore
+    }
+  }
+
+  @override
+  Future<int?> getForceLogoutDoneAppVersion() async {
+    try {
+      return sharedPreferences.getInt(_kForceLogoutDoneAppVersion);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> setForceLogoutDoneAppVersion(int? appVersion) async {
+    try {
+      if (appVersion == null || appVersion <= 0) {
+        await sharedPreferences.remove(_kForceLogoutDoneAppVersion);
+        return;
+      }
+      await sharedPreferences.setInt(_kForceLogoutDoneAppVersion, appVersion);
+    } catch (_) {
       // ignore
     }
   }
