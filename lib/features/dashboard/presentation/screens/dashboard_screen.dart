@@ -4,7 +4,7 @@ import '../cubit/dashboard_cubit.dart';
 import '../widgets/user_profile_card.dart';
 import '../widgets/quick_action_button.dart';
 import '../widgets/feature_card.dart';
-import '../widgets/attendance_odometer_dialog.dart';
+// import '../widgets/attendance_odometer_dialog.dart'; // Odometer disabled for this release
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../login/domain/repositories/auth_repository.dart';
@@ -219,18 +219,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             child: QuickActionButton(
                               type: QuickActionType.checkIn,
                               onTap: () async {
-                                final odometer =
-                                    await AttendanceOdometerDialog.show(
-                                  context,
+                                // Odometer disabled for this release.
+                                // final odometer = await AttendanceOdometerDialog.show(
+                                //   context,
+                                //   isCheckIn: true,
+                                // );
+                                // if (odometer == null) return;
+
+                                await _logAttendance(
+                                  context: context,
                                   isCheckIn: true,
                                 );
-                                if (odometer != null) {
-                                  await _logAttendance(
-                                    context: context,
-                                    isCheckIn: true,
-                                    odometer: odometer,
-                                  );
-                                }
                               },
                             ),
                           ),
@@ -317,7 +316,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _logAttendance({
     required BuildContext context,
     required bool isCheckIn,
-    required double odometer,
+    // double? odometer, // Odometer disabled for this release
   }) async {
     try {
       final localStorage = di.sl<LocalStorageDataSource>();
@@ -369,7 +368,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final dio = di.sl<Dio>();
       final now = DateTime.now().toIso8601String();
 
-      final body = {
+      final body = <String, dynamic>{
         'mode': isCheckIn ? 1 : 2, // 1 = check-in, 2 = check-out
         'clientId': clientId,
         'zoneId': zoneId,
@@ -377,13 +376,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'attendanceDate': now,
         'lat': lat,
         'lon': lon,
-        'odometer': odometer,
         'deviceId': 'device-id',
         'appVersion': ApiConstants.appVersion,
         'remarks': isCheckIn ? 'Check-in done' : 'Check-out done',
         'userId': 0,
         'status': isCheckIn ? 1 : 2, // 1 = check-in, 2 = check-out
       };
+      // Odometer disabled for this release.
+      // if (odometer != null) {
+      //   body['odometer'] = odometer;
+      // }
 
       final response = await dio.post(
         ApiConstants.driverAttendanceLog,

@@ -59,8 +59,8 @@ class ApiConstants {
 
   // ── About App (update these before each release) ──
   static const String appName = 'Mitsui FleetPlus';
-  static const String appVersion = '1.0.2';
-  static const String releaseDate = '13-Mar-2026';
+  static const String appVersion = '1.0.3';
+  static const String releaseDate = '02-July-2026';
 
   /// Integer build version used for force-update checks.
   /// Update this before each release and compare with ForceUpdateClient API.
@@ -68,6 +68,9 @@ class ApiConstants {
 
   /// Fallback client id when none is stored after login.
   static const int defaultClientId = 35;
+
+  // /// Set to true when odometer input is required for driver check-in/out.
+  // static const bool enableAttendanceOdometer = false;
   
   static const String androidPlayStoreUrl =
       'https://play.google.com/store/apps/details?id=com.infotrack.mitsuifleet';

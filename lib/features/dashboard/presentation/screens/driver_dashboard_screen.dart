@@ -19,7 +19,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../../../core/services/fcm_token_service.dart';
 import '../../../../core/widgets/force_update_helper.dart';
 import '../../../../core/widgets/logout_helper.dart';
-import '../widgets/attendance_odometer_dialog.dart';
+// import '../widgets/attendance_odometer_dialog.dart'; // Odometer disabled for this release
 import '../../../../utils/app_globals.dart';
 
 class DriverDashboardScreen extends StatefulWidget {
@@ -384,26 +384,26 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
                                       onTap: () async {
                                         if (!_showAttendanceButton ||
                                             _isAttendanceSubmitting) return;
-                                        final odometer =
-                                            await AttendanceOdometerDialog.show(
-                                          context,
+
+                                        // Odometer disabled for this release.
+                                        // final odometer = await AttendanceOdometerDialog.show(
+                                        //   context,
+                                        //   isCheckIn: _isAttendanceActionCheckIn,
+                                        // );
+                                        // if (odometer == null) return;
+
+                                        setState(() {
+                                          _isAttendanceSubmitting = true;
+                                        });
+                                        await _logAttendance(
+                                          context: context,
                                           isCheckIn: _isAttendanceActionCheckIn,
                                         );
-                                        if (odometer != null) {
+                                        await _loadDriverStatus();
+                                        if (mounted) {
                                           setState(() {
-                                            _isAttendanceSubmitting = true;
+                                            _isAttendanceSubmitting = false;
                                           });
-                                          await _logAttendance(
-                                            context: context,
-                                            isCheckIn: _isAttendanceActionCheckIn,
-                                            odometer: odometer,
-                                          );
-                                          await _loadDriverStatus();
-                                          if (mounted) {
-                                            setState(() {
-                                              _isAttendanceSubmitting = false;
-                                            });
-                                          }
                                         }
                                       },
                                     ),
@@ -505,7 +505,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
   Future<void> _logAttendance({
     required BuildContext context,
     required bool isCheckIn,
-    required double odometer,
+    // double? odometer, // Odometer disabled for this release
   }) async {
     try {
       final localStorage = di.sl<LocalStorageDataSource>();
@@ -557,7 +557,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
       final dio = di.sl<Dio>();
       final now = DateTime.now().toIso8601String();
 
-      final body = {
+      final body = <String, dynamic>{
         'mode': isCheckIn ? 1 : 2, // 1 = check-in, 2 = check-out
         'clientId': clientId,
         'zoneId': zoneId,
@@ -565,13 +565,16 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
         'attendanceDate': now,
         'lat': lat,
         'lon': lon,
-        'odometer': odometer,
         'deviceId': 'device-id',
         'appVersion': ApiConstants.appVersion,
         'remarks': isCheckIn ? 'Check-in done' : 'Check-out done',
         'userId': 0,
         'status': isCheckIn ? 1 : 2, // 1 = check-in, 2 = check-out
       };
+      // Odometer disabled for this release.
+      // if (odometer != null) {
+      //   body['odometer'] = odometer;
+      // }
 
       final response = await dio.post(
         ApiConstants.driverAttendanceLog,
