@@ -9,6 +9,8 @@ import '../error/exceptions.dart';
 class DioClient {
   late Dio _dio;
   final SharedPreferences sharedPreferences;
+  DateTime? _lastConnectivityCheckAt;
+  bool? _lastConnectivityStatus;
 
   DioClient({required this.sharedPreferences}) {
     _dio = Dio(
@@ -53,6 +55,18 @@ class DioClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          // Global network connectivity guard (prevents Dio errors across app)
+          final ok = await _hasInternetConnection();
+          if (!ok) {
+            return handler.reject(
+              DioException(
+                requestOptions: options,
+                type: DioExceptionType.unknown,
+                error: const SocketException('No internet'),
+              ),
+            );
+          }
+
           // Add auth token if available
           final token = sharedPreferences.getString('auth_token');
           if (token != null && token.isNotEmpty) {
@@ -68,6 +82,29 @@ class DioClient {
   }
 
   Dio get dio => _dio;
+
+  Future<bool> _hasInternetConnection() async {
+    // Cache result briefly to avoid DNS lookup for every request burst
+    final now = DateTime.now();
+    if (_lastConnectivityCheckAt != null &&
+        now.difference(_lastConnectivityCheckAt!) < const Duration(seconds: 3) &&
+        _lastConnectivityStatus != null) {
+      return _lastConnectivityStatus!;
+    }
+
+    bool ok = false;
+    try {
+      final host = Uri.parse(ApiConstants.baseUrl).host;
+      final results = await InternetAddress.lookup(host);
+      ok = results.isNotEmpty && results.first.rawAddress.isNotEmpty;
+    } catch (_) {
+      ok = false;
+    }
+
+    _lastConnectivityCheckAt = now;
+    _lastConnectivityStatus = ok;
+    return ok;
+  }
 
   // GET request
   Future<Response> get(

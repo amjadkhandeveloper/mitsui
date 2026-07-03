@@ -19,6 +19,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../../../core/services/fcm_token_service.dart';
 import '../../../../core/widgets/force_update_helper.dart';
 import '../../../../core/widgets/logout_helper.dart';
+import '../widgets/attendance_odometer_dialog.dart';
 import '../../../../utils/app_globals.dart';
 
 class DriverDashboardScreen extends StatefulWidget {
@@ -33,12 +34,6 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
   String? _driverStatus;
   DateTime? _checkInTime;
   DateTime? _checkOutTime;
-  // Office / reference location from dashboard API (Lat, Lon)
-  double? _officeLat;
-  double? _officeLon;
-  double? _currentLat;
-  bool _locationLoading = true;
-  String? _locationError;
   bool _isAttendanceSubmitting = false;
 
   @override
@@ -46,7 +41,6 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
     super.initState();
     _loadCurrentUser();
     _loadDriverStatus();
-    _loadLocation();
     _registerFcmToken();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ForceUpdateHelper.checkInBackground(context);
@@ -67,59 +61,6 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
           );
     } catch (_) {
       // ignore - do not block dashboard UI
-    }
-  }
-
-  Future<void> _loadLocation() async {
-    setState(() {
-      _locationLoading = true;
-      _locationError = null;
-      _currentLat = null;
-    });
-    try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        if (mounted) {
-          setState(() {
-            _locationLoading = false;
-            _locationError = 'Location is off';
-          });
-          await Geolocator.openLocationSettings();
-        }
-        return;
-      }
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        if (mounted) {
-          setState(() {
-            _locationLoading = false;
-            _locationError = 'Permission denied';
-          });
-          await Geolocator.openAppSettings();
-        }
-        return;
-      }
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium,
-      );
-      if (mounted) {
-        setState(() {
-          _currentLat = position.latitude;
-          _locationLoading = false;
-          _locationError = null;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _locationLoading = false;
-          _locationError = 'Unable to get location';
-        });
-      }
     }
   }
 
@@ -200,26 +141,6 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
                 }
               }
 
-              // Parse office/reference Lat/Lon for geofence (can be number or string)
-              final latValue = first['Lat'] ?? first['lat'];
-              final lonValue = first['Lon'] ?? first['lon'] ?? first['Lng'] ?? first['lng'];
-              double? officeLat;
-              double? officeLon;
-              if (latValue is num) {
-                officeLat = latValue.toDouble();
-              } else if (latValue is String && latValue.isNotEmpty) {
-                officeLat = double.tryParse(latValue);
-              }
-              if (lonValue is num) {
-                officeLon = lonValue.toDouble();
-              } else if (lonValue is String && lonValue.isNotEmpty) {
-                officeLon = double.tryParse(lonValue);
-              }
-
-              if (officeLat != null && officeLon != null) {
-                _officeLat = officeLat;
-                _officeLon = officeLon;
-              }
             }
           }
         }
@@ -430,56 +351,6 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
                   userRole: currentUser?.role ?? UserRole.driver,
                 ),
                 const SizedBox(height: 8),
-                // Current Location Card
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(horizontal: 16),
-                //   child: Card(
-                //     margin: EdgeInsets.zero,
-                //     child: Padding(
-                //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                //       child: Row(
-                //         children: [
-                //           Icon(
-                //             Icons.location_on,
-                //             color: _locationError != null
-                //                 ? Colors.grey
-                //                 : AppTheme.mitsuiDarkBlue,
-                //             size: 28,
-                //           ),
-                //           const SizedBox(width: 12),
-                //           Expanded(
-                //             child: _locationLoading
-                //                 ? const Text('Getting location...')
-                //                 : _locationError != null
-                //                     ? Text(
-                //                         _locationError!,
-                //                         style: TextStyle(color: Colors.grey.shade700),
-                //                       )
-                //                     : const Text(
-                //                         'Location is ready for check-in / check-out',
-                //                         style: TextStyle(
-                //                           fontSize: 13,
-                //                           color: Colors.black87,
-                //                         ),
-                //                       ),
-                //           ),
-                //           if (!_locationLoading && _locationError != null)
-                //             TextButton(
-                //               onPressed: _loadLocation,
-                //               child: const Text('Retry'),
-                //             )
-                //           else if (!_locationLoading && _currentLat != null)
-                //             IconButton(
-                //               icon: const Icon(Icons.refresh),
-                //               onPressed: _loadLocation,
-                //               tooltip: 'Refresh location',
-                //             ),
-                //         ],
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                const SizedBox(height: 8),
                 // Quick Actions Section
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -513,23 +384,19 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
                                       onTap: () async {
                                         if (!_showAttendanceButton ||
                                             _isAttendanceSubmitting) return;
-                                        // Directly show check-in/check-out confirmation
-                                        final confirmed = await _showConfirmDialog(
+                                        final odometer =
+                                            await AttendanceOdometerDialog.show(
                                           context,
-                                          title: _isAttendanceActionCheckIn
-                                              ? 'Check In'
-                                              : 'Check Out',
-                                          message: _isAttendanceActionCheckIn
-                                              ? 'Are you sure you want to check in?'
-                                              : 'Are you sure you want to check out?',
+                                          isCheckIn: _isAttendanceActionCheckIn,
                                         );
-                                        if (confirmed == true) {
+                                        if (odometer != null) {
                                           setState(() {
                                             _isAttendanceSubmitting = true;
                                           });
                                           await _logAttendance(
                                             context: context,
                                             isCheckIn: _isAttendanceActionCheckIn,
+                                            odometer: odometer,
                                           );
                                           await _loadDriverStatus();
                                           if (mounted) {
@@ -638,6 +505,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
   Future<void> _logAttendance({
     required BuildContext context,
     required bool isCheckIn,
+    required double odometer,
   }) async {
     try {
       final localStorage = di.sl<LocalStorageDataSource>();
@@ -697,9 +565,9 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
         'attendanceDate': now,
         'lat': lat,
         'lon': lon,
-        'odometer': 0,
+        'odometer': odometer,
         'deviceId': 'device-id',
-        'appVersion': '1.0.0',
+        'appVersion': ApiConstants.appVersion,
         'remarks': isCheckIn ? 'Check-in done' : 'Check-out done',
         'userId': 0,
         'status': isCheckIn ? 1 : 2, // 1 = check-in, 2 = check-out
@@ -753,32 +621,5 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
       Toast.showError(context, 'Failed to log attendance: $e');
     }
   }
-
-  Future<bool?> _showConfirmDialog(
-    BuildContext context, {
-    required String title,
-    required String message,
-  }) {
-    return showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('No'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('Yes'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
 }
 
