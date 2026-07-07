@@ -32,13 +32,10 @@ class FcmTokenService {
     }
 
     if (userId <= 0 && driverId <= 0) {
-      final loggedIn = await localStorage.isLoggedIn();
-      if (!loggedIn) {
-        final authToken = await localStorage.getAuthToken();
-        if (authToken == null || authToken.trim().isEmpty) {
-          debugPrint('FCM registerToken: skipped (not logged in, no userId/driverId)');
-          return;
-        }
+      final hasSession = await localStorage.hasActiveSession();
+      if (!hasSession) {
+        debugPrint('FCM registerToken: skipped (not logged in, no userId/driverId)');
+        return;
       }
       // Fallback from storage if caller did not pass ids
       final userIdStr = await localStorage.getUserId();
@@ -82,8 +79,9 @@ class FcmTokenService {
     };
 
     debugPrint(
-      'FCM registerToken: calling ${ApiConstants.registerFcmToken} '
-      'with payload=$payload',
+      'FCM registerToken: calling '
+      '${ApiConstants.baseUrl}${ApiConstants.registerFcmToken} '
+      'payload=$payload',
     );
     final res = await dio.post(ApiConstants.registerFcmToken, data: payload);
     final data = res.data;
@@ -91,9 +89,17 @@ class FcmTokenService {
 
     if (res.statusCode == 200 || status == 200) {
       await localStorage.setLastRegisteredFcmToken(trimmed);
-      debugPrint('FCM registerToken: success');
+      debugPrint(
+        'FCM registerToken: success '
+        'url=${ApiConstants.baseUrl}${ApiConstants.registerFcmToken} '
+        'statusCode=${res.statusCode} body=${res.data}',
+      );
     } else {
-      debugPrint('FCM registerToken: failed (statusCode=${res.statusCode}, status=$status)');
+      debugPrint(
+        'FCM registerToken: failed '
+        'url=${ApiConstants.baseUrl}${ApiConstants.registerFcmToken} '
+        'statusCode=${res.statusCode} body=${res.data}',
+      );
     }
   }
 
@@ -135,7 +141,9 @@ class FcmTokenService {
       };
 
       debugPrint(
-        'FCM logout: calling ${ApiConstants.logoutFcmToken} with payload=$payload',
+        'FCM logout: calling '
+        '${ApiConstants.baseUrl}${ApiConstants.logoutFcmToken} '
+        'payload=$payload',
       );
 
       final res = await dio.post(ApiConstants.logoutFcmToken, data: payload);
@@ -145,10 +153,16 @@ class FcmTokenService {
 
       if (success) {
         await localStorage.setLastRegisteredFcmToken(null);
-        debugPrint('FCM logout: success');
+        debugPrint(
+          'FCM logout: success '
+          'url=${ApiConstants.baseUrl}${ApiConstants.logoutFcmToken} '
+          'statusCode=${res.statusCode} body=${res.data}',
+        );
       } else {
         debugPrint(
-          'FCM logout: failed (statusCode=${res.statusCode}, status=$status)',
+          'FCM logout: failed '
+          'url=${ApiConstants.baseUrl}${ApiConstants.logoutFcmToken} '
+          'statusCode=${res.statusCode} body=${res.data}',
         );
       }
 

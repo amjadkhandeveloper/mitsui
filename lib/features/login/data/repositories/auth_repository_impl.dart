@@ -51,13 +51,15 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       
       // Save token to local storage
-      if (userModel.token != null) {
-        await sharedPreferences.setString('auth_token', userModel.token!);
+      final token = userModel.token?.trim();
+      if (token != null && token.isNotEmpty) {
+        await sharedPreferences.setString('auth_token', token);
       }
-      if (userModel.refreshToken != null) {
+      final refreshToken = userModel.refreshToken?.trim();
+      if (refreshToken != null && refreshToken.isNotEmpty) {
         await sharedPreferences.setString(
           'refresh_token',
-          userModel.refreshToken!,
+          refreshToken,
         );
       }
       

@@ -10,12 +10,8 @@ import '../../../../core/routes/app_routes.dart';
 import '../../../login/domain/repositories/auth_repository.dart';
 import '../../../login/domain/entities/user.dart';
 import '../../../../core/di/injection_container.dart' as di;
-import '../../../splash/data/datasources/local_storage_data_source.dart';
-import '../../../../core/constants/api_constants.dart';
-import '../../../../core/services/fcm_token_service.dart';
-import '../../../../core/widgets/force_update_helper.dart';
 import '../../../../core/widgets/logout_helper.dart';
-import '../../../../utils/app_globals.dart';
+import '../../../../core/widgets/dashboard_bootstrap_host.dart';
 
 class ExpatDashboardScreen extends StatefulWidget {
   const ExpatDashboardScreen({super.key});
@@ -26,32 +22,12 @@ class ExpatDashboardScreen extends StatefulWidget {
 
 class _ExpatDashboardScreenState extends State<ExpatDashboardScreen> {
   User? currentUser;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
     _loadCurrentUser();
-    _registerFcmToken();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ForceUpdateHelper.checkInBackground(context);
-    });
-  }
-
-  Future<void> _registerFcmToken() async {
-    try {
-      final localStorage = di.sl<LocalStorageDataSource>();
-      final token = Global.fcmToken ?? await localStorage.getFcmToken();
-      final userIdStr = await localStorage.getUserId();
-      final userId = int.tryParse(userIdStr ?? '') ?? 0;
-      await di.sl<FcmTokenService>().registerTokenIfNeeded(
-            token: token,
-            appVersion: ApiConstants.appVersion,
-            userId: userId,
-            driverId: 0,
-          );
-    } catch (_) {
-      // ignore - do not block dashboard UI
-    }
   }
 
   Future<void> _loadCurrentUser() async {
@@ -69,6 +45,26 @@ class _ExpatDashboardScreenState extends State<ExpatDashboardScreen> {
     );
   }
 
+  Future<void> _refreshDashboard() async {
+    if (_isRefreshing) return;
+    setState(() => _isRefreshing = true);
+    // Capture controller synchronously before any async gap.
+    final bootstrap = DashboardBootstrapScope.maybeOf(context);
+    try {
+      // Reload current user (in case role/name changed).
+      await _loadCurrentUser();
+
+      // Re-run the same fresh-load sequence used when opening the dashboard.
+      if (bootstrap != null) {
+        await bootstrap.refresh();
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isRefreshing = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,6 +79,25 @@ class _ExpatDashboardScreenState extends State<ExpatDashboardScreen> {
         ),
         backgroundColor: AppTheme.mitsuiDarkBlue,
         elevation: 0,
+        actions: [
+          _isRefreshing
+              ? const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  tooltip: 'Refresh',
+                  onPressed: _refreshDashboard,
+                ),
+        ],
       ),
       drawer: DashboardDrawer(
         userName: currentUser?.username ?? currentUser?.name ?? 'User',

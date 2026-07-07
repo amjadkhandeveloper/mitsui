@@ -29,6 +29,7 @@ import '../../features/receipt/presentation/cubit/receipt_cubit.dart';
 import '../../features/introduction/presentation/screens/introduction_screen.dart';
 import '../../features/dashboard/presentation/screens/admin_contact_screen.dart';
 import '../../features/login/domain/entities/user.dart';
+import '../widgets/dashboard_bootstrap_host.dart';
 import '../di/injection_container.dart' as di;
 
 class AppRoutes {
@@ -76,20 +77,26 @@ class AppRoutes {
         );
       case home:
       case dashboard:
-        // Determine which dashboard to show based on user role
         return MaterialPageRoute(
           builder: (_) {
             return FutureBuilder<String?>(
               future: _getUserRole(),
               builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
                 final role = snapshot.data ?? 'driver';
                 final isExpat = role == 'expat';
-                
+                final dashboard = isExpat
+                    ? const ExpatDashboardScreen()
+                    : const DriverDashboardScreen();
+
                 return BlocProvider<DashboardCubit>(
                   create: (_) => di.sl<DashboardCubit>(),
-                  child: isExpat 
-                      ? const ExpatDashboardScreen()
-                      : const DriverDashboardScreen(),
+                  child: DashboardBootstrapHost(child: dashboard),
                 );
               },
             );

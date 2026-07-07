@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 abstract class LocalStorageDataSource {
   Future<String?> getAuthToken();
   Future<bool> isLoggedIn();
+  /// True when user completed login (flag + user/driver id), even if auth token is empty.
+  Future<bool> hasActiveSession();
   // User data getters
   Future<String?> getUserId();
   Future<String?> getDriverId();
@@ -31,9 +33,9 @@ abstract class LocalStorageDataSource {
   Future<String?> getLastRegisteredFcmToken();
   Future<void> setLastRegisteredFcmToken(String? token);
 
-  // Force logout tracking (per backend appversion)
-  Future<int?> getForceLogoutDoneAppVersion();
-  Future<void> setForceLogoutDoneAppVersion(int? appVersion);
+  // Force logout tracking (per app release version string, e.g. 1.0.1)
+  Future<String?> getForceLogoutDoneAppVersion();
+  Future<void> setForceLogoutDoneAppVersion(String? appVersion);
 }
 
 class LocalStorageDataSourceImpl implements LocalStorageDataSource {
@@ -41,7 +43,7 @@ class LocalStorageDataSourceImpl implements LocalStorageDataSource {
 
   LocalStorageDataSourceImpl({required this.sharedPreferences});
 
-  static const String _kForceLogoutDoneAppVersion = 'force_logout_done_appversion';
+  static const String _kForceLogoutDoneAppVersion = 'force_logout_done_app_version';
 
   @override
   Future<String?> getAuthToken() async {
@@ -59,6 +61,24 @@ class LocalStorageDataSourceImpl implements LocalStorageDataSource {
       final authToken = sharedPreferences.getString('auth_token');
       // Check both login status flag and auth token for reliability
       return (isLoggedIn == true) && (authToken != null && authToken.isNotEmpty);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> hasActiveSession() async {
+    try {
+      if (await isLoggedIn()) return true;
+
+      final loggedInFlag = sharedPreferences.getBool('is_logged_in');
+      if (loggedInFlag != true) return false;
+
+      final userId = sharedPreferences.getString('userid');
+      final driverId = sharedPreferences.getString('driverid');
+      final hasUserId = userId != null && userId.trim().isNotEmpty;
+      final hasDriverId = driverId != null && driverId.trim().isNotEmpty;
+      return hasUserId || hasDriverId;
     } catch (e) {
       return false;
     }
@@ -293,22 +313,30 @@ class LocalStorageDataSourceImpl implements LocalStorageDataSource {
   }
 
   @override
-  Future<int?> getForceLogoutDoneAppVersion() async {
+  Future<String?> getForceLogoutDoneAppVersion() async {
     try {
-      return sharedPreferences.getInt(_kForceLogoutDoneAppVersion);
+      final stored = sharedPreferences.getString(_kForceLogoutDoneAppVersion);
+      if (stored != null && stored.trim().isNotEmpty) {
+        return stored.trim();
+      }
+      // Legacy: previously stored as int appversion — ignore for string-based tracking.
+      return null;
     } catch (_) {
       return null;
     }
   }
 
   @override
-  Future<void> setForceLogoutDoneAppVersion(int? appVersion) async {
+  Future<void> setForceLogoutDoneAppVersion(String? appVersion) async {
     try {
-      if (appVersion == null || appVersion <= 0) {
+      if (appVersion == null || appVersion.trim().isEmpty) {
         await sharedPreferences.remove(_kForceLogoutDoneAppVersion);
         return;
       }
-      await sharedPreferences.setInt(_kForceLogoutDoneAppVersion, appVersion);
+      await sharedPreferences.setString(
+        _kForceLogoutDoneAppVersion,
+        appVersion.trim(),
+      );
     } catch (_) {
       // ignore
     }

@@ -31,106 +31,158 @@ class ForceUpdateService {
       if (policy == null) return false;
       return ApiConstants.localAppVersion < policy.remoteAppVersion;
     } catch (e, stack) {
-      debugPrint('ForceUpdate: check failed silently: $e\n$stack');
+      debugPrint('ForceUpdate: check failed: $e\n$stack');
       return false;
     }
   }
 
   Future<ForceUpdatePolicy?> fetchPolicy() async {
-    final loggedIn = await localStorage.isLoggedIn();
-    if (!loggedIn) {
+    try {
+      final hasSession = await localStorage.hasActiveSession();
+      if (!hasSession) {
+        final userId = await localStorage.getUserId();
+        final driverId = await localStorage.getDriverId();
+        final authToken = await localStorage.getAuthToken();
+        debugPrint(
+          'ForceUpdate: skipped (no active session) '
+          'userId=$userId driverId=$driverId '
+          'authTokenPresent=${authToken != null && authToken.isNotEmpty}',
+        );
+        return null;
+      }
+
+      final clientId =
+          await localStorage.getClientId() ?? ApiConstants.defaultClientId;
+
+      debugPrint(
+        'ForceUpdate: POST ${ApiConstants.baseUrl}${ApiConstants.forceUpdateClient} '
+        'payload={clientId: $clientId}',
+      );
+
+      final response = await dio.post(
+        ApiConstants.forceUpdateClient,
+        data: {'clientId': clientId},
+      );
+
+      debugPrint(
+        'ForceUpdate: response statusCode=${response.statusCode} '
+        'body=${response.data}',
+      );
+
+      final body = _asMap(response.data);
+      if (body == null) {
+        debugPrint('ForceUpdate: invalid response body type: ${response.data.runtimeType}');
+        return null;
+      }
+
+      final status = body['status'];
+      if (!_isSuccessStatus(status)) {
+        debugPrint('ForceUpdate: unexpected status=$status body=$body');
+        return null;
+      }
+
+      final firstItem = _firstDataItem(body['data']);
+      if (firstItem == null) {
+        debugPrint('ForceUpdate: could not parse data=${body['data']}');
+        return null;
+      }
+
+      final remoteVersion = _parseRemoteAppVersion(firstItem);
+      if (remoteVersion == null) {
+        debugPrint('ForceUpdate: missing appversion in $firstItem');
+        return null;
+      }
+
+      final forceLogout = _parseForceLogout(firstItem) ?? false;
+
+      debugPrint(
+        'ForceUpdate: appVersion=${ApiConstants.appVersion} '
+        'localAppVersion=${ApiConstants.localAppVersion} remote=$remoteVersion '
+        'updateRequired=${ApiConstants.localAppVersion < remoteVersion} '
+        'forceLogout=$forceLogout',
+      );
+
+      return ForceUpdatePolicy(
+        remoteAppVersion: remoteVersion,
+        forceLogout: forceLogout,
+      );
+    } catch (e, stack) {
+      debugPrint('ForceUpdate: fetchPolicy failed: $e\n$stack');
       return null;
     }
-
-    final clientId =
-        await localStorage.getClientId() ?? ApiConstants.defaultClientId;
-
-    final response = await dio.post(
-      ApiConstants.forceUpdateClient,
-      data: {'clientId': clientId},
-    );
-
-    final body = response.data;
-    if (body is! Map<String, dynamic>) {
-      return null;
-    }
-
-    final status = body['status'];
-    if (status != 1 && status != 200) {
-      return null;
-    }
-
-    final remoteVersion = _parseRemoteAppVersion(body['data']);
-    if (remoteVersion == null) {
-      return null;
-    }
-
-    final forceLogout = _parseForceLogout(body['data']) ?? false;
-
-    debugPrint(
-      'ForceUpdate: local=${ApiConstants.localAppVersion} remote=$remoteVersion '
-      'updateRequired=${ApiConstants.localAppVersion < remoteVersion} '
-      'forceLogout=$forceLogout',
-    );
-
-    return ForceUpdatePolicy(
-      remoteAppVersion: remoteVersion,
-      forceLogout: forceLogout,
-    );
   }
 
-  Future<bool> shouldForceLogoutOncePerVersion({
-    required int remoteAppVersion,
+  /// Force logout once per [ApiConstants.appVersion] when API ForceLogout is 1.
+  Future<bool> shouldForceLogoutOncePerAppVersion({
     required bool forceLogout,
   }) async {
     if (!forceLogout) return false;
-    final alreadyDone = await localStorage.getForceLogoutDoneAppVersion();
-    return alreadyDone != remoteAppVersion;
+
+    const currentAppVersion = ApiConstants.appVersion;
+    final doneAppVersion = await localStorage.getForceLogoutDoneAppVersion();
+    final shouldLogout = doneAppVersion != currentAppVersion;
+
+    debugPrint(
+      'ForceUpdate: forceLogout check current=$currentAppVersion '
+      'stored=$doneAppVersion shouldLogout=$shouldLogout',
+    );
+
+    return shouldLogout;
   }
 
-  int? _parseRemoteAppVersion(dynamic data) {
-    if (data is! List || data.isEmpty) {
-      return null;
+  Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) {
+      return value.map((key, val) => MapEntry(key.toString(), val));
     }
-
-    final first = data.first;
-    if (first is! Map) {
-      return null;
-    }
-
-    final version = first['appversion'] ?? first['AppVersion'] ?? first['appVersion'];
-    if (version is int) {
-      return version;
-    }
-    if (version is num) {
-      return version.toInt();
-    }
-    if (version is String) {
-      return int.tryParse(version.trim());
-    }
-
     return null;
   }
 
-  bool? _parseForceLogout(dynamic data) {
-    if (data is! List || data.isEmpty) {
-      return null;
+  Map<String, dynamic>? _firstDataItem(dynamic data) {
+    if (data is List && data.isNotEmpty) {
+      return _asMap(data.first);
     }
+    return _asMap(data);
+  }
 
-    final first = data.first;
-    if (first is! Map) {
-      return null;
+  bool _isSuccessStatus(dynamic status) {
+    if (status == 1 || status == 200) return true;
+    if (status is num) {
+      final code = status.toInt();
+      return code == 1 || code == 200;
     }
+    if (status is String) {
+      final normalized = status.trim().toLowerCase();
+      return normalized == '1' ||
+          normalized == '200' ||
+          normalized == 'success';
+    }
+    return false;
+  }
 
-    final v = first['ForceLogout'] ??
-        first['forceLogout'] ??
-        first['force_logout'] ??
-        first['FORCELOGOUT'];
+  int? _parseRemoteAppVersion(Map<String, dynamic> item) {
+    final version = item['appversion'] ??
+        item['AppVersion'] ??
+        item['appVersion'] ??
+        item['Appversion'];
+    if (version is int) return version;
+    if (version is num) return version.toInt();
+    if (version is String) return int.tryParse(version.trim());
+    return null;
+  }
+
+  bool? _parseForceLogout(Map<String, dynamic> item) {
+    final v = item['ForceLogout'] ??
+        item['forceLogout'] ??
+        item['force_logout'] ??
+        item['FORCELOGOUT'];
 
     if (v is bool) return v;
     if (v is int) return v == 1;
     if (v is num) return v.toInt() == 1;
-    if (v is String) return v.trim() == '1' || v.trim().toLowerCase() == 'true';
+    if (v is String) {
+      return v.trim() == '1' || v.trim().toLowerCase() == 'true';
+    }
     return null;
   }
 }

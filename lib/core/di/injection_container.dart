@@ -5,6 +5,7 @@ import '../network/dio_client.dart';
 import '../network/network_info.dart';
 import '../services/fcm_token_service.dart';
 import '../services/force_update_service.dart';
+import '../services/dashboard_bootstrap_service.dart';
 import '../../data/datasources/remote_data_source.dart';
 import '../../data/datasources/local_data_source.dart';
 import '../../data/repositories/repository_impl.dart';
@@ -271,6 +272,14 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(
     () => ForceUpdateService(dio: sl<Dio>(), localStorage: sl<LocalStorageDataSource>()),
+  );
+  sl.registerLazySingleton(
+    () => DashboardBootstrapService(
+      dio: sl<Dio>(),
+      localStorage: sl<LocalStorageDataSource>(),
+      fcmTokenService: sl<FcmTokenService>(),
+      forceUpdateService: sl<ForceUpdateService>(),
+    ),
   );
 
   //! Data sources

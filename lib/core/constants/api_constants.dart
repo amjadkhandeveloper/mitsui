@@ -60,7 +60,7 @@ class ApiConstants {
   // ── About App (update these before each release) ──
   static const String appName = 'Mitsui FleetPlus';
   static const String appVersion = '1.0.3';
-  static const String releaseDate = '02-July-2026';
+  static const String releaseDate = '07-July-2026';
 
   /// Integer build version used for force-update checks.
   /// Update this before each release and compare with ForceUpdateClient API.
@@ -75,5 +75,5 @@ class ApiConstants {
   static const String androidPlayStoreUrl =
       'https://play.google.com/store/apps/details?id=com.infotrack.mitsuifleet';
   static const String iosAppStoreUrl =
-      'https://apps.apple.com/app/id0000000000';
+      'https://apps.apple.com/us/app/mitsui-fleet-app/id6760277339';
 }

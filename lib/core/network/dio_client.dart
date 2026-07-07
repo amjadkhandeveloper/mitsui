@@ -1,10 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 import '../error/exceptions.dart';
+import 'api_trace_interceptor.dart';
 
 class DioClient {
   late Dio _dio;
@@ -40,24 +41,17 @@ class DioClient {
     };
 
     _dio.interceptors.add(
-      PrettyDioLogger(
-        requestHeader: true,
-        requestBody: true,
-        responseBody: true,
-        responseHeader: false,
-        error: true,
-        compact: true,
-        maxWidth: 90,
-      ),
-    );
-
-    // Add auth interceptor to include auth token in requests
-    _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           // Global network connectivity guard (prevents Dio errors across app)
           final ok = await _hasInternetConnection();
           if (!ok) {
+            if (kDebugMode) {
+              debugPrint(
+                'API_TRACE: blocked (no internet) '
+                '${options.method.toUpperCase()} ${options.uri}',
+              );
+            }
             return handler.reject(
               DioException(
                 requestOptions: options,
@@ -79,6 +73,9 @@ class DioClient {
         },
       ),
     );
+
+    // Log full URL + request/response after auth header is attached.
+    _dio.interceptors.add(ApiTraceInterceptor());
   }
 
   Dio get dio => _dio;

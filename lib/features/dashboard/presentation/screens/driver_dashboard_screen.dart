@@ -14,13 +14,12 @@ import '../../../splash/data/datasources/local_storage_data_source.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/utils/toast.dart';
 import '../../../../core/di/injection_container.dart' as di;
+import '../../../../core/services/dashboard_bootstrap_service.dart';
 import 'package:dio/dio.dart';
 import 'package:geolocator/geolocator.dart';
-import '../../../../core/services/fcm_token_service.dart';
-import '../../../../core/widgets/force_update_helper.dart';
 import '../../../../core/widgets/logout_helper.dart';
+import '../../../../core/widgets/dashboard_bootstrap_host.dart';
 // import '../widgets/attendance_odometer_dialog.dart'; // Odometer disabled for this release
-import '../../../../utils/app_globals.dart';
 
 class DriverDashboardScreen extends StatefulWidget {
   const DriverDashboardScreen({super.key});
@@ -35,33 +34,45 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
   DateTime? _checkInTime;
   DateTime? _checkOutTime;
   bool _isAttendanceSubmitting = false;
+  bool _isRefreshing = false;
+  DashboardBootstrapController? _bootstrap;
 
   @override
   void initState() {
     super.initState();
     _loadCurrentUser();
-    _loadDriverStatus();
-    _registerFcmToken();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ForceUpdateHelper.checkInBackground(context);
-    });
   }
 
-  Future<void> _registerFcmToken() async {
-    try {
-      final localStorage = di.sl<LocalStorageDataSource>();
-      final token = Global.fcmToken ?? await localStorage.getFcmToken();
-      final driverIdStr = await localStorage.getDriverId();
-      final driverId = int.tryParse(driverIdStr ?? '') ?? 0;
-      await di.sl<FcmTokenService>().registerTokenIfNeeded(
-            token: token,
-            appVersion: ApiConstants.appVersion,
-            userId: 0,
-            driverId: driverId,
-          );
-    } catch (_) {
-      // ignore - do not block dashboard UI
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final bootstrap = DashboardBootstrapScope.maybeOf(context);
+    if (bootstrap != null && bootstrap != _bootstrap) {
+      _bootstrap?.removeListener(_onBootstrapUpdated);
+      _bootstrap = bootstrap;
+      _bootstrap!.addListener(_onBootstrapUpdated);
+      _applyBootstrapSummary();
     }
+  }
+
+  @override
+  void dispose() {
+    _bootstrap?.removeListener(_onBootstrapUpdated);
+    super.dispose();
+  }
+
+  void _onBootstrapUpdated() {
+    _applyBootstrapSummary();
+  }
+
+  void _applyBootstrapSummary() {
+    final summary = _bootstrap?.summary;
+    if (summary == null) return;
+    setState(() {
+      _driverStatus = summary.driverStatus;
+      _checkInTime = summary.checkInTime;
+      _checkOutTime = summary.checkOutTime;
+    });
   }
 
   Future<void> _loadCurrentUser() async {
@@ -81,75 +92,20 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
 
   Future<void> _loadDriverStatus() async {
     try {
-      final localStorage = di.sl<LocalStorageDataSource>();
-      final driverIdString = await localStorage.getDriverId();
-      final userIdString = await localStorage.getUserId();
-
-      final driverId = int.tryParse(driverIdString ?? '') ?? 0;
-      final userId = int.tryParse(userIdString ?? '') ?? 0;
-
-      if (driverId == 0 && userId == 0) {
+      final bootstrap = DashboardBootstrapScope.maybeOf(context);
+      if (bootstrap != null) {
+        await bootstrap.refreshDashboard();
         return;
       }
 
-      final dio = di.sl<Dio>();
-      final response = await dio.post(
-        ApiConstants.driverDashboard,
-        data: {
-          'driverId': driverId,
-          'userId': userId,
-        },
-      );
-
-      if (!mounted) return;
-
-      if (response.statusCode == 200) {
-        final data = response.data;
-        String? status;
-        DateTime? checkInTime;
-        DateTime? checkOutTime;
-        if (data is Map<String, dynamic>) {
-          final list = data['data'];
-          if (list is List && list.isNotEmpty) {
-            final first = list.first;
-            if (first is Map<String, dynamic>) {
-              status = (first['Driver Status'] ?? first['driverStatus'])?.toString();
-
-              // Parse CheckInTime (can be string or empty object {})
-              final checkInValue = first['CheckInTime'];
-              if (checkInValue != null &&
-                  !(checkInValue is Map && checkInValue.isEmpty)) {
-                if (checkInValue is String && checkInValue.isNotEmpty) {
-                  try {
-                    checkInTime = DateTime.parse(checkInValue);
-                  } catch (_) {
-                    checkInTime = null;
-                  }
-                }
-              }
-
-              // Parse CheckOutTime (can be string or empty object {})
-              final checkOutValue = first['CheckOutTime'];
-              if (checkOutValue != null &&
-                  !(checkOutValue is Map && checkOutValue.isEmpty)) {
-                if (checkOutValue is String && checkOutValue.isNotEmpty) {
-                  try {
-                    checkOutTime = DateTime.parse(checkOutValue);
-                  } catch (_) {
-                    checkOutTime = null;
-                  }
-                }
-              }
-
-            }
-          }
-        }
-        setState(() {
-          _driverStatus = status;
-          _checkInTime = checkInTime;
-          _checkOutTime = checkOutTime;
-        });
-      }
+      final summary =
+          await di.sl<DashboardBootstrapService>().fetchDashboardSummary();
+      if (!mounted || summary == null) return;
+      setState(() {
+        _driverStatus = summary.driverStatus;
+        _checkInTime = summary.checkInTime;
+        _checkOutTime = summary.checkOutTime;
+      });
     } catch (_) {
       // Silently ignore dashboard status errors; quick action falls back to Check In
     }
@@ -270,9 +226,25 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
   }
 
   Future<void> _refreshDashboard() async {
-    // Reload current user (in case role/name changed) and latest driver status
-    await _loadCurrentUser();
-    await _loadDriverStatus();
+    if (_isRefreshing) return;
+    setState(() => _isRefreshing = true);
+    // Capture controller synchronously before any async gap.
+    final bootstrap = _bootstrap ?? DashboardBootstrapScope.maybeOf(context);
+    try {
+      // Reload current user (in case role/name changed).
+      await _loadCurrentUser();
+
+      // Re-run the same fresh-load sequence used when opening the dashboard.
+      if (bootstrap != null) {
+        await bootstrap.refresh();
+      } else {
+        await _loadDriverStatus();
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isRefreshing = false);
+      }
+    }
   }
 
   @override
@@ -290,11 +262,23 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
         backgroundColor: AppTheme.mitsuiDarkBlue,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            tooltip: 'Refresh',
-            onPressed: _refreshDashboard,
-          ),
+          _isRefreshing
+              ? const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  tooltip: 'Refresh',
+                  onPressed: _refreshDashboard,
+                ),
         ],
       ),
       drawer: DashboardDrawer(

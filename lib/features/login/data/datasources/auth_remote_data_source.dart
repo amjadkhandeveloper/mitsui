@@ -107,8 +107,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'driverId': (userJson['driverid'] ?? userJson['driverId'] ?? '').toString(),
           'username': userJson['username'] ?? '',
           'email': userJson['email'] ?? '',
-          'token': userJson['token'] ?? '',
-          'refreshToken': userJson['refresh_token'] ?? '',
+          'token': _readToken(userJson),
+          'refreshToken': userJson['refresh_token'] ??
+              userJson['refreshToken'] ??
+              userJson['RefreshToken'] ??
+              '',
           'role': roleString,
           'name': userJson['name'] ?? '',
           'clientId': clientId,
@@ -132,6 +135,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw const NetworkException('Network error occurred');
       }
     }
+  }
+
+  String _readToken(Map<String, dynamic> userJson) {
+    for (final key in const [
+      'token',
+      'Token',
+      'access_token',
+      'accessToken',
+      'AccessToken',
+      'authToken',
+      'AuthToken',
+    ]) {
+      final value = userJson[key];
+      if (value != null && value.toString().trim().isNotEmpty) {
+        return value.toString().trim();
+      }
+    }
+    return '';
   }
 }
 
