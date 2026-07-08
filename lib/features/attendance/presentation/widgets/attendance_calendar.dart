@@ -78,17 +78,23 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.chevron_left),
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                   onPressed: _onPreviousMonth,
                 ),
-                Text(
-                  '${_getMonthName(_focusedDay.month)} ${_focusedDay.year}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                Flexible(
+                  child: Text(
+                    '${_getMonthName(_focusedDay.month)} ${_focusedDay.year}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.chevron_right),
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                   onPressed: _onNextMonth,
                 ),
               ],
@@ -150,12 +156,12 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
               ),
               daysOfWeekStyle: const DaysOfWeekStyle(
                 weekdayStyle: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
                 weekendStyle: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Colors.red,
                 ),
@@ -309,7 +315,7 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 14,
             color: Colors.black87,
           ),
         ),

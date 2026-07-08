@@ -249,7 +249,7 @@ class _TripListScreenState extends State<TripListScreen> {
               const Text(
                 'Remarks (optional)',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
               ),

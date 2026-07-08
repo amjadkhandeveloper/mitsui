@@ -145,7 +145,7 @@ class TripListItem extends StatelessWidget {
                       Text(
                         dateFormat.format(trip.scheduleStart),
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 14,
                           color: Colors.grey.shade600,
                         ),
                       ),
@@ -176,7 +176,7 @@ class TripListItem extends StatelessWidget {
                         child: Text(
                           trip.tripType!.toUpperCase(),
                           style: TextStyle(
-                            fontSize: 9,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: trip.status == TripDetailStatus.cancelled
                                 ? Colors.red.shade700
@@ -203,7 +203,7 @@ class TripListItem extends StatelessWidget {
                                 _getStatusText()
                             : _getStatusText(),
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: _getStatusColor(),
                           letterSpacing: 0.3,
@@ -240,7 +240,7 @@ class TripListItem extends StatelessWidget {
                               Text(
                                 'Start Time',
                                 style: TextStyle(
-                                  fontSize: 9,
+                                  fontSize: 14,
                                   color: Colors.grey.shade600,
                                 ),
                               ),
@@ -248,7 +248,7 @@ class TripListItem extends StatelessWidget {
                               Text(
                                 timeFormat.format(trip.scheduleStart),
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -282,7 +282,7 @@ class TripListItem extends StatelessWidget {
                               Text(
                                 'End Time',
                                 style: TextStyle(
-                                  fontSize: 9,
+                                  fontSize: 14,
                                   color: Colors.grey.shade600,
                                 ),
                               ),
@@ -292,7 +292,7 @@ class TripListItem extends StatelessWidget {
                                     ? timeFormat.format(trip.scheduleEnd!)
                                     : '-',
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -332,7 +332,7 @@ class TripListItem extends StatelessWidget {
                               ? '${trip.expatName ?? 'Expat'} (${trip.mobileNo})'
                               : (trip.expatName ?? 'Expat')),
                       style: const TextStyle(
-                        fontSize: 11,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: Colors.black87,
                       ),
@@ -359,7 +359,7 @@ class TripListItem extends StatelessWidget {
                     child: Text(
                       trip.location!,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 14,
                         color: Colors.grey.shade800,
                       ),
                       maxLines: 2,
@@ -410,7 +410,7 @@ class TripListItem extends StatelessWidget {
                   label: const Text(
                     'Cancel Trip',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.3,
                     ),
@@ -532,6 +532,7 @@ class TripListItem extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: Colors.white,
+          minimumSize: const Size(44, 44),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -546,7 +547,7 @@ class TripListItem extends StatelessWidget {
             Text(
               label,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.5,
               ),

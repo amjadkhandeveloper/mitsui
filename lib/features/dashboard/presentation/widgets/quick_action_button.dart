@@ -34,65 +34,70 @@ class QuickActionButton extends StatelessWidget {
     return FadeSlideAnimation(
       delay: Duration(milliseconds: isCheckIn ? 300 : 400),
       beginOffset: const Offset(-0.2, 0),
-      child: GestureDetector(
-        onTap: enabled ? onTap : null,
-        child: Container(
-          margin: EdgeInsets.only(
-            right: isCheckIn ? 8 : 0,
-            left: isCheckIn ? 0 : 8,
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          decoration: BoxDecoration(
-            color: isCheckIn
-                ? (enabled
-                    ? (isCheckoutMode ? Colors.orange : Colors.green)
-                    : Colors.grey.shade400)
-                : Colors.white,
-            border: isCheckIn
-                ? null
-                : Border.all(
-                    color: Theme.of(context).colorScheme.primary,
-                    width: 2,
-                  ),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                isCheckIn
-                    ? (isCheckoutMode ? Icons.logout : Icons.login)
-                    : Icons.calendar_today,
-                color: isCheckIn
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.primary,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  isCheckIn
-                      ? (checkInLabel ?? 'Check In')
-                      : (leaveActionLabel ?? 'Apply Leave'),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isCheckIn
-                        ? Colors.white
-                        : Theme.of(context).colorScheme.primary,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: enabled ? onTap : null,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 48),
+            margin: EdgeInsets.only(
+              right: isCheckIn ? 8 : 0,
+              left: isCheckIn ? 0 : 8,
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            decoration: BoxDecoration(
+              color: isCheckIn
+                  ? (enabled
+                      ? (isCheckoutMode ? Colors.orange : Colors.green)
+                      : Colors.grey.shade400)
+                  : Colors.white,
+              border: isCheckIn
+                  ? null
+                  : Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 2,
+                    ),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
-              ),
-            ],
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  isCheckIn
+                      ? (isCheckoutMode ? Icons.logout : Icons.login)
+                      : Icons.calendar_today,
+                  color: isCheckIn
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.primary,
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                Flexible(
+                  child: Text(
+                    isCheckIn
+                        ? (checkInLabel ?? 'Check In')
+                        : (leaveActionLabel ?? 'Apply Leave'),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: isCheckIn
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.primary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

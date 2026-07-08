@@ -44,7 +44,7 @@ class StatisticCard extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 color: Colors.grey.shade600,
               ),
               textAlign: TextAlign.center,

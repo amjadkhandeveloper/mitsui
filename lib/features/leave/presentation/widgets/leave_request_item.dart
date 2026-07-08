@@ -106,7 +106,7 @@ class LeaveRequestItem extends StatelessWidget {
                       Text(
                         _getStatusText(),
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: _getStatusColor(),
                         ),
@@ -134,7 +134,7 @@ class LeaveRequestItem extends StatelessWidget {
                         const Text(
                           'From Date',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: Colors.black,
                           ),
@@ -143,7 +143,7 @@ class LeaveRequestItem extends StatelessWidget {
                             Text(
                               _formatDateTime(request.startDate),
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 14,
                                 color: Colors.grey.shade700,
                               ),
                             ),
@@ -166,7 +166,7 @@ class LeaveRequestItem extends StatelessWidget {
                                   ? 'Half Day'
                                   : 'Full Day'),
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: request.leaveType == LeaveType.half
                                 ? Colors.orange.shade700
@@ -193,7 +193,7 @@ class LeaveRequestItem extends StatelessWidget {
                       Text(
                         'To Date',
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
                         ),
@@ -202,7 +202,7 @@ class LeaveRequestItem extends StatelessWidget {
                       Text(
                         _formatDateTime(request.endDate),
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 14,
                           color: Colors.grey.shade700,
                         ),
                       ),
@@ -226,7 +226,7 @@ class LeaveRequestItem extends StatelessWidget {
                         Text(
                           'Reason',
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: Colors.black,
                           ),
@@ -235,7 +235,7 @@ class LeaveRequestItem extends StatelessWidget {
                         Text(
                           request.reason!,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             color: Colors.grey.shade700,
                           ),
                         ),
@@ -260,7 +260,7 @@ class LeaveRequestItem extends StatelessWidget {
                         Text(
                           'Remark',
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: Colors.black,
                           ),
@@ -269,7 +269,7 @@ class LeaveRequestItem extends StatelessWidget {
                         Text(
                           request.remark!,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             color: Colors.grey.shade700,
                           ),
                         ),
@@ -289,29 +289,32 @@ class LeaveRequestItem extends StatelessWidget {
                 },
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    children: [
-                      Icon(Icons.attach_file, size: 16, color: Theme.of(context).colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Document',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 44),
+                    child: Row(
+                      children: [
+                        Icon(Icons.attach_file, size: 18, color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Document',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                           ),
                         ),
-                      ),
-                      Icon(Icons.open_in_new, size: 14, color: Theme.of(context).colorScheme.primary),
-                    ],
+                        Icon(Icons.open_in_new, size: 18, color: Theme.of(context).colorScheme.primary),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ],
             if (isAdmin && request.status == LeaveStatus.pending) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
@@ -319,33 +322,35 @@ class LeaveRequestItem extends StatelessWidget {
                       onPressed: () {
                         onStatusUpdate?.call(request, LeaveStatus.approved);
                       },
-                      icon: const Icon(Icons.check, size: 16),
+                      icon: const Icon(Icons.check, size: 18),
                       label: const Text(
                         'Approve',
-                        style: TextStyle(fontSize: 12),
+                        style: TextStyle(fontSize: 16),
                       ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.green.shade700,
                         side: BorderSide(color: Colors.green.shade300),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        minimumSize: const Size(44, 44),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
                         onStatusUpdate?.call(request, LeaveStatus.rejected);
                       },
-                      icon: const Icon(Icons.close, size: 16),
+                      icon: const Icon(Icons.close, size: 18),
                       label: const Text(
                         'Reject',
-                        style: TextStyle(fontSize: 12),
+                        style: TextStyle(fontSize: 16),
                       ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red.shade700,
                         side: BorderSide(color: Colors.red.shade300),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        minimumSize: const Size(44, 44),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
                   ),

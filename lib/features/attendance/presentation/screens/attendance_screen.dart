@@ -282,14 +282,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             label: Text(
               'Change',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 color: Colors.blue.shade700,
               ),
             ),
             style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              minimumSize: const Size(44, 44),
             ),
           ),
         ],
@@ -421,7 +420,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     Text(
                       isPresent ? 'Present' : 'Absent',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: isPresent ? Colors.green.shade700 : Colors.red.shade700,
                       ),
@@ -483,28 +482,27 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               ],
             ),
             if (needsCheckInApproval) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton.icon(
                   onPressed: disableCheckInApproval ? null : () => _handleApproveCheckIn(context, record),
-                  icon: const Icon(Icons.check, size: 16),
+                  icon: const Icon(Icons.check, size: 18),
                   label: const Text('Check-in Approval'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: disableCheckInApproval ? Colors.grey : Colors.green,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey.shade400,
                     disabledForegroundColor: Colors.white70,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    minimumSize: const Size(44, 44),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
               ),
             ],
           ],
           if (isPresent && record.checkOutTime != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Icon(Icons.logout, size: 16, color: Colors.grey.shade600),
@@ -521,21 +519,20 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               ],
             ),
             if (needsCheckOutApproval) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton.icon(
                   onPressed: disableCheckOutApproval ? null : () => _handleApproveCheckOut(context, record),
-                  icon: const Icon(Icons.check, size: 16),
+                  icon: const Icon(Icons.check, size: 18),
                   label: const Text('Check-out Approval'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: disableCheckOutApproval ? Colors.grey : Colors.blue,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey.shade400,
                     disabledForegroundColor: Colors.white70,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    minimumSize: const Size(44, 44),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
               ),

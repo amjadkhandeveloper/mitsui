@@ -6,6 +6,7 @@ import '../widgets/feature_card.dart';
 import '../widgets/dashboard_drawer.dart';
 import '../../domain/entities/dashboard_feature.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../login/domain/repositories/auth_repository.dart';
 import '../../../login/domain/entities/user.dart';
@@ -157,7 +158,7 @@ class _ExpatDashboardScreenState extends State<ExpatDashboardScreen> {
           ];
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 32),
+            padding: Responsive.pagePadding(context),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -171,28 +172,32 @@ class _ExpatDashboardScreenState extends State<ExpatDashboardScreen> {
                 const SizedBox(height: 8),
                 // Features Section
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.zero,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Management Features',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.grey.shade800,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      // Feature Grid
-                      GridView.builder(
+                      const SizedBox(height: 16),
+                      // Feature Grid (responsive for phone / iPad)
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final crossAxisCount =
+                              Responsive.featureGridColumns(context);
+                          return GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         padding: EdgeInsets.zero,
                         gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.92,
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          childAspectRatio: 1.0,
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
                         ),
@@ -234,6 +239,8 @@ class _ExpatDashboardScreenState extends State<ExpatDashboardScreen> {
                               }
                             },
                           );
+                        },
+                      );
                         },
                       ),
                     ],

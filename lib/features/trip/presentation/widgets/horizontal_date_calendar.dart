@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/responsive.dart';
 
 class HorizontalDateCalendar extends StatefulWidget {
   final DateTime? selectedDate;
@@ -47,9 +48,9 @@ class _HorizontalDateCalendarState extends State<HorizontalDateCalendar> {
     final daysDifference = _selectedDate.difference(
       DateTime(today.year, today.month, today.day),
     ).inDays;
-    
+
     if (daysDifference >= 0 && daysDifference < _daysToShow) {
-      final itemWidth = 70.0; // Approximate width of each date item
+      final itemWidth = Responsive.isTablet(context) ? 88.0 : 76.0;
       final scrollPosition = daysDifference * itemWidth;
       _scrollController.animateTo(
         scrollPosition,
@@ -82,9 +83,12 @@ class _HorizontalDateCalendarState extends State<HorizontalDateCalendar> {
   Widget build(BuildContext context) {
     final today = DateTime.now();
     final startDate = DateTime(today.year, today.month, today.day);
-    
+    final isTablet = Responsive.isTablet(context);
+    final itemWidth = isTablet ? 84.0 : 72.0;
+    final calendarHeight = isTablet ? 108.0 : 96.0;
+
     return Container(
-      height: 90,
+      height: calendarHeight,
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -110,73 +114,78 @@ class _HorizontalDateCalendarState extends State<HorizontalDateCalendar> {
               date.day == today.day;
           final isAvailable = _isDateAvailable(date);
 
-          return GestureDetector(
-            onTap: () {
-              if (isAvailable) {
-                setState(() {
-                  _selectedDate = date;
-                });
-                widget.onDateSelected(date);
-              }
-            },
-            child: Container(
-              width: 70,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppTheme.mitsuiBlue
-                    : isToday
-                        ? AppTheme.mitsuiLightBlue
-                        : Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
-                border: isToday && !isSelected
-                    ? Border.all(color: AppTheme.mitsuiBlue, width: 1.5)
-                    : null,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    DateFormat('EEE').format(date),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? Colors.white
-                          : isToday
-                              ? AppTheme.mitsuiBlue
-                              : Colors.grey.shade600,
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: isAvailable
+                  ? () {
+                      setState(() {
+                        _selectedDate = date;
+                      });
+                      widget.onDateSelected(date);
+                    }
+                  : null,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: itemWidth,
+                constraints: const BoxConstraints(minHeight: Responsive.minTapTarget),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppTheme.mitsuiBlue
+                      : isToday
+                          ? AppTheme.mitsuiLightBlue
+                          : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                  border: isToday && !isSelected
+                      ? Border.all(color: AppTheme.mitsuiBlue, width: 1.5)
+                      : null,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      DateFormat('EEE').format(date),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected
+                            ? Colors.white
+                            : isToday
+                                ? AppTheme.mitsuiBlue
+                                : Colors.grey.shade700,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    date.day.toString(),
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected
-                          ? Colors.white
-                          : isToday
-                              ? AppTheme.mitsuiBlue
-                              : isAvailable
-                                  ? Colors.black87
-                                  : Colors.grey.shade400,
+                    const SizedBox(height: 4),
+                    Text(
+                      date.day.toString(),
+                      style: TextStyle(
+                        fontSize: isTablet ? 20 : 18,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected
+                            ? Colors.white
+                            : isToday
+                                ? AppTheme.mitsuiBlue
+                                : isAvailable
+                                    ? Colors.black87
+                                    : Colors.grey.shade400,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    DateFormat('MMM').format(date),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      color: isSelected
-                          ? Colors.white.withOpacity(0.9)
-                          : isToday
-                              ? AppTheme.mitsuiBlue
-                              : Colors.grey.shade500,
+                    const SizedBox(height: 2),
+                    Text(
+                      DateFormat('MMM').format(date),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isSelected
+                            ? Colors.white.withOpacity(0.9)
+                            : isToday
+                                ? AppTheme.mitsuiBlue
+                                : Colors.grey.shade600,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
@@ -185,4 +194,3 @@ class _HorizontalDateCalendarState extends State<HorizontalDateCalendar> {
     );
   }
 }
-

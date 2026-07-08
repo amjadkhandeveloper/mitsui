@@ -165,7 +165,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                           Text(
                             'Choose the type of leave you want to apply for.',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 14,
                               color: Colors.grey.shade600,
                             ),
                           ),
@@ -231,7 +231,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                                         child: Text(
                                           leaveType.leaveTypeName,
                                           style: TextStyle(
-                                            fontSize: 13,
+                                            fontSize: 14,
                                             color: Colors.grey.shade800,
                                           ),
                                         ),
@@ -309,7 +309,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                               ),
                               dropdownColor: Colors.white,
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 14,
                                 color: Colors.grey.shade800,
                               ),
                               menuMaxHeight: 250,
@@ -341,7 +341,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                           Text(
                             'Select the period and time for your leave.',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 14,
                               color: Colors.grey.shade600,
                             ),
                           ),
@@ -477,7 +477,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                           Text(
                             'Reason',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Colors.grey.shade800,
                             ),
@@ -496,7 +496,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                               fillColor: Colors.grey.shade50,
                               contentPadding: const EdgeInsets.all(12),
                               hintStyle: TextStyle(
-                                fontSize: 12,
+                                fontSize: 14,
                                 color: Colors.grey.shade400,
                               ),
                               border: OutlineInputBorder(
@@ -522,7 +522,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                               ),
                             ),
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 14,
                               color: Colors.grey.shade800,
                             ),
                           ),
@@ -558,7 +558,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                             child: Text(
                               'Cancel',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.grey.shade700,
                               ),
@@ -595,7 +595,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                                 : Text(
                                     'Submit',
                                     style: TextStyle(
-                                      fontSize: 13,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white,
                                     ),

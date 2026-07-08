@@ -111,7 +111,7 @@ class ReceiptListItem extends StatelessWidget {
                   child: Text(
                     _getTypeText(),
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: _getTypeColor(),
                     ),
@@ -134,7 +134,7 @@ class ReceiptListItem extends StatelessWidget {
                   child: Text(
                     _getStatusText(),
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: _getStatusColor(),
                     ),
@@ -144,7 +144,7 @@ class ReceiptListItem extends StatelessWidget {
                 Text(
                   dateFormat.format(receipt.receiptDate),
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 14,
                     color: Colors.grey.shade600,
                   ),
                 ),
@@ -188,7 +188,7 @@ class ReceiptListItem extends StatelessWidget {
                               child: Text(
                                 receipt.expLocation!,
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   color: Colors.grey.shade600,
                                 ),
                                 overflow: TextOverflow.ellipsis,
@@ -219,7 +219,7 @@ class ReceiptListItem extends StatelessWidget {
                             ? 'Under review'
                             : receipt.rejectionReason ?? 'Receipt image not clear',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                       color: Colors.grey.shade600,
                     ),
                   ),
@@ -228,7 +228,7 @@ class ReceiptListItem extends StatelessWidget {
                   Text(
                     '${dateFormat.format(receipt.approvedAt!)} ${timeFormat.format(receipt.approvedAt!)}',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 14,
                       color: Colors.grey.shade500,
                     ),
                   )
@@ -236,7 +236,7 @@ class ReceiptListItem extends StatelessWidget {
                   Text(
                     'Submitted ${dateFormat.format(receipt.submittedAt)}',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 14,
                       color: Colors.grey.shade500,
                     ),
                   ),
@@ -245,17 +245,22 @@ class ReceiptListItem extends StatelessWidget {
             if (showApprovalActions &&
                 receipt.status == ReceiptStatus.pending &&
                 receipt.type != ReceiptType.fuel) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: onReject,
-                      icon: const Icon(Icons.close, size: 16),
-                      label: const Text('Reject'),
+                      icon: const Icon(Icons.close, size: 18),
+                      label: const Text(
+                        'Reject',
+                        style: TextStyle(fontSize: 16),
+                      ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red,
                         side: BorderSide(color: Colors.red.shade300),
+                        minimumSize: const Size(44, 44),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
                   ),
@@ -263,11 +268,16 @@ class ReceiptListItem extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: onApprove,
-                      icon: const Icon(Icons.check, size: 16),
-                      label: const Text('Approve'),
+                      icon: const Icon(Icons.check, size: 18),
+                      label: const Text(
+                        'Approve',
+                        style: TextStyle(fontSize: 16),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
+                        minimumSize: const Size(44, 44),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
                   ),

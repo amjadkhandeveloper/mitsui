@@ -67,7 +67,7 @@ class AboutAppScreen extends StatelessWidget {
               Text(
                 'Release date: ${ApiConstants.releaseDate}',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   color: Colors.grey.shade600,
                 ),
               ),
@@ -119,7 +119,7 @@ class AboutAppScreen extends StatelessWidget {
                           ? 'Token not available yet. Open app and allow notifications.'
                           : Global.fcmToken!,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         color: Colors.grey.shade800,
                       ),
                     ),

@@ -43,7 +43,7 @@ class AdminContactScreen extends StatelessWidget {
                         child: Text(
                           c.city,
                           style: const TextStyle(
-                            fontSize: 13,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: Colors.black,
                           ),
@@ -79,7 +79,7 @@ class AdminContactScreen extends StatelessWidget {
                         child: Text(
                           c.phone,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 14,
                             color: Colors.grey.shade800,
                           ),
                         ),
@@ -100,7 +100,7 @@ class AdminContactScreen extends StatelessWidget {
                         child: Text(
                           c.email,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 14,
                             color: Colors.grey.shade800,
                           ),
                         ),

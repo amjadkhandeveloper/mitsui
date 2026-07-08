@@ -47,7 +47,7 @@ class AttendanceOdometerDialog {
                       errorText!,
                       style: TextStyle(
                         color: Colors.red.shade700,
-                        fontSize: 13,
+                        fontSize: 14,
                       ),
                     ),
                   ],

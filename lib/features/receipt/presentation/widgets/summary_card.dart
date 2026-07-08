@@ -49,7 +49,7 @@ class SummaryCard extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 14,
                 color: Colors.grey.shade600,
               ),
               textAlign: TextAlign.center,

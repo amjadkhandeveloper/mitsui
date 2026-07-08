@@ -67,13 +67,18 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.chevron_left),
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                   onPressed: _onPreviousMonth,
                 ),
-                Text(
-                  '${_getMonthName(_focusedDay.month)} ${_focusedDay.year}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                Flexible(
+                  child: Text(
+                    '${_getMonthName(_focusedDay.month)} ${_focusedDay.year}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Row(
@@ -81,8 +86,9 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
-                        vertical: 6,
+                        vertical: 8,
                       ),
+                      constraints: const BoxConstraints(minHeight: 32),
                       decoration: BoxDecoration(
                         color: AppTheme.mitsuiBlue,
                         borderRadius: BorderRadius.circular(20),
@@ -91,13 +97,15 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
                         '2 weeks',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.chevron_right),
+                      constraints:
+                          const BoxConstraints(minWidth: 44, minHeight: 44),
                       onPressed: _onNextMonth,
                     ),
                   ],
@@ -169,12 +177,12 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
               ),
               daysOfWeekStyle: const DaysOfWeekStyle(
                 weekdayStyle: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
                 weekendStyle: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Colors.red,
                 ),

@@ -65,7 +65,7 @@ class _ReceiptImage extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Unable to load image',
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
         ],
       ),
@@ -110,7 +110,7 @@ class _ReceiptImageCard extends StatelessWidget {
                 child: Text(
                   label,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.mitsuiDarkBlue,
                   ),
@@ -235,7 +235,7 @@ class ReceiptDetailScreen extends StatelessWidget {
                             Text(
                               statusText,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: statusColor,
                               ),
@@ -257,7 +257,7 @@ class ReceiptDetailScreen extends StatelessWidget {
                       Text(
                         dateFormat.format(receipt.receiptDate),
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                           color: Colors.grey.shade600,
                         ),
                       ),
@@ -279,7 +279,7 @@ class ReceiptDetailScreen extends StatelessWidget {
                           child: Text(
                             receipt.expLocation!,
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 14,
                               color: Colors.grey.shade700,
                             ),
                           ),
@@ -409,7 +409,7 @@ class _DetailRow extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 color: Colors.grey.shade600,
               ),
             ),
@@ -419,7 +419,7 @@ class _DetailRow extends StatelessWidget {
             child: Text(
               value,
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
             ),

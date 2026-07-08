@@ -222,7 +222,7 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
                     Text(
                       'Use the floating button to apply for leave',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         color: Colors.grey.withOpacity(0.5),
                       ),
                     ),

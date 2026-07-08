@@ -122,7 +122,7 @@ class TimeInputField extends StatelessWidget {
           Text(
             errorText!,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 14,
               color: Colors.red.shade700,
             ),
           ),

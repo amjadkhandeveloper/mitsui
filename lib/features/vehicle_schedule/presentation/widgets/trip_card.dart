@@ -58,7 +58,7 @@ class TripCard extends StatelessWidget {
                       Text(
                         trip.vehicleName,
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                         maxLines: 1,
@@ -69,7 +69,7 @@ class TripCard extends StatelessWidget {
                         Text(
                           trip.tripType!.toUpperCase(),
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 14,
                             color: Colors.grey.shade600,
                           ),
                           maxLines: 1,
@@ -98,7 +98,7 @@ class TripCard extends StatelessWidget {
                       Text(
                         'Trip Start Date',
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
                         ),
@@ -107,7 +107,7 @@ class TripCard extends StatelessWidget {
                       Text(
                         dateTimeFormat.format(trip.startTime),
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 14,
                           color: Colors.grey.shade700,
                         ),
                         maxLines: 2,
@@ -129,7 +129,7 @@ class TripCard extends StatelessWidget {
                       Text(
                         'Trip End Date',
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
                         ),
@@ -138,7 +138,7 @@ class TripCard extends StatelessWidget {
                       Text(
                         dateTimeFormat.format(trip.endTime),
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 14,
                           color: Colors.grey.shade700,
                         ),
                         maxLines: 2,
@@ -166,7 +166,7 @@ class TripCard extends StatelessWidget {
                           ? '${trip.driverName ?? 'N/A'} (${trip.mobileNo})'
                           : (trip.driverName ?? 'N/A'),
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 14,
                         color: Colors.grey.shade700,
                         fontWeight: FontWeight.w500,
                       ),
@@ -193,7 +193,7 @@ class TripCard extends StatelessWidget {
                     child: Text(
                       trip.destination!,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 14,
                         color: Colors.grey.shade700,
                       ),
                       maxLines: 2,
@@ -293,7 +293,7 @@ class TripCard extends StatelessWidget {
           Text(
             statusText,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: textColor,
             ),
@@ -326,7 +326,8 @@ class TripCard extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          minimumSize: const Size(44, 44),
+          padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
@@ -335,12 +336,12 @@ class TripCard extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16),
-            const SizedBox(width: 6),
+            Icon(icon, size: 18),
+            const SizedBox(width: 8),
             Text(
               label,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.3,
               ),

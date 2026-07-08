@@ -61,7 +61,7 @@ class FeatureCard extends StatelessWidget {
                         Text(
                           feature.title,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Theme.of(context).colorScheme.onSurface,
                           ),
@@ -69,16 +69,16 @@ class FeatureCard extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         // Subtitle
                         Text(
                           feature.subtitle,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.6),
+                                .withOpacity(0.7),
                           ),
                           textAlign: TextAlign.center,
                           maxLines: 2,

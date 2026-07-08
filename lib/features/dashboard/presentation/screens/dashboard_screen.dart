@@ -6,6 +6,7 @@ import '../widgets/quick_action_button.dart';
 import '../widgets/feature_card.dart';
 // import '../widgets/attendance_odometer_dialog.dart'; // Odometer disabled for this release
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../login/domain/repositories/auth_repository.dart';
 import '../../../login/domain/entities/user.dart';
@@ -134,7 +135,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 32),
+            padding: Responsive.pagePadding(context),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -143,10 +144,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   userName: currentUser?.username ?? currentUser?.name ?? state.userName ?? 'User',
                   userRole: currentUser?.role,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: Responsive.sectionSpacing(context)),
                 // Current Location Card
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.zero,
                   child: Card(
                     margin: EdgeInsets.zero,
                     child: Padding(
@@ -172,7 +173,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     : Text(
                                         'Lat: ${_currentLat!.toStringAsFixed(5)}, Lon: ${_currentLon!.toStringAsFixed(5)}',
                                         style: TextStyle(
-                                          fontSize: 13,
+                                          fontSize: 14,
                                           color: Colors.grey.shade800,
                                         ),
                                       ),
@@ -196,14 +197,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 8),
                 // Quick Actions Section
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.zero,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Quick Actions',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.grey.shade800,
                         ),
@@ -238,62 +239,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 24),
                 // Additional Features Section
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.zero,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Additional Features',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.grey.shade800,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      // Feature Grid
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.zero,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.92,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
-                        itemCount: state.features.length,
-                        itemBuilder: (context, index) {
-                          final feature = state.features[index];
-                          return FeatureCard(
-                            feature: feature,
-                            index: index,
-                            onTap: () {
-                              if (feature.route == AppRoutes.attendance) {
-                                Navigator.pushNamed(
-                                  context,
-                                  feature.route,
-                                  arguments: currentUser,
-                                );
-                              } else if (feature.route ==
-                                  AppRoutes.vehicleSchedule) {
-                                Navigator.pushNamed(context, feature.route);
-                              } else if (feature.route ==
-                                  AppRoutes.attendanceReport) {
-                                Navigator.pushNamed(context, feature.route);
-                              } else if (feature.route == AppRoutes.tripList) {
-                                Navigator.pushNamed(context, feature.route);
-                              } else if (feature.route == AppRoutes.receipts) {
-                                Navigator.pushNamed(context, feature.route);
-                              } else {
-                                // Handle other feature taps
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('${feature.title} tapped'),
-                                  ),
-                                );
-                              }
+                      const SizedBox(height: 16),
+                      // Feature Grid (responsive for phone / iPad)
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final crossAxisCount =
+                              Responsive.featureGridColumns(context);
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: crossAxisCount,
+                              childAspectRatio: 1.0,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                            ),
+                            itemCount: state.features.length,
+                            itemBuilder: (context, index) {
+                              final feature = state.features[index];
+                              return FeatureCard(
+                                feature: feature,
+                                index: index,
+                                onTap: () {
+                                  if (feature.route == AppRoutes.attendance) {
+                                    Navigator.pushNamed(
+                                      context,
+                                      feature.route,
+                                      arguments: currentUser,
+                                    );
+                                  } else if (feature.route ==
+                                      AppRoutes.vehicleSchedule) {
+                                    Navigator.pushNamed(context, feature.route);
+                                  } else if (feature.route ==
+                                      AppRoutes.attendanceReport) {
+                                    Navigator.pushNamed(context, feature.route);
+                                  } else if (feature.route ==
+                                      AppRoutes.tripList) {
+                                    Navigator.pushNamed(context, feature.route);
+                                  } else if (feature.route ==
+                                      AppRoutes.receipts) {
+                                    Navigator.pushNamed(context, feature.route);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content:
+                                            Text('${feature.title} tapped'),
+                                      ),
+                                    );
+                                  }
+                                },
+                              );
                             },
                           );
                         },

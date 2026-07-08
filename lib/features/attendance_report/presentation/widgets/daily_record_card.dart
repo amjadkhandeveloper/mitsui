@@ -72,7 +72,7 @@ class DailyRecordCard extends StatelessWidget {
                       Text(
                         isPresent ? 'Present' : 'Absent',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: isPresent
                               ? Colors.green.shade700
@@ -162,7 +162,7 @@ class DailyRecordCard extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 14,
               color: Colors.grey.shade700,
             ),
           ),
@@ -170,7 +170,7 @@ class DailyRecordCard extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: Colors.grey.shade800,
             ),

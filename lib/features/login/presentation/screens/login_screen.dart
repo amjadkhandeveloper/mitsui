@@ -173,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               Text(
                                                 'Username',
                                                 style: TextStyle(
-                                                  fontSize: 12,
+                                                  fontSize: 16,
                                                   fontWeight: FontWeight.w500,
                                                   color: Colors.grey.shade700,
                                                 ),
@@ -204,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               Text(
                                                 'Password',
                                                 style: TextStyle(
-                                                  fontSize: 12,
+                                                  fontSize: 16,
                                                   fontWeight: FontWeight.w500,
                                                   color: Colors.grey.shade700,
                                                 ),
@@ -248,18 +248,29 @@ class _LoginScreenState extends State<LoginScreen> {
                                               Text(
                                                 'Login as',
                                                 style: TextStyle(
-                                                  fontSize: 12,
+                                                  fontSize: 16,
                                                   fontWeight: FontWeight.w500,
                                                   color: Colors.grey.shade700,
                                                 ),
                                               ),
-                                              const SizedBox(height: 6),
+                                              const SizedBox(height: 12),
                                               Row(
                                                 children: [
                                                   Expanded(
                                                     child: ChoiceChip(
-                                                      label: const Text('User'),
+                                                      label: const Padding(
+                                                        padding: EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 4,
+                                                        ),
+                                                        child: Text(
+                                                          'User',
+                                                          style: TextStyle(fontSize: 16),
+                                                        ),
+                                                      ),
                                                       selected: _selectedRoleId == 1,
+                                                      materialTapTargetSize:
+                                                          MaterialTapTargetSize.padded,
                                                       onSelected: (selected) {
                                                         if (selected) {
                                                           setState(() {
@@ -272,8 +283,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                                   const SizedBox(width: 12),
                                                   Expanded(
                                                     child: ChoiceChip(
-                                                      label: const Text('Driver'),
+                                                      label: const Padding(
+                                                        padding: EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 4,
+                                                        ),
+                                                        child: Text(
+                                                          'Driver',
+                                                          style: TextStyle(fontSize: 16),
+                                                        ),
+                                                      ),
                                                       selected: _selectedRoleId == 2,
+                                                      materialTapTargetSize:
+                                                          MaterialTapTargetSize.padded,
                                                       onSelected: (selected) {
                                                         if (selected) {
                                                           setState(() {
