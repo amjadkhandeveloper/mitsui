@@ -13,10 +13,10 @@ import '../../../login/domain/entities/user.dart';
 import '../../../splash/data/datasources/local_storage_data_source.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/utils/toast.dart';
+import '../../../../core/utils/location_permission_flow.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/services/dashboard_bootstrap_service.dart';
 import 'package:dio/dio.dart';
-import 'package:geolocator/geolocator.dart';
 import '../../../../core/widgets/logout_helper.dart';
 import '../../../../core/widgets/dashboard_bootstrap_host.dart';
 // import '../widgets/attendance_odometer_dialog.dart'; // Odometer disabled for this release
@@ -507,28 +507,16 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
       double lat = 0;
       double lon = 0;
       try {
-        final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-        if (!serviceEnabled) {
+        final ok =
+            await LocationPermissionFlow.ensureForAttendanceFeature(context);
+        if (!ok) return;
+        final position = await LocationPermissionFlow.getCurrentPositionSafe();
+        if (position == null) {
           if (mounted) {
-            Toast.showError(context, 'Opening location settings. Enable location and try again.');
-            await Geolocator.openLocationSettings();
+            Toast.showError(context, 'Could not get location. Please try again.');
           }
           return;
         }
-        LocationPermission permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-            if (mounted) {
-              Toast.showError(context, 'Opening app settings. Grant location permission and try again.');
-              await Geolocator.openAppSettings();
-            }
-            return;
-          }
-        }
-        final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.medium,
-        );
         lat = position.latitude;
         lon = position.longitude;
       } catch (e) {

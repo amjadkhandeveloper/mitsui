@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/utils/toast.dart';
+import '../../../../core/utils/location_permission_flow.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/styled_card.dart';
 import '../../../../core/utils/animations.dart';
 import '../../../splash/data/datasources/local_storage_data_source.dart';
-import 'package:geolocator/geolocator.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../leave/presentation/widgets/date_time_input_field.dart';
 import '../cubit/receipt_cubit.dart';
@@ -126,31 +126,16 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
       double lat = 0;
       double lon = 0;
       try {
-        final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-        if (!serviceEnabled) {
+        final ok =
+            await LocationPermissionFlow.ensureForAttendanceFeature(context);
+        if (!ok) return;
+        final position = await LocationPermissionFlow.getCurrentPositionSafe();
+        if (position == null) {
           if (mounted) {
-            Toast.showError(context,
-                'Opening location settings. Enable location and try again.');
-            await Geolocator.openLocationSettings();
+            Toast.showError(context, 'Could not get location. Please try again.');
           }
           return;
         }
-        LocationPermission permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.denied ||
-              permission == LocationPermission.deniedForever) {
-            if (mounted) {
-              Toast.showError(context,
-                  'Opening app settings. Grant location permission and try again.');
-              await Geolocator.openAppSettings();
-            }
-            return;
-          }
-        }
-        final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.medium,
-        );
         lat = position.latitude;
         lon = position.longitude;
       } catch (e) {

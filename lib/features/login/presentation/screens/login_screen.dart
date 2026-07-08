@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final cardMargin = isSmallScreen ? 8.0 : 16.0;
     final spacingSmall = isSmallScreen ? 8.0 : 16.0;
     final spacingLarge = isSmallScreen ? 24.0 : 32.0;
-    final topSectionHeight = isSmallScreen ? screenHeight * 0.25 : screenHeight * 0.30;
+    final topSectionHeight = isSmallScreen ? screenHeight * 0.18 : screenHeight * 0.22;
     
     return Scaffold(
       body: Container(
@@ -96,10 +96,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  // Company Name with animation
                                   FadeInAnimation(
                                     duration: AnimationDurations.normal,
-                                    delay: const Duration(milliseconds: 400),
+                                    delay: AnimationDurations.fast,
                                     child: Text(
                                       'MITSUI & CO. INDIA PVT LTD',
                                       style: TextStyle(

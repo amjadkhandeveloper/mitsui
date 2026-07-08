@@ -13,6 +13,7 @@ import '../../../splash/data/datasources/local_storage_data_source.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/utils/toast.dart';
 import '../../../../core/widgets/logout_helper.dart';
+import '../../../../core/utils/location_permission_flow.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import 'package:dio/dio.dart';
 import 'package:geolocator/geolocator.dart';
@@ -53,22 +54,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _locationLoading = false;
             _locationError = 'Location is off';
           });
-          await Geolocator.openLocationSettings();
         }
         return;
       }
       LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
+      final granted = permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always;
+      if (!granted) {
         if (mounted) {
           setState(() {
             _locationLoading = false;
-            _locationError = 'Permission denied';
+            _locationError = 'Location permission not granted';
           });
-          await Geolocator.openAppSettings();
         }
         return;
       }
@@ -334,28 +331,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       double lat = 0;
       double lon = 0;
       try {
-        final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-        if (!serviceEnabled) {
+        final ok = await LocationPermissionFlow.ensureForAttendanceFeature(context);
+        if (!ok) return;
+        final position = await LocationPermissionFlow.getCurrentPositionSafe();
+        if (position == null) {
           if (mounted) {
-            Toast.showError(context, 'Opening location settings. Enable location and try again.');
-            await Geolocator.openLocationSettings();
+            Toast.showError(context, 'Could not get location. Please try again.');
           }
           return;
         }
-        LocationPermission permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-            if (mounted) {
-              Toast.showError(context, 'Opening app settings. Grant location permission and try again.');
-              await Geolocator.openAppSettings();
-            }
-            return;
-          }
-        }
-        final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.medium,
-        );
         lat = position.latitude;
         lon = position.longitude;
       } catch (e) {

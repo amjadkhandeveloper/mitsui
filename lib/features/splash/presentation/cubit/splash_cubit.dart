@@ -7,26 +7,22 @@ import '../../../../core/di/injection_container.dart' as di;
 
 // Splash State
 class SplashState extends Equatable {
-  final bool isLogoVisible;
   final bool isLoading;
   final AppInitStatus initStatus;
   final String? errorMessage;
 
   const SplashState({
-    this.isLogoVisible = false,
     this.isLoading = false,
     this.initStatus = AppInitStatus.initial,
     this.errorMessage,
   });
 
   SplashState copyWith({
-    bool? isLogoVisible,
     bool? isLoading,
     AppInitStatus? initStatus,
     String? errorMessage,
   }) {
     return SplashState(
-      isLogoVisible: isLogoVisible ?? this.isLogoVisible,
       isLoading: isLoading ?? this.isLoading,
       initStatus: initStatus ?? this.initStatus,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -34,8 +30,7 @@ class SplashState extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [isLogoVisible, isLoading, initStatus, errorMessage];
+  List<Object?> get props => [isLoading, initStatus, errorMessage];
 }
 
 // Splash Cubit
@@ -46,19 +41,14 @@ class SplashCubit extends Cubit<SplashState> {
     required this.localStorageDataSource,
   }) : super(const SplashState());
 
-  /// Show logo animation
-  void showLogo() {
-    emit(state.copyWith(isLogoVisible: true));
-  }
-
   /// Initialize app - check auth and load config
   Future<void> initializeApp() async {
     emit(state.copyWith(
         isLoading: true, initStatus: AppInitStatus.checkingAuth));
 
     try {
-      // Wait for minimum splash duration (2 seconds)
-      await Future.delayed(const Duration(milliseconds: 2000));
+      // Brief delay so native splash transitions smoothly into Flutter UI
+      await Future.delayed(const Duration(milliseconds: 800));
 
       // Check if introduction is completed
       final isIntroductionCompleted = await localStorageDataSource.isIntroductionCompleted();
