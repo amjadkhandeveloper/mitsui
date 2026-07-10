@@ -20,7 +20,7 @@ import '../../../../core/services/dashboard_bootstrap_service.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/widgets/logout_helper.dart';
 import '../../../../core/widgets/dashboard_bootstrap_host.dart';
-// import '../widgets/attendance_odometer_dialog.dart'; // Odometer disabled for this release
+import '../widgets/attendance_odometer_dialog.dart';
 
 class DriverDashboardScreen extends StatefulWidget {
   const DriverDashboardScreen({super.key});
@@ -31,9 +31,9 @@ class DriverDashboardScreen extends StatefulWidget {
 
 class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
   User? currentUser;
-  String? _driverStatus;
-  DateTime? _checkInTime;
-  DateTime? _checkOutTime;
+  int? _checkStatus;
+  double _odometerIn = 0;
+  double _odometerOut = 0;
   bool _isAttendanceSubmitting = false;
   bool _isRefreshing = false;
   DashboardBootstrapController? _bootstrap;
@@ -70,9 +70,9 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
     final summary = _bootstrap?.summary;
     if (summary == null) return;
     setState(() {
-      _driverStatus = summary.driverStatus;
-      _checkInTime = summary.checkInTime;
-      _checkOutTime = summary.checkOutTime;
+      _checkStatus = summary.checkStatus;
+      _odometerIn = summary.odometerIn;
+      _odometerOut = summary.odometerOut;
     });
   }
 
@@ -103,128 +103,27 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
           await di.sl<DashboardBootstrapService>().fetchDashboardSummary();
       if (!mounted || summary == null) return;
       setState(() {
-        _driverStatus = summary.driverStatus;
-        _checkInTime = summary.checkInTime;
-        _checkOutTime = summary.checkOutTime;
+        _checkStatus = summary.checkStatus;
+        _odometerIn = summary.odometerIn;
+        _odometerOut = summary.odometerOut;
       });
     } catch (_) {
       // Silently ignore dashboard status errors; quick action falls back to Check In
     }
   }
 
-  String get _normalizedDriverStatus =>
-      (_driverStatus ?? '').trim().toLowerCase();
+  /// CheckStatus = 1 -> show Check Out, otherwise show Check In.
+  String get _attendanceButtonLabel =>
+      _checkStatus == 1 ? 'Check Out' : 'Check In';
 
-  bool get _hasCheckIn => _checkInTime != null;
-  bool get _hasCheckOut => _checkOutTime != null;
+  bool get _isAttendanceActionCheckIn => _checkStatus != 1;
 
-  /// Dashboard attendance action based on latest driver status and times.
-  ///
-  /// Server status mapping (normalized to lowercase):
-  /// - 'driver checkin'        -> waiting for approval, disable both actions
-  /// - 'driver checkout'       -> waiting for approval, disable both actions
-  /// - 'checkin approved' or
-  ///   'checkin approval'      -> enable Check Out (when no checkout time)
-  /// - 'checkout approved' or
-  ///   'checkout approval'     -> enable Check In
-  /// - 'approved by user'      -> if no checkout time: enable Check Out,
-  ///                              otherwise enable Check In
-  /// - 'not approve'           -> enable Check In
-  bool get _showAttendanceButton {
-    // No check-in recorded yet: always allow initial Check In
-    if (!_hasCheckIn) {
-      return true;
-    }
+  double get _referenceOdometer =>
+      _odometerOut <= 0 ? _odometerIn : _odometerOut;
 
-    final status = _normalizedDriverStatus;
-
-    // Waiting states – disable both actions
-    if (status == 'driver checkin' || status == 'driver checkout') {
-      return false;
-    }
-
-    // Check-in approved -> allow Check Out (while no checkout time)
-    if ((status == 'checkin approved' || status == 'checkin approval') &&
-        !_hasCheckOut) {
-      return true;
-    }
-
-    // Checkout approved -> allow next Check In
-    if (status == 'checkout approved' || status == 'checkout approval') {
-      return true;
-    }
-
-    // Approved by User ->
-    //   if no checkout time => show Check Out
-    //   else                => show Check In
-    if (status == 'approved by user') {
-      return true;
-    }
-
-    // Not Approve -> enable Check In
-    if (status == 'not approve') {
-      return true;
-    }
-
-    // Any other unknown state: hide button to be safe
-    return false;
-  }
-
-  String get _attendanceButtonLabel {
-    final status = _normalizedDriverStatus;
-
-    // No check-in yet or explicit "Not Approve" -> Check In
-    if (!_hasCheckIn || status == 'not approve') {
-      return 'Check In';
-    }
-
-    // Check-in approved/approval and no checkout yet -> Check Out
-    if ((status == 'checkin approved' || status == 'checkin approval') &&
-        !_hasCheckOut) {
-      return 'Check Out';
-    }
-
-    // Checkout approved/approval -> Check In
-    if (status == 'checkout approved' || status == 'checkout approval') {
-      return 'Check In';
-    }
-
-    // Approved by User -> depends on checkout time
-    if (status == 'approved by user') {
-      return !_hasCheckOut ? 'Check Out' : 'Check In';
-    }
-
-    // Fallback for any other visible state
-    return 'Check In';
-  }
-
-  bool get _isAttendanceActionCheckIn {
-    final status = _normalizedDriverStatus;
-
-    // No check-in yet or explicit "Not Approve" -> action is Check In
-    if (!_hasCheckIn || status == 'not approve') {
-      return true;
-    }
-
-    // Check-in approved/approval and no checkout yet -> action is Check Out
-    if ((status == 'checkin approved' || status == 'checkin approval') &&
-        !_hasCheckOut) {
-      return false;
-    }
-
-    // Checkout approved/approval -> next action is Check In
-    if (status == 'checkout approved' || status == 'checkout approval') {
-      return true;
-    }
-
-    // Approved by User -> mirrors label logic
-    if (status == 'approved by user') {
-      return _hasCheckOut; // if checkout exists -> Check In, else Check Out
-    }
-
-    // For any other visible state, default to Check In
-    return true;
-  }
+  double _minimumOdometer(bool isCheckIn) => isCheckIn
+      ? (_odometerOut > 0 ? _odometerOut : 0)
+      : (_odometerIn > 0 ? _odometerIn : 0);
 
   Future<void> _refreshDashboard() async {
     if (_isRefreshing) return;
@@ -365,17 +264,23 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
                                     child: QuickActionButton(
                                       type: QuickActionType.checkIn,
                                       checkInLabel: _attendanceButtonLabel,
-                                      enabled: _showAttendanceButton,
                                       onTap: () async {
-                                        if (!_showAttendanceButton ||
-                                            _isAttendanceSubmitting) return;
+                                        if (_isAttendanceSubmitting) return;
 
-                                        // Odometer disabled for this release.
-                                        // final odometer = await AttendanceOdometerDialog.show(
-                                        //   context,
-                                        //   isCheckIn: _isAttendanceActionCheckIn,
-                                        // );
-                                        // if (odometer == null) return;
+                                        double? odometer;
+                                        if (ApiConstants.enableAttendanceOdometer) {
+                                          odometer =
+                                              await AttendanceOdometerDialog.show(
+                                            context,
+                                            isCheckIn:
+                                                _isAttendanceActionCheckIn,
+                                            initialValue: _referenceOdometer,
+                                            minimumValue: _minimumOdometer(
+                                              _isAttendanceActionCheckIn,
+                                            ),
+                                          );
+                                          if (odometer == null) return;
+                                        }
 
                                         setState(() {
                                           _isAttendanceSubmitting = true;
@@ -383,6 +288,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
                                         await _logAttendance(
                                           context: context,
                                           isCheckIn: _isAttendanceActionCheckIn,
+                                          odometer: odometer ?? 0,
                                         );
                                         await _loadDriverStatus();
                                         if (mounted) {
@@ -496,7 +402,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
   Future<void> _logAttendance({
     required BuildContext context,
     required bool isCheckIn,
-    // double? odometer, // Odometer disabled for this release
+    required double odometer,
   }) async {
     try {
       final localStorage = di.sl<LocalStorageDataSource>();
@@ -544,16 +450,13 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
         'attendanceDate': now,
         'lat': lat,
         'lon': lon,
+        'odometer': odometer,
         'deviceId': 'device-id',
         'appVersion': ApiConstants.appVersion,
         'remarks': isCheckIn ? 'Check-in done' : 'Check-out done',
         'userId': 0,
         'status': isCheckIn ? 1 : 2, // 1 = check-in, 2 = check-out
       };
-      // Odometer disabled for this release.
-      // if (odometer != null) {
-      //   body['odometer'] = odometer;
-      // }
 
       final response = await dio.post(
         ApiConstants.driverAttendanceLog,

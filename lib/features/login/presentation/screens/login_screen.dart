@@ -40,6 +40,41 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Widget _buildRoleChip({
+    required String label,
+    required int roleId,
+  }) {
+    final selected = _selectedRoleId == roleId;
+
+    return ChoiceChip(
+      label: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            color: selected ? Colors.white : Colors.black87,
+          ),
+        ),
+      ),
+      selected: selected,
+      selectedColor: AppTheme.mitsuiDarkBlue,
+      backgroundColor: Colors.white,
+      side: BorderSide(
+        color: selected ? AppTheme.mitsuiDarkBlue : Colors.grey.shade400,
+        width: selected ? 1.5 : 1,
+      ),
+      checkmarkColor: Colors.white,
+      materialTapTargetSize: MaterialTapTargetSize.padded,
+      onSelected: (value) {
+        if (value) {
+          setState(() => _selectedRoleId = roleId);
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -257,52 +292,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                               Row(
                                                 children: [
                                                   Expanded(
-                                                    child: ChoiceChip(
-                                                      label: const Padding(
-                                                        padding: EdgeInsets.symmetric(
-                                                          horizontal: 8,
-                                                          vertical: 4,
-                                                        ),
-                                                        child: Text(
-                                                          'User',
-                                                          style: TextStyle(fontSize: 16),
-                                                        ),
-                                                      ),
-                                                      selected: _selectedRoleId == 1,
-                                                      materialTapTargetSize:
-                                                          MaterialTapTargetSize.padded,
-                                                      onSelected: (selected) {
-                                                        if (selected) {
-                                                          setState(() {
-                                                            _selectedRoleId = 1;
-                                                          });
-                                                        }
-                                                      },
+                                                    child: _buildRoleChip(
+                                                      label: 'User',
+                                                      roleId: 1,
                                                     ),
                                                   ),
                                                   const SizedBox(width: 12),
                                                   Expanded(
-                                                    child: ChoiceChip(
-                                                      label: const Padding(
-                                                        padding: EdgeInsets.symmetric(
-                                                          horizontal: 8,
-                                                          vertical: 4,
-                                                        ),
-                                                        child: Text(
-                                                          'Driver',
-                                                          style: TextStyle(fontSize: 16),
-                                                        ),
-                                                      ),
-                                                      selected: _selectedRoleId == 2,
-                                                      materialTapTargetSize:
-                                                          MaterialTapTargetSize.padded,
-                                                      onSelected: (selected) {
-                                                        if (selected) {
-                                                          setState(() {
-                                                            _selectedRoleId = 2;
-                                                          });
-                                                        }
-                                                      },
+                                                    child: _buildRoleChip(
+                                                      label: 'Driver',
+                                                      roleId: 2,
                                                     ),
                                                   ),
                                                 ],

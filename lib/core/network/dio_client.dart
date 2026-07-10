@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 import '../error/exceptions.dart';
+import '../utils/network_feedback.dart';
 import 'api_trace_interceptor.dart';
 
 class DioClient {
@@ -52,6 +53,7 @@ class DioClient {
                 '${options.method.toUpperCase()} ${options.uri}',
               );
             }
+            NetworkFeedback.showNoInternet();
             return handler.reject(
               DioException(
                 requestOptions: options,
@@ -69,6 +71,9 @@ class DioClient {
           return handler.next(options);
         },
         onError: (error, handler) {
+          if (_isNoInternetDioError(error)) {
+            NetworkFeedback.showNoInternet();
+          }
           return handler.next(error);
         },
       ),
@@ -92,7 +97,10 @@ class DioClient {
     bool ok = false;
     try {
       final host = Uri.parse(ApiConstants.baseUrl).host;
-      final results = await InternetAddress.lookup(host);
+      final results = await InternetAddress.lookup(host).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () => <InternetAddress>[],
+      );
       ok = results.isNotEmpty && results.first.rawAddress.isNotEmpty;
     } catch (_) {
       ok = false;
@@ -101,6 +109,23 @@ class DioClient {
     _lastConnectivityCheckAt = now;
     _lastConnectivityStatus = ok;
     return ok;
+  }
+
+  bool _isNoInternetDioError(DioException error) {
+    if (error.error is SocketException) return true;
+
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+      case DioExceptionType.connectionError:
+        return true;
+      case DioExceptionType.unknown:
+        return error.error is SocketException ||
+            error.message?.toLowerCase().contains('network') == true;
+      default:
+        return false;
+    }
   }
 
   // GET request

@@ -1,8 +1,8 @@
 class ApiConstants {
   // Base URL - Mitsui Fleet Management API
   static const String baseUrl =
-      //   "https://mitsuiv16pocmobapi.infotracktelematics.com/"; //:8443
-      'https://mitsuiv16mobapi.infotracktelematics.com/';
+        "https://mitsuiv16pocmobapi.infotracktelematics.com/"; //:8443
+    //   'https://mitsuiv16mobapi.infotracktelematics.com/';
 
   // API Endpoints
   static const String login = '/api/Auth/UserLogin';
@@ -64,13 +64,13 @@ class ApiConstants {
 
   /// Integer build version used for force-update checks.
   /// Update this before each release and compare with ForceUpdateClient API.
-  static const int localAppVersion = 11;
+  static const int localAppVersion = 15;
 
   /// Fallback client id when none is stored after login.
-  static const int defaultClientId = 35;
+  static const int defaultClientId = 1;
 
-  // /// Set to true when odometer input is required for driver check-in/out.
-  // static const bool enableAttendanceOdometer = false;
+  /// Set to true when odometer input is required for driver check-in/out.
+  static const bool enableAttendanceOdometer = true;
 
   static const String androidPlayStoreUrl =
       'https://play.google.com/store/apps/details?id=com.infotrack.mitsuifleet';
