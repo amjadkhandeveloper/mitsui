@@ -204,33 +204,14 @@ class DashboardBootstrapService {
     final first = _asMap(list.first);
     if (first == null) return null;
 
-    final checkStatus = _parseInt(first['CheckStatus'] ?? first['checkStatus']);
-    final odometerIn = _parseDouble(first['OdometerIN'] ?? first['odometerIn']);
-    final odometerOut =
-        _parseDouble(first['OdometerOUT'] ?? first['odometerOut']);
+    final status =
+        (first['Driver Status'] ?? first['driverStatus'])?.toString();
 
     return DashboardSummary(
-      checkStatus: checkStatus,
+      driverStatus: status,
       checkInTime: _parseDateTime(first['CheckInTime']),
       checkOutTime: _parseDateTime(first['CheckOutTime']),
-      odometerIn: odometerIn,
-      odometerOut: odometerOut,
     );
-  }
-
-  double _parseDouble(dynamic value) {
-    if (value == null) return 0;
-    if (value is Map && value.isEmpty) return 0;
-    if (value is num) return value.toDouble();
-    if (value is String) return double.tryParse(value.trim()) ?? 0;
-    return 0;
-  }
-
-  int? _parseInt(dynamic value) {
-    if (value == null) return null;
-    if (value is int) return value;
-    if (value is String) return int.tryParse(value.trim());
-    return null;
   }
 
   DateTime? _parseDateTime(dynamic value) {

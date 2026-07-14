@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/splash_cubit.dart';
@@ -16,15 +14,9 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  Timer? _splashTimeout;
-
   @override
   void initState() {
     super.initState();
-    _splashTimeout = Timer(const Duration(seconds: 15), () {
-      if (!mounted) return;
-      context.read<SplashCubit>().handleTimeout();
-    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<SplashCubit>().initializeApp();
@@ -32,15 +24,8 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
-  @override
-  void dispose() {
-    _splashTimeout?.cancel();
-    super.dispose();
-  }
-
   void _handleNavigation(AppInitStatus status) {
     if (!mounted) return;
-    _splashTimeout?.cancel();
 
     switch (status) {
       case AppInitStatus.showIntroduction:

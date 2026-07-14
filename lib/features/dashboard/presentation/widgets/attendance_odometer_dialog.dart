@@ -9,10 +9,8 @@ class AttendanceOdometerDialog {
   static Future<double?> show(
     BuildContext context, {
     required bool isCheckIn,
-    double initialValue = 0,
-    double minimumValue = 0,
   }) {
-    double selectedValue = initialValue > 0 ? initialValue : 0;
+    double selectedValue = 0;
     String? errorText;
 
     return showDialog<double>(
@@ -20,9 +18,6 @@ class AttendanceOdometerDialog {
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setState) {
-            final hasMinimum = minimumValue > 0;
-            final minimumLabel = _formatOdometer(minimumValue);
-
             return AlertDialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -37,21 +32,8 @@ class AttendanceOdometerDialog {
                         ? 'Select the current odometer reading to check in.'
                         : 'Select the current odometer reading to check out.',
                   ),
-                  if (hasMinimum) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      isCheckIn
-                          ? 'Minimum allowed: $minimumLabel km (last check-out reading).'
-                          : 'Minimum allowed: $minimumLabel km (check-in reading).',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                  ],
                   const SizedBox(height: 12),
                   OdometerWheelPicker(
-                    initialValue: initialValue,
                     onChanged: (value) {
                       setState(() {
                         selectedValue = value;
@@ -84,17 +66,6 @@ class AttendanceOdometerDialog {
                       );
                       return;
                     }
-
-                    if (hasMinimum &&
-                        !_isOdometerAtLeast(selectedValue, minimumValue)) {
-                      setState(
-                        () => errorText = isCheckIn
-                            ? 'Check-in odometer must be at least $minimumLabel km.'
-                            : 'Check-out odometer must be at least $minimumLabel km.',
-                      );
-                      return;
-                    }
-
                     Navigator.pop(dialogContext, selectedValue);
                   },
                   style: ElevatedButton.styleFrom(
@@ -109,19 +80,5 @@ class AttendanceOdometerDialog {
         );
       },
     );
-  }
-
-  static bool _isOdometerAtLeast(double value, double minimum) {
-    final roundedValue = (value * 10).round() / 10;
-    final roundedMinimum = (minimum * 10).round() / 10;
-    return roundedValue + 0.0001 >= roundedMinimum;
-  }
-
-  static String _formatOdometer(double value) {
-    final rounded = (value * 10).round() / 10;
-    if (rounded == rounded.roundToDouble()) {
-      return rounded.toStringAsFixed(0);
-    }
-    return rounded.toStringAsFixed(1);
   }
 }

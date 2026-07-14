@@ -80,20 +80,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     }
   }
 
-  Future<void> _reloadAttendancePreservingSelection() async {
-    final cubit = context.read<AttendanceCubit>();
-    final currentState = cubit.state;
-    int? driverId;
-
-    if (widget.currentUser?.role == UserRole.expat &&
-        currentState is AttendanceLoaded &&
-        currentState.selectedDriver != null) {
-      driverId = int.tryParse(currentState.selectedDriver!.id);
-    }
-
-    await _loadAttendance(driverId: driverId);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,6 +98,34 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         listener: (context, state) {
           if (state is AttendanceError) {
             Toast.showError(context, state.message);
+          } else if (state is CheckInApproved) {
+            Toast.showSuccess(context, 'Check-in approved successfully');
+            // Reload attendance records - preserve selected driver if expat
+            if (widget.currentUser?.role == UserRole.expat) {
+              final currentState = context.read<AttendanceCubit>().state;
+              if (currentState is AttendanceLoaded && currentState.selectedDriver != null) {
+                final driverId = int.tryParse(currentState.selectedDriver!.id);
+                _loadAttendance(driverId: driverId);
+              } else {
+                _loadAttendance();
+              }
+            } else {
+              _loadAttendance();
+            }
+          } else if (state is CheckOutApproved) {
+            Toast.showSuccess(context, 'Check-out approved successfully');
+            // Reload attendance records - preserve selected driver if expat
+            if (widget.currentUser?.role == UserRole.expat) {
+              final currentState = context.read<AttendanceCubit>().state;
+              if (currentState is AttendanceLoaded && currentState.selectedDriver != null) {
+                final driverId = int.tryParse(currentState.selectedDriver!.id);
+                _loadAttendance(driverId: driverId);
+              } else {
+                _loadAttendance();
+              }
+            } else {
+              _loadAttendance();
+            }
           }
         },
         builder: (context, state) {
@@ -588,15 +602,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         attendanceId: record.attendanceId!,
         userId: userId,
         remark: _resolveRemark(remark),
-      ).then((error) async {
-        if (!context.mounted) return;
-        if (error != null) {
-          Toast.showError(context, error);
-        } else {
-          Toast.showSuccess(context, 'Check-in approved successfully');
-        }
-        await _reloadAttendancePreservingSelection();
-      });
+      );
     } catch (e) {
       Toast.showError(context, 'Failed to approve check-in: $e');
     }
@@ -629,15 +635,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         attendanceId: record.attendanceId!,
         userId: userId,
         remark: _resolveRemark(remark),
-      ).then((error) async {
-        if (!context.mounted) return;
-        if (error != null) {
-          Toast.showError(context, error);
-        } else {
-          Toast.showSuccess(context, 'Check-out approved successfully');
-        }
-        await _reloadAttendancePreservingSelection();
-      });
+      );
     } catch (e) {
       Toast.showError(context, 'Failed to approve check-out: $e');
     }

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -9,7 +8,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'core/di/injection_container.dart' as di;
-import 'core/navigation/app_navigator.dart';
 import 'core/routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
 import 'features/splash/presentation/cubit/splash_cubit.dart';
@@ -31,6 +29,9 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // Local notifications: configure per-platform
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -65,77 +66,16 @@ void main() async {
     await flutterLocalNotificationsPlugin.initialize(initSettings);
   }
 
-  try {
-    await Firebase.initializeApp();
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    await _setupFirebaseMessaging();
-  } catch (e, stack) {
-    debugPrint('Firebase setup failed (app will continue): $e\n$stack');
-  }
-
-  // Initialize dependency injection
-  await di.init();
-
-  _setupNotificationTapHandling();
-
-  // Foreground messages: show local notification (Android only).
-  try {
-    final notificationChannel = androidChannel;
-    if (!kIsWeb && Platform.isAndroid && notificationChannel != null) {
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        final notification = message.notification;
-        final android = message.notification?.android;
-        if (notification != null && android != null) {
-          final bigTextStyle = BigTextStyleInformation(
-            notification.body ?? '',
-            contentTitle: notification.title,
-            htmlFormatBigText: false,
-            htmlFormatContentTitle: false,
-          );
-          flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                notificationChannel.id,
-                notificationChannel.name,
-                channelDescription: notificationChannel.description,
-                icon: android.smallIcon ?? 'ic_mitsui_logo',
-                importance: Importance.high,
-                priority: Priority.high,
-                styleInformation: bigTextStyle,
-              ),
-            ),
-          );
-        }
-      });
-    }
-  } catch (e) {
-    debugPrint('FCM foreground listener setup failed: $e');
-  }
-
-  runApp(const MyApp());
-}
-
-Future<void> _setupFirebaseMessaging() async {
-  // Token fetch must not block app launch when Google Play Services / FIS is down.
-  try {
-    final token = await FirebaseMessaging.instance
-        .getToken()
-        .timeout(const Duration(seconds: 10));
-    Global.fcmToken = token;
-    if (Global.fcmToken != null && Global.fcmToken!.trim().isNotEmpty) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('fcm_token', Global.fcmToken!.trim());
-      await prefs.remove('last_registered_fcm_token');
-      debugPrint('FCM Token: ${Global.fcmToken}');
-    } else {
-      debugPrint('FCM Token: <empty>');
-    }
-  } catch (e) {
-    debugPrint('FCM Token: unavailable ($e)');
-    Global.fcmToken = null;
+  // Token can be retrieved even if notification permission is denied (esp. Android).
+  final token = await FirebaseMessaging.instance.getToken();
+  Global.fcmToken = token;
+  if (Global.fcmToken != null && Global.fcmToken!.trim().isNotEmpty) {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('fcm_token', Global.fcmToken!.trim());
+    await prefs.remove('last_registered_fcm_token');
+    debugPrint('FCM Token: ${Global.fcmToken}');
+  } else {
+    debugPrint('FCM Token: <empty>');
   }
 
   FirebaseMessaging.instance.onTokenRefresh.listen((t) {
@@ -149,25 +89,64 @@ Future<void> _setupFirebaseMessaging() async {
     debugPrint('FCM Token Refreshed: ${Global.fcmToken}');
   });
 
-  try {
-    await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+  await FirebaseMessaging.instance.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
 
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-  } catch (e) {
-    debugPrint('FCM permission setup failed: $e');
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  // Initialize dependency injection
+  await di.init();
+
+  _setupNotificationTapHandling();
+
+  // Foreground messages: show local notification (Android only).
+  final notificationChannel = androidChannel;
+  if (!kIsWeb && Platform.isAndroid && notificationChannel != null) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      final notification = message.notification;
+      final android = message.notification?.android;
+      if (notification != null && android != null) {
+        final bigTextStyle = BigTextStyleInformation(
+          notification.body ?? '',
+          contentTitle: notification.title,
+          htmlFormatBigText: false,
+          htmlFormatContentTitle: false,
+        );
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              notificationChannel.id,
+              notificationChannel.name,
+              channelDescription: notificationChannel.description,
+              icon: android.smallIcon ?? 'ic_mitsui_logo',
+              importance: Importance.high,
+              priority: Priority.high,
+              styleInformation: bigTextStyle,
+            ),
+          ),
+        );
+      }
+    });
   }
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -175,8 +154,9 @@ class MyApp extends StatelessWidget {
       title: 'Mitsui',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      themeMode: ThemeMode.light,
-      navigatorKey: rootNavigatorKey,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+      navigatorKey: navigatorKey,
       onGenerateRoute: AppRoutes.generateRoute,
       initialRoute: AppRoutes.splash,
       builder: (context, child) {
@@ -196,31 +176,31 @@ class MyApp extends StatelessWidget {
 }
 
 void _setupNotificationTapHandling() {
-  try {
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      final localStorage = di.sl<LocalStorageDataSource>();
-      final loggedIn = await localStorage.isLoggedIn();
-      if (!loggedIn) return;
+  // Called lazily once app is running, but kept here for clarity in case you want
+  // to extend navigation based on message data.
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+    final localStorage = di.sl<LocalStorageDataSource>();
+    final loggedIn = await localStorage.isLoggedIn();
+    if (!loggedIn) return;
 
-      final nav = rootNavigatorKey.currentState;
+    final nav = MyApp.navigatorKey.currentState;
+    if (nav == null) return;
+
+    // Default: open dashboard entry point.
+    nav.pushNamedAndRemoveUntil(AppRoutes.dashboard, (route) => false);
+  });
+
+  // If the app was terminated and opened via a notification tap.
+  FirebaseMessaging.instance.getInitialMessage().then((message) async {
+    if (message == null) return;
+    final localStorage = di.sl<LocalStorageDataSource>();
+    final loggedIn = await localStorage.isLoggedIn();
+    if (!loggedIn) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final nav = MyApp.navigatorKey.currentState;
       if (nav == null) return;
-
       nav.pushNamedAndRemoveUntil(AppRoutes.dashboard, (route) => false);
     });
-
-    FirebaseMessaging.instance.getInitialMessage().then((message) async {
-      if (message == null) return;
-      final localStorage = di.sl<LocalStorageDataSource>();
-      final loggedIn = await localStorage.isLoggedIn();
-      if (!loggedIn) return;
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final nav = rootNavigatorKey.currentState;
-        if (nav == null) return;
-        nav.pushNamedAndRemoveUntil(AppRoutes.dashboard, (route) => false);
-      });
-    });
-  } catch (e) {
-    debugPrint('FCM notification tap handling setup failed: $e');
-  }
+  });
 }

@@ -1,160 +1,93 @@
-import 'dart:convert';
-import 'dart:math' as math;
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-import '../constants/api_constants.dart';
-
-/// Prints full API URL, method, request payload, and response for every call.
+/// Prints full API URL, request payload, and response body in debug builds.
 class ApiTraceInterceptor extends Interceptor {
   static const _tag = 'API_TRACE';
-  static const _chunkSize = 900;
-
-  bool get _enabled => ApiConstants.enableApiTrace || kDebugMode;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (_enabled) {
-      options.extra['api_trace_started_at'] = DateTime.now();
-      _printBlock(
-        title: 'REQUEST',
-        lines: _requestLines(options),
-      );
+    if (kDebugMode) {
+      _logRequest(options);
     }
     handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    if (_enabled) {
-      _printBlock(
-        title: 'RESPONSE',
-        lines: _responseLines(response),
-      );
+    if (kDebugMode) {
+      _logResponse(response);
     }
     handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (_enabled) {
-      _printBlock(
-        title: 'ERROR',
-        lines: _errorLines(err),
-      );
+    if (kDebugMode) {
+      _logError(err);
     }
     handler.next(err);
   }
 
-  List<String> _requestLines(RequestOptions options) {
-    return [
-      'METHOD: ${options.method.toUpperCase()}',
-      'URL: ${options.uri}',
-      if (options.queryParameters.isNotEmpty)
-        'QUERY: ${_formatPayload(options.queryParameters)}',
-      'REQUEST: ${_formatPayload(options.data)}',
-      if (options.headers.containsKey('Authorization'))
-        'AUTHORIZATION: Bearer ***',
-    ];
+  void _logRequest(RequestOptions options) {
+    final buffer = StringBuffer()
+      ..writeln('')
+      ..writeln('┌─ $_tag ─ REQUEST ─────────────────────────────')
+      ..writeln('│ ${options.method.toUpperCase()} ${options.uri}')
+      ..writeln('│ Path: ${options.path}');
+
+    if (options.queryParameters.isNotEmpty) {
+      buffer.writeln('│ Query: ${options.queryParameters}');
+    }
+    if (options.data != null) {
+      buffer.writeln('│ Body: ${options.data}');
+    }
+    if (options.headers.containsKey('Authorization')) {
+      buffer.writeln('│ Authorization: Bearer ***');
+    }
+
+    buffer.writeln('└──────────────────────────────────────────────');
+    debugPrint(buffer.toString());
   }
 
-  List<String> _responseLines(Response response) {
-    final startedAt = response.requestOptions.extra['api_trace_started_at'];
-    final durationMs = startedAt is DateTime
-        ? DateTime.now().difference(startedAt).inMilliseconds
-        : null;
+  void _logResponse(Response response) {
+    final buffer = StringBuffer()
+      ..writeln('')
+      ..writeln('┌─ $_tag ─ RESPONSE ────────────────────────────')
+      ..writeln(
+        '│ ${response.statusCode} '
+        '${response.requestOptions.method.toUpperCase()} '
+        '${response.requestOptions.uri}',
+      )
+      ..writeln('│ Body: ${response.data}')
+      ..writeln('└──────────────────────────────────────────────');
 
-    return [
-      'METHOD: ${response.requestOptions.method.toUpperCase()}',
-      'URL: ${response.requestOptions.uri}',
-      'STATUS: ${response.statusCode}',
-      if (durationMs != null) 'DURATION_MS: $durationMs',
-      'RESPONSE: ${_formatPayload(response.data)}',
-    ];
+    debugPrint(buffer.toString());
   }
 
-  List<String> _errorLines(DioException err) {
-    final startedAt = err.requestOptions.extra['api_trace_started_at'];
-    final durationMs = startedAt is DateTime
-        ? DateTime.now().difference(startedAt).inMilliseconds
-        : null;
-
-    final lines = <String>[
-      'METHOD: ${err.requestOptions.method.toUpperCase()}',
-      'URL: ${err.requestOptions.uri}',
-      'DIO_TYPE: ${err.type}',
-      if (durationMs != null) 'DURATION_MS: $durationMs',
-      'REQUEST: ${_formatPayload(err.requestOptions.data)}',
-    ];
+  void _logError(DioException err) {
+    final buffer = StringBuffer()
+      ..writeln('')
+      ..writeln('┌─ $_tag ─ ERROR ───────────────────────────────')
+      ..writeln(
+        '│ ${err.requestOptions.method.toUpperCase()} '
+        '${err.requestOptions.uri}',
+      )
+      ..writeln('│ DioExceptionType: ${err.type}');
 
     final response = err.response;
     if (response != null) {
-      lines.addAll([
-        'STATUS: ${response.statusCode}',
-        'RESPONSE: ${_formatPayload(response.data)}',
-      ]);
+      buffer
+        ..writeln('│ Status: ${response.statusCode}')
+        ..writeln('│ Body: ${response.data}');
     } else {
-      lines.add('MESSAGE: ${err.message ?? 'n/a'}');
+      buffer.writeln('│ Message: ${err.message}');
       if (err.error != null) {
-        lines.add('ERROR: ${err.error}');
+        buffer.writeln('│ Error: ${err.error}');
       }
     }
 
-    return lines;
-  }
-
-  String _formatPayload(dynamic data) {
-    if (data == null) return 'null';
-
-    try {
-      if (data is Map || data is List) {
-        return const JsonEncoder.withIndent('  ').convert(data);
-      }
-      if (data is FormData) {
-        final fields = data.fields
-            .map((entry) => '${entry.key}=${entry.value}')
-            .join(', ');
-        final files = data.files
-            .map((entry) => '${entry.key}=${entry.value.filename ?? 'file'}')
-            .join(', ');
-        return 'FormData(fields: [$fields], files: [$files])';
-      }
-      return data.toString();
-    } catch (_) {
-      return data.toString();
-    }
-  }
-
-  void _printBlock({
-    required String title,
-    required List<String> lines,
-  }) {
-    final buffer = StringBuffer()
-      ..writeln('')
-      ..writeln('┌─ $_tag ─ $title ${'─' * math.max(1, 42 - title.length)}');
-
-    for (final line in lines) {
-      buffer.writeln('│ $line');
-    }
-
-    buffer.writeln('└${'─' * 48}');
-    _printLong(buffer.toString());
-  }
-
-  void _printLong(String message) {
-    if (message.length <= _chunkSize) {
-      debugPrint(message);
-      return;
-    }
-
-    var index = 0;
-    var part = 1;
-    while (index < message.length) {
-      final end = math.min(index + _chunkSize, message.length);
-      debugPrint('[$_tag part $part] ${message.substring(index, end)}');
-      index = end;
-      part++;
-    }
+    buffer.writeln('└──────────────────────────────────────────────');
+    debugPrint(buffer.toString());
   }
 }

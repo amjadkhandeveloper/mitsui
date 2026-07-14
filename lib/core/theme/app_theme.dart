@@ -22,7 +22,6 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.light,
       colorScheme: const ColorScheme.light(
         primary: mitsuiBlue,
         onPrimary: Colors.white,

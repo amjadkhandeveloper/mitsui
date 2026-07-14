@@ -1,8 +1,8 @@
 class ApiConstants {
   // Base URL - Mitsui Fleet Management API
   static const String baseUrl =
-        "https://mitsuiv16pocmobapi.infotracktelematics.com/"; //:8443
-    //   'https://mitsuiv16mobapi.infotracktelematics.com/';
+      //   "https://mitsuiv16pocmobapi.infotracktelematics.com/"; //:8443
+      'https://mitsuiv16mobapi.infotracktelematics.com/';
 
   // API Endpoints
   static const String login = '/api/Auth/UserLogin';
@@ -58,22 +58,19 @@ class ApiConstants {
   static const int receiveTimeout = 30000; // 30 seconds
 
   // ── About App (update these before each release) ──
-  static const String appName = 'Mitsui FleetPlus POC';
-  static const String appVersion = '1.0.4';
-  static const String releaseDate = '10-July-2026';
+  static const String appName = 'Mitsui FleetPlus';
+  static const String appVersion = '1.0.3';
+  static const String releaseDate = '08-July-2026';
 
   /// Integer build version used for force-update checks.
   /// Update this before each release and compare with ForceUpdateClient API.
-  static const int localAppVersion = 15;
+  static const int localAppVersion = 11;
 
   /// Fallback client id when none is stored after login.
-  static const int defaultClientId = 1;
+  static const int defaultClientId = 35;
 
-  /// Set to true when odometer input is required for driver check-in/out.
-  static const bool enableAttendanceOdometer = true;
-
-  /// Logs URL, method, request body, and response for every Dio API call.
-  static const bool enableApiTrace = true;
+  // /// Set to true when odometer input is required for driver check-in/out.
+  // static const bool enableAttendanceOdometer = false;
 
   static const String androidPlayStoreUrl =
       'https://play.google.com/store/apps/details?id=com.infotrack.mitsuifleet';
