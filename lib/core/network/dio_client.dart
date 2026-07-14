@@ -47,10 +47,12 @@ class DioClient {
           // Global network connectivity guard (prevents Dio errors across app)
           final ok = await _hasInternetConnection();
           if (!ok) {
-            if (kDebugMode) {
+            if (ApiConstants.enableApiTrace || kDebugMode) {
               debugPrint(
-                'API_TRACE: blocked (no internet) '
-                '${options.method.toUpperCase()} ${options.uri}',
+                'API_TRACE ─ BLOCKED (no internet)\n'
+                'METHOD: ${options.method.toUpperCase()}\n'
+                'URL: ${options.uri}\n'
+                'REQUEST: ${options.data}',
               );
             }
             NetworkFeedback.showNoInternet();

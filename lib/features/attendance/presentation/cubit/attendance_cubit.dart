@@ -57,7 +57,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     );
   }
 
-  Future<void> approveCheckIn({
+  Future<String?> approveCheckIn({
     required int attendanceId,
     required int userId,
     required String remark,
@@ -67,13 +67,13 @@ class AttendanceCubit extends Cubit<AttendanceState> {
       userId: userId,
       remark: remark,
     );
-    result.fold(
-      (failure) => emit(AttendanceError(failure.message)),
-      (_) => emit(CheckInApproved(attendanceId: attendanceId)),
+    return result.fold(
+      (failure) => failure.message,
+      (_) => null,
     );
   }
 
-  Future<void> approveCheckOut({
+  Future<String?> approveCheckOut({
     required int attendanceId,
     required int userId,
     required String remark,
@@ -83,9 +83,9 @@ class AttendanceCubit extends Cubit<AttendanceState> {
       userId: userId,
       remark: remark,
     );
-    result.fold(
-      (failure) => emit(AttendanceError(failure.message)),
-      (_) => emit(CheckOutApproved(attendanceId: attendanceId)),
+    return result.fold(
+      (failure) => failure.message,
+      (_) => null,
     );
   }
 
