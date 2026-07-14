@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/app_init_state.dart';
@@ -100,12 +102,14 @@ class SplashCubit extends Cubit<SplashState> {
       if (savedCredentials != null && 
           savedCredentials['username'] != null && 
           savedCredentials['password'] != null) {
-        // Attempt auto-login
+        // Attempt auto-login (bounded so splash cannot hang indefinitely)
         final authRepository = di.sl<AuthRepository>();
-        final result = await authRepository.login(
-          savedCredentials['username']!,
-          savedCredentials['password']!,
-        );
+        final result = await authRepository
+            .login(
+              savedCredentials['username']!,
+              savedCredentials['password']!,
+            )
+            .timeout(const Duration(seconds: 15));
         
         result.fold(
           (failure) {
@@ -130,6 +134,11 @@ class SplashCubit extends Cubit<SplashState> {
           initStatus: AppInitStatus.unauthenticated,
         ));
       }
+    } on TimeoutException {
+      emit(state.copyWith(
+        isLoading: false,
+        initStatus: AppInitStatus.unauthenticated,
+      ));
     } catch (e) {
       // Error during auto-login, go to login screen
       emit(state.copyWith(
@@ -141,7 +150,8 @@ class SplashCubit extends Cubit<SplashState> {
 
   /// Handle timeout - navigate anyway
   void handleTimeout() {
-    if (state.initStatus == AppInitStatus.checkingAuth) {
+    if (state.initStatus == AppInitStatus.initial ||
+        state.initStatus == AppInitStatus.checkingAuth) {
       // Default to unauthenticated if timeout occurs
       emit(state.copyWith(
         isLoading: false,
