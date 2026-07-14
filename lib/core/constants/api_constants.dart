@@ -60,7 +60,7 @@ class ApiConstants {
   // ── About App (update these before each release) ──
   static const String appName = 'Mitsui FleetPlus POC';
   static const String appVersion = '1.0.4';
-  static const String releaseDate = '10-July-2026';
+  static const String releaseDate = '14-July-2026';
 
   /// Integer build version used for force-update checks.
   /// Update this before each release and compare with ForceUpdateClient API.
@@ -74,6 +74,12 @@ class ApiConstants {
 
   /// Logs URL, method, request body, and response for every Dio API call.
   static const bool enableApiTrace = true;
+
+  /// DriverAttendance `status` values (mode stays 1=In / 2=Out).
+  static const int attendanceStatusCheckIn = 1;
+  static const int attendanceStatusCheckOut = 2;
+  static const int attendanceStatusStandbyIn = 7;
+  static const int attendanceStatusStandbyOut = 8;
 
   static const String androidPlayStoreUrl =
       'https://play.google.com/store/apps/details?id=com.infotrack.mitsuifleet';

@@ -205,12 +205,21 @@ class DashboardBootstrapService {
     if (first == null) return null;
 
     final checkStatus = _parseInt(first['CheckStatus'] ?? first['checkStatus']);
+    final standbyStatus = _parseInt(
+          first['StandByStatus'] ??
+              first['standByStatus'] ??
+              first['StandbyStatus'] ??
+              first['StandybyStatus'] ??
+              first['standbyStatus'],
+        ) ??
+        0;
     final odometerIn = _parseDouble(first['OdometerIN'] ?? first['odometerIn']);
     final odometerOut =
         _parseDouble(first['OdometerOUT'] ?? first['odometerOut']);
 
     return DashboardSummary(
       checkStatus: checkStatus,
+      standbyStatus: standbyStatus,
       checkInTime: _parseDateTime(first['CheckInTime']),
       checkOutTime: _parseDateTime(first['CheckOutTime']),
       odometerIn: odometerIn,

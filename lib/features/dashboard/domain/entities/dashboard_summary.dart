@@ -1,5 +1,7 @@
 class DashboardSummary {
   final int? checkStatus;
+  /// 0 = regular duty, 1 = standby duty.
+  final int standbyStatus;
   final DateTime? checkInTime;
   final DateTime? checkOutTime;
   final double odometerIn;
@@ -7,6 +9,7 @@ class DashboardSummary {
 
   const DashboardSummary({
     this.checkStatus,
+    this.standbyStatus = 0,
     this.checkInTime,
     this.checkOutTime,
     this.odometerIn = 0,

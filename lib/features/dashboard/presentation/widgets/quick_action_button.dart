@@ -6,6 +6,13 @@ enum QuickActionType {
   applyLeave,
 }
 
+enum AttendanceActionStyle {
+  checkIn,
+  checkOut,
+  standbyIn,
+  standbyOut,
+}
+
 class QuickActionButton extends StatelessWidget {
   final QuickActionType type;
   final VoidCallback onTap;
@@ -15,6 +22,10 @@ class QuickActionButton extends StatelessWidget {
   final String? leaveActionLabel;
   /// Whether the button is active/clickable. When false, it is shown in a disabled style.
   final bool enabled;
+  /// Explicit attendance style. When null, style is inferred from [checkInLabel].
+  final AttendanceActionStyle? attendanceStyle;
+  final EdgeInsetsGeometry margin;
+  final int animationDelayMs;
 
   const QuickActionButton({
     super.key,
@@ -23,16 +34,50 @@ class QuickActionButton extends StatelessWidget {
     this.checkInLabel,
     this.leaveActionLabel,
     this.enabled = true,
+    this.attendanceStyle,
+    this.margin = const EdgeInsets.symmetric(horizontal: 4),
+    this.animationDelayMs = 300,
   });
+
+  AttendanceActionStyle get _resolvedAttendanceStyle {
+    if (attendanceStyle != null) return attendanceStyle!;
+    final label = (checkInLabel ?? '').toLowerCase();
+    if (label.contains('standby out')) return AttendanceActionStyle.standbyOut;
+    if (label.contains('standby in')) return AttendanceActionStyle.standbyIn;
+    if (label.contains('check out')) return AttendanceActionStyle.checkOut;
+    return AttendanceActionStyle.checkIn;
+  }
+
+  Color _backgroundColor() {
+    if (!enabled) return Colors.grey.shade400;
+    switch (_resolvedAttendanceStyle) {
+      case AttendanceActionStyle.checkIn:
+        return Colors.green;
+      case AttendanceActionStyle.checkOut:
+      case AttendanceActionStyle.standbyOut:
+        return Colors.red;
+      case AttendanceActionStyle.standbyIn:
+        return Colors.amber.shade700;
+    }
+  }
+
+  IconData _icon() {
+    switch (_resolvedAttendanceStyle) {
+      case AttendanceActionStyle.checkIn:
+      case AttendanceActionStyle.standbyIn:
+        return Icons.login;
+      case AttendanceActionStyle.checkOut:
+      case AttendanceActionStyle.standbyOut:
+        return Icons.logout;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isCheckIn = type == QuickActionType.checkIn;
-    final isCheckoutMode =
-        isCheckIn && (checkInLabel ?? '').toLowerCase() == 'check out';
 
     return FadeSlideAnimation(
-      delay: Duration(milliseconds: isCheckIn ? 300 : 400),
+      delay: Duration(milliseconds: animationDelayMs),
       beginOffset: const Offset(-0.2, 0),
       child: Material(
         color: Colors.transparent,
@@ -41,16 +86,11 @@ class QuickActionButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           child: Container(
             constraints: const BoxConstraints(minHeight: 48),
-            margin: EdgeInsets.only(
-              right: isCheckIn ? 8 : 0,
-              left: isCheckIn ? 0 : 8,
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            margin: margin,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
             decoration: BoxDecoration(
               color: isCheckIn
-                  ? (enabled
-                      ? (isCheckoutMode ? Colors.orange : Colors.green)
-                      : Colors.grey.shade400)
+                  ? _backgroundColor()
                   : Colors.white,
               border: isCheckIn
                   ? null
@@ -72,28 +112,27 @@ class QuickActionButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  isCheckIn
-                      ? (isCheckoutMode ? Icons.logout : Icons.login)
-                      : Icons.calendar_today,
+                  isCheckIn ? _icon() : Icons.calendar_today,
                   color: isCheckIn
                       ? Colors.white
                       : Theme.of(context).colorScheme.primary,
                   size: 22,
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Flexible(
                   child: Text(
                     isCheckIn
                         ? (checkInLabel ?? 'Check In')
                         : (leaveActionLabel ?? 'Apply Leave'),
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: isCheckIn
                           ? Colors.white
                           : Theme.of(context).colorScheme.primary,
                     ),
                     overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ],

@@ -19,6 +19,7 @@ class AttendanceRecordModel extends AttendanceRecord {
     super.checkOutLat,
     super.checkOutLon,
     super.driverStatus,
+    super.standByStatus,
   });
 
   factory AttendanceRecordModel.fromJson(Map<String, dynamic> json) {
@@ -98,6 +99,10 @@ class AttendanceRecordModel extends AttendanceRecord {
       checkOutLat: checkOutLat,
       checkOutLon: checkOutLon,
       driverStatus: json.getStringSafe('Driver Status') ?? json.getStringSafe('driverStatus'),
+      standByStatus: json.getIntSafe('StandByStatus') ??
+          json.getIntSafe('standByStatus') ??
+          json.getIntSafe('StandbyStatus') ??
+          0,
     );
   }
 
@@ -119,6 +124,7 @@ class AttendanceRecordModel extends AttendanceRecord {
       'checkOutLat': checkOutLat,
       'checkOutLon': checkOutLon,
       'driverStatus': driverStatus,
+      'standByStatus': standByStatus,
     };
   }
 
@@ -140,6 +146,7 @@ class AttendanceRecordModel extends AttendanceRecord {
       checkOutLat: checkOutLat,
       checkOutLon: checkOutLon,
       driverStatus: driverStatus,
+      standByStatus: standByStatus,
     );
   }
 }

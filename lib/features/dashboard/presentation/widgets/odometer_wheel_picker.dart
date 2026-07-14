@@ -7,11 +7,13 @@ import '../../../../core/theme/app_theme.dart';
 class OdometerWheelPicker extends StatefulWidget {
   final ValueChanged<double> onChanged;
   final double initialValue;
+  final bool readOnly;
 
   const OdometerWheelPicker({
     super.key,
     required this.onChanged,
     this.initialValue = 0,
+    this.readOnly = false,
   });
 
   @override
@@ -122,48 +124,54 @@ class _OdometerWheelPickerState extends State<OdometerWheelPicker> {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          height: 180,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                height: _itemExtent.toDouble(),
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
+        IgnorePointer(
+          ignoring: widget.readOnly,
+          child: Opacity(
+            opacity: widget.readOnly ? 0.75 : 1,
+            child: Container(
+              height: 180,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    for (int i = 0; i < 5; i++) ...[
-                      Expanded(child: _buildDigitPicker(i)),
-                    ],
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 2),
-                      child: Text(
-                        '.',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    height: _itemExtent.toDouble(),
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade300),
                     ),
-                    Expanded(child: _buildDigitPicker(5)),
-                  ],
-                ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        for (int i = 0; i < 5; i++) ...[
+                          Expanded(child: _buildDigitPicker(i)),
+                        ],
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 2),
+                          child: Text(
+                            '.',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                        Expanded(child: _buildDigitPicker(5)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ],

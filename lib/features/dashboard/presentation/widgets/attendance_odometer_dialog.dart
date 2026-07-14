@@ -11,31 +11,40 @@ class AttendanceOdometerDialog {
     required bool isCheckIn,
     double initialValue = 0,
     double minimumValue = 0,
+    bool readOnly = false,
+    String? title,
+    String? confirmLabel,
   }) {
     double selectedValue = initialValue > 0 ? initialValue : 0;
     String? errorText;
+
+    final resolvedTitle = title ?? (isCheckIn ? 'Check In' : 'Check Out');
+    final resolvedConfirm =
+        confirmLabel ?? (isCheckIn ? 'Check In' : 'Check Out');
 
     return showDialog<double>(
       context: context,
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setState) {
-            final hasMinimum = minimumValue > 0;
+            final hasMinimum = !readOnly && minimumValue > 0;
             final minimumLabel = _formatOdometer(minimumValue);
 
             return AlertDialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              title: Text(isCheckIn ? 'Check In' : 'Check Out'),
+              title: Text(resolvedTitle),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    isCheckIn
-                        ? 'Select the current odometer reading to check in.'
-                        : 'Select the current odometer reading to check out.',
+                    readOnly
+                        ? 'Odometer is taken from the latest attendance record and cannot be changed.'
+                        : (isCheckIn
+                            ? 'Select the current odometer reading to check in.'
+                            : 'Select the current odometer reading to check out.'),
                   ),
                   if (hasMinimum) ...[
                     const SizedBox(height: 8),
@@ -52,7 +61,9 @@ class AttendanceOdometerDialog {
                   const SizedBox(height: 12),
                   OdometerWheelPicker(
                     initialValue: initialValue,
+                    readOnly: readOnly,
                     onChanged: (value) {
+                      if (readOnly) return;
                       setState(() {
                         selectedValue = value;
                         errorText = null;
@@ -78,7 +89,12 @@ class AttendanceOdometerDialog {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    if (selectedValue <= 0) {
+                    final valueToSubmit = readOnly
+                        ? (initialValue > 0 ? initialValue : 0.0)
+                        : selectedValue;
+
+                    if (valueToSubmit < 0 ||
+                        (!readOnly && valueToSubmit <= 0)) {
                       setState(
                         () => errorText = 'Please select a valid odometer value',
                       );
@@ -86,7 +102,7 @@ class AttendanceOdometerDialog {
                     }
 
                     if (hasMinimum &&
-                        !_isOdometerAtLeast(selectedValue, minimumValue)) {
+                        !_isOdometerAtLeast(valueToSubmit, minimumValue)) {
                       setState(
                         () => errorText = isCheckIn
                             ? 'Check-in odometer must be at least $minimumLabel km.'
@@ -95,13 +111,13 @@ class AttendanceOdometerDialog {
                       return;
                     }
 
-                    Navigator.pop(dialogContext, selectedValue);
+                    Navigator.pop(dialogContext, valueToSubmit);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.mitsuiDarkBlue,
                     foregroundColor: Colors.white,
                   ),
-                  child: Text(isCheckIn ? 'Check In' : 'Check Out'),
+                  child: Text(resolvedConfirm),
                 ),
               ],
             );

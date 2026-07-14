@@ -354,15 +354,18 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     // For expat (user) login:
     // - If CheckOutTime is empty -> show Check-in approval
     // - If CheckOutTime is not empty -> show Check-out approval
+    // - Hide both approval buttons when StandByStatus = 1
 
     // Check if check-in needs approval (checkInTime exists but checkOutTime is null)
-    final needsCheckInApproval = isExpat && 
-        record.checkInTime != null && 
+    final needsCheckInApproval = isExpat &&
+        !record.isStandBy &&
+        record.checkInTime != null &&
         record.checkOutTime == null &&
         record.attendanceId != null;
-    
+
     // Check if check-out needs approval (checkOutTime exists)
-    final needsCheckOutApproval = isExpat && 
+    final needsCheckOutApproval = isExpat &&
+        !record.isStandBy &&
         record.checkOutTime != null &&
         record.attendanceId != null;
 
@@ -458,7 +461,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Check In: ${_formatTime(record.checkInTime!)}',
+                    '${record.isStandBy ? 'Standby In' : 'Check In'}: ${_formatTime(record.checkInTime!)}',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey.shade700,
@@ -495,7 +498,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Check Out: ${_formatTime(record.checkOutTime!)}',
+                    '${record.isStandBy ? 'Standby Out' : 'Check Out'}: ${_formatTime(record.checkOutTime!)}',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey.shade700,
