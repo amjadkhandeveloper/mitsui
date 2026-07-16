@@ -112,15 +112,13 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
             return Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: SizedBox(
-                    height: 100,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
                       children: [
                         SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.3,
+                          width: 132,
                           child: SummaryCard(
                             icon: Icons.receipt_long,
                             iconColor: Colors.blue,
@@ -132,9 +130,9 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                                 .setFilter(ReceiptListFilter.all),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 12),
                         SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.3,
+                          width: 132,
                           child: SummaryCard(
                             icon: Icons.check_circle,
                             iconColor: Colors.green,
@@ -147,9 +145,9 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                                 .setFilter(ReceiptListFilter.approved),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 12),
                         SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.3,
+                          width: 132,
                           child: SummaryCard(
                             icon: Icons.access_time,
                             iconColor: Colors.orange,
@@ -162,9 +160,9 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                                 .setFilter(ReceiptListFilter.pending),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 12),
                         SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.3,
+                          width: 132,
                           child: SummaryCard(
                             icon: Icons.cancel,
                             iconColor: Colors.red,
@@ -212,8 +210,8 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                             itemCount: state.receipts.length,
                             itemBuilder: (context, index) {
                               final receipt = state.receipts[index];
-                              final expenseId = receipt.expenseId ??
-                                  int.tryParse(receipt.id);
+                              final expenseId =
+                                  receipt.expenseId ?? int.tryParse(receipt.id);
                               final expenseTypeId = receipt.expenseTypeId;
                               return GestureDetector(
                                 onTap: () {

@@ -29,54 +29,65 @@ class SummaryCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(24),
           child: StyledCard(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            child: Container(
+            // padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            margin: EdgeInsets.zero,
+            child: DecoratedBox(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                border: selected
-                    ? Border.all(color: iconColor, width: 2)
-                    : null,
+                borderRadius: BorderRadius.circular(24),
+                border:
+                    selected ? Border.all(color: iconColor, width: 2) : null,
               ),
-              padding: selected
-                  ? const EdgeInsets.symmetric(horizontal: 4, vertical: 2)
-                  : EdgeInsets.zero,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    color: iconColor,
-                    size: 24,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey.shade800,
+              child: Padding(
+                padding: selected
+                    ? const EdgeInsets.symmetric(horizontal: 6, vertical: 6)
+                    : EdgeInsets.zero,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 8),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight:
+                            selected ? FontWeight.w600 : FontWeight.normal,
+                        color: Colors.grey.shade600,
+                        height: 1.1,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-                      color: Colors.grey.shade600,
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          icon,
+                          color: iconColor,
+                          size: 22,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          value,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade800,
+                            height: 1.1,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                  ],
+                ),
               ),
             ),
           ),

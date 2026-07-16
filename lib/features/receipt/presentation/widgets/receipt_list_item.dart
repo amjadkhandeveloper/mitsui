@@ -88,7 +88,7 @@ class ReceiptListItem extends StatelessWidget {
       delay: Duration(milliseconds: 200 + (index * 50)),
       beginOffset: const Offset(0, 0.1),
       child: StyledCard(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
