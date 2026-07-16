@@ -10,6 +10,21 @@ import '../constants/api_constants.dart';
 class ApiTraceInterceptor extends Interceptor {
   static const _tag = 'API_TRACE';
   static const _chunkSize = 900;
+  static const _maxStringPreview = 120;
+
+  /// Keys that usually contain huge base64 / binary payloads.
+  static const _sensitiveKeys = {
+    'expenseReceipt1',
+    'expenseReceipt2',
+    'ExpenseReceipt1',
+    'ExpenseReceipt2',
+    'receiptImage',
+    'receipt_image',
+    'image',
+    'photo',
+    'file',
+    'base64',
+  };
 
   bool get _enabled => ApiConstants.enableApiTrace || kDebugMode;
 
@@ -51,6 +66,7 @@ class ApiTraceInterceptor extends Interceptor {
     return [
       'METHOD: ${options.method.toUpperCase()}',
       'URL: ${options.uri}',
+      'PATH: ${options.path}',
       if (options.queryParameters.isNotEmpty)
         'QUERY: ${_formatPayload(options.queryParameters)}',
       'REQUEST: ${_formatPayload(options.data)}',
@@ -109,21 +125,63 @@ class ApiTraceInterceptor extends Interceptor {
 
     try {
       if (data is Map || data is List) {
-        return const JsonEncoder.withIndent('  ').convert(data);
+        final sanitized = _sanitize(data);
+        return const JsonEncoder.withIndent('  ').convert(sanitized);
       }
       if (data is FormData) {
         final fields = data.fields
-            .map((entry) => '${entry.key}=${entry.value}')
+            .map((entry) => '${entry.key}=${_previewString(entry.value)}')
             .join(', ');
         final files = data.files
             .map((entry) => '${entry.key}=${entry.value.filename ?? 'file'}')
             .join(', ');
         return 'FormData(fields: [$fields], files: [$files])';
       }
-      return data.toString();
+      return _previewString(data.toString());
     } catch (_) {
       return data.toString();
     }
+  }
+
+  dynamic _sanitize(dynamic value) {
+    if (value is Map) {
+      return value.map((key, val) {
+        final keyStr = key.toString();
+        if (_sensitiveKeys.any(
+          (k) => keyStr.toLowerCase().contains(k.toLowerCase()),
+        )) {
+          return MapEntry(key, _previewBinaryField(val));
+        }
+        return MapEntry(key, _sanitize(val));
+      });
+    }
+    if (value is List) {
+      // Cap huge lists in logs (e.g. receipt list with images).
+      if (value.length > 20) {
+        return [
+          ...value.take(5).map(_sanitize),
+          '... (${value.length - 5} more items truncated for API_TRACE)',
+        ];
+      }
+      return value.map(_sanitize).toList();
+    }
+    if (value is String && value.length > _maxStringPreview) {
+      return _previewString(value);
+    }
+    return value;
+  }
+
+  String _previewBinaryField(dynamic value) {
+    if (value == null) return 'null';
+    final text = value.toString();
+    if (text.isEmpty) return '';
+    return '<binary/base64 length=${text.length}>';
+  }
+
+  String _previewString(String value) {
+    if (value.length <= _maxStringPreview) return value;
+    return '${value.substring(0, _maxStringPreview)}... '
+        '(truncated, total ${value.length} chars)';
   }
 
   void _printBlock({

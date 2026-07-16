@@ -68,6 +68,14 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
         );
   }
 
+  Future<void> _openAddReceipt() async {
+    final created = await Navigator.pushNamed(context, AppRoutes.addReceipt);
+    if (!mounted) return;
+    if (created == true) {
+      await _loadReceipts();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,21 +98,19 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
         listener: (context, state) {
           if (state is ReceiptError) {
             Toast.showError(context, state.message);
-          } else if (state is ReceiptCreated) {
-            Toast.showSuccess(context, 'Receipt submitted successfully');
           } else if (state is ReceiptStatusUpdated) {
             Toast.showSuccess(context, 'Status updated successfully');
           }
         },
         builder: (context, state) {
-          if (state is ReceiptLoading) {
+          if (state is ReceiptLoading || state is ReceiptSubmitting) {
             return const Center(child: CircularProgressIndicator());
           }
 
           if (state is ReceiptsLoaded) {
+            final selectedFilter = state.filter;
             return Column(
               children: [
-                // Summary Cards - Horizontal Scrollable
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: SizedBox(
@@ -120,6 +126,10 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                             iconColor: Colors.blue,
                             value: '${state.total}',
                             label: 'Total',
+                            selected: selectedFilter == ReceiptListFilter.all,
+                            onTap: () => context
+                                .read<ReceiptCubit>()
+                                .setFilter(ReceiptListFilter.all),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -130,6 +140,11 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                             iconColor: Colors.green,
                             value: '${state.approved}',
                             label: 'Approved',
+                            selected:
+                                selectedFilter == ReceiptListFilter.approved,
+                            onTap: () => context
+                                .read<ReceiptCubit>()
+                                .setFilter(ReceiptListFilter.approved),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -140,13 +155,32 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                             iconColor: Colors.orange,
                             value: '${state.pending}',
                             label: 'Pending',
+                            selected:
+                                selectedFilter == ReceiptListFilter.pending,
+                            onTap: () => context
+                                .read<ReceiptCubit>()
+                                .setFilter(ReceiptListFilter.pending),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          child: SummaryCard(
+                            icon: Icons.cancel,
+                            iconColor: Colors.red,
+                            value: '${state.rejected}',
+                            label: 'Rejected',
+                            selected:
+                                selectedFilter == ReceiptListFilter.rejected,
+                            onTap: () => context
+                                .read<ReceiptCubit>()
+                                .setFilter(ReceiptListFilter.rejected),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                // Receipt List
                 Expanded(
                   child: state.receipts.isEmpty
                       ? Center(
@@ -192,36 +226,47 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                                   );
                                 },
                                 child: ReceiptListItem(
-                                      receipt: receipt,
-                                      index: index,
-                                      showApprovalActions: _role == UserRole.expat &&
+                                  receipt: receipt,
+                                  index: index,
+                                  showApprovalActions:
+                                      _role == UserRole.expat &&
                                           receipt.type != ReceiptType.fuel,
                                   onApprove: (_role == UserRole.expat &&
-                                              receipt.type != ReceiptType.fuel &&
+                                          receipt.type != ReceiptType.fuel &&
                                           expenseId != null &&
                                           _approvedByUserId != null)
                                       ? () async {
-                                          final remark = await _showApproveRemarkDialog(context);
-                                          if (remark == null || remark.trim().isEmpty) return;
-                                          context.read<ReceiptCubit>().approveReceipt(
+                                          final remark =
+                                              await _showApproveRemarkDialog(
+                                                  context);
+                                          if (remark == null) return;
+                                          context
+                                              .read<ReceiptCubit>()
+                                              .approveReceipt(
                                                 expenseId: expenseId,
                                                 expenseTypeId: expenseTypeId,
-                                                approvedByUserId: _approvedByUserId!,
+                                                approvedByUserId:
+                                                    _approvedByUserId!,
                                                 remark: remark.trim(),
                                               );
                                         }
                                       : null,
                                   onReject: (_role == UserRole.expat &&
-                                              receipt.type != ReceiptType.fuel &&
+                                          receipt.type != ReceiptType.fuel &&
                                           expenseId != null &&
                                           _approvedByUserId != null)
                                       ? () async {
-                                          final remark = await _showRejectRemarkDialog(context);
-                                          if (remark == null || remark.trim().isEmpty) return;
-                                          context.read<ReceiptCubit>().rejectReceipt(
+                                          final remark =
+                                              await _showRejectRemarkDialog(
+                                                  context);
+                                          if (remark == null) return;
+                                          context
+                                              .read<ReceiptCubit>()
+                                              .rejectReceipt(
                                                 expenseId: expenseId,
                                                 expenseTypeId: expenseTypeId,
-                                                approvedByUserId: _approvedByUserId!,
+                                                approvedByUserId:
+                                                    _approvedByUserId!,
                                                 remark: remark.trim(),
                                               );
                                         }
@@ -243,9 +288,7 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
       ),
       floatingActionButton: _role == UserRole.driver
           ? FloatingActionButton(
-              onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.addReceipt);
-              },
+              onPressed: _openAddReceipt,
               backgroundColor: AppTheme.mitsuiDarkBlue,
               child: const Icon(Icons.add, color: Colors.white),
             )
@@ -255,6 +298,7 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
 
   Future<String?> _showRejectRemarkDialog(BuildContext context) async {
     final controller = TextEditingController();
+
     return showDialog<String>(
       context: context,
       builder: (dialogContext) {
@@ -263,10 +307,11 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
           content: TextField(
             controller: controller,
             maxLines: 3,
+            maxLength: 250,
             autofocus: true,
             decoration: const InputDecoration(
-              labelText: 'Remark *',
-              hintText: 'Enter rejection remark',
+              labelText: 'Remark',
+              hintText: 'Enter rejection remark (optional)',
               border: OutlineInputBorder(),
             ),
           ),
@@ -276,7 +321,8 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.pop(dialogContext, controller.text),
+              onPressed: () =>
+                  Navigator.pop(dialogContext, controller.text.trim()),
               child: const Text('Submit'),
             ),
           ],
@@ -287,6 +333,7 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
 
   Future<String?> _showApproveRemarkDialog(BuildContext context) async {
     final controller = TextEditingController();
+
     return showDialog<String>(
       context: context,
       builder: (dialogContext) {
@@ -295,10 +342,11 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
           content: TextField(
             controller: controller,
             maxLines: 3,
+            maxLength: 250,
             autofocus: true,
             decoration: const InputDecoration(
-              labelText: 'Remark *',
-              hintText: 'Enter approval remark',
+              labelText: 'Remark',
+              hintText: 'Enter approval remark (optional)',
               border: OutlineInputBorder(),
             ),
           ),
@@ -308,7 +356,8 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.pop(dialogContext, controller.text),
+              onPressed: () =>
+                  Navigator.pop(dialogContext, controller.text.trim()),
               child: const Text('Submit'),
             ),
           ],
@@ -317,4 +366,3 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
     );
   }
 }
-

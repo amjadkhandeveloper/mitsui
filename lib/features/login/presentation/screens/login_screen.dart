@@ -47,26 +47,29 @@ class _LoginScreenState extends State<LoginScreen> {
     final selected = _selectedRoleId == roleId;
 
     return ChoiceChip(
-      label: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-            color: selected ? Colors.white : Colors.black87,
-          ),
+      label: Text(
+        label,
+        maxLines: 1,
+        softWrap: false,
+        overflow: TextOverflow.visible,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          color: selected ? Colors.white : Colors.black87,
         ),
       ),
       selected: selected,
       selectedColor: AppTheme.mitsuiDarkBlue,
       backgroundColor: Colors.white,
+      showCheckmark: false,
+      labelPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       side: BorderSide(
         color: selected ? AppTheme.mitsuiDarkBlue : Colors.grey.shade400,
         width: selected ? 1.5 : 1,
       ),
-      checkmarkColor: Colors.white,
-      materialTapTargetSize: MaterialTapTargetSize.padded,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: VisualDensity.compact,
       onSelected: (value) {
         if (value) {
           setState(() => _selectedRoleId = roleId);

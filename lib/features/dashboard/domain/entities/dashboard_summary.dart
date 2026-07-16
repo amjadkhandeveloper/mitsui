@@ -17,7 +17,13 @@ class DashboardSummary {
   });
 
   /// Prefill picker: use IN when OUT is 0, otherwise OUT.
-  double get referenceOdometer => odometerOut <= 0 ? odometerIn : odometerOut;
+  /// Prefer the larger reading when both are available so truncated/stale
+  /// smaller values don't override a real odometer.
+  double get referenceOdometer {
+    if (odometerOut <= 0) return odometerIn > 0 ? odometerIn : 0;
+    if (odometerIn <= 0) return odometerOut;
+    return odometerOut >= odometerIn ? odometerOut : odometerIn;
+  }
 
   /// Next check-in must not be below the last completed check-out.
   double get minimumForCheckIn => odometerOut > 0 ? odometerOut : 0;

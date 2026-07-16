@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/receipt.dart';
+import 'receipt_image_viewer_screen.dart';
 
 bool _hasImage(String? s) =>
     s != null && s.trim().isNotEmpty;
@@ -81,46 +82,69 @@ class _ReceiptImageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ReceiptImageViewerScreen(
+                title: label,
+                source: source,
+              ),
+            ),
+          );
+        },
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200, width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.mitsuiDarkBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.mitsuiDarkBlue,
-                  ),
-                ),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade200, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          _ReceiptImage(source: source),
-        ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.mitsuiDarkBlue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.mitsuiDarkBlue,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    Icons.zoom_in,
+                    size: 18,
+                    color: Colors.grey.shade500,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              _ReceiptImage(source: source),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -321,10 +345,16 @@ class ReceiptDetailScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    if (receipt.expenseId != null)
+                    if (receipt.driverName != null &&
+                        receipt.driverName!.trim().isNotEmpty)
                       _DetailRow(
-                        label: 'Expense ID',
-                        value: receipt.expenseId.toString(),
+                        label: 'Driver Name',
+                        value: receipt.driverName!,
+                      )
+                    else if (receipt.driverId != null)
+                      _DetailRow(
+                        label: 'Driver ID',
+                        value: receipt.driverId!,
                       ),
                     _DetailRow(
                       label: 'Type',
@@ -341,10 +371,10 @@ class ReceiptDetailScreen extends StatelessWidget {
                         }
                       }(),
                     ),
-                    if (receipt.driverId != null)
+                    if (receipt.expenseId != null)
                       _DetailRow(
-                        label: 'Driver ID',
-                        value: receipt.driverId!,
+                        label: 'Expense ID',
+                        value: receipt.expenseId.toString(),
                       ),
                   ],
                 ),
