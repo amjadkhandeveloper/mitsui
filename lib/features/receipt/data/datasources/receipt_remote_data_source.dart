@@ -107,11 +107,16 @@ class ReceiptRemoteDataSourceImpl implements ReceiptRemoteDataSource {
     try {
       final expenseTypeId = _mapTypeToExpenseTypeId(type);
 
-      String encodeFileToBase64(File? file) {
+      Future<String> encodeFileToBase64(File? file) async {
         if (file == null) return '';
-        final bytes = file.readAsBytesSync();
+        final bytes = await file.readAsBytes();
         return base64Encode(bytes);
       }
+
+      final encodedImages = await Future.wait([
+        encodeFileToBase64(receiptImage1),
+        encodeFileToBase64(receiptImage2),
+      ]);
 
       final body = {
         'insertMode': 1, // 1 = insert
@@ -127,8 +132,8 @@ class ReceiptRemoteDataSourceImpl implements ReceiptRemoteDataSource {
         'lon': lon,
         'expLocation': '',
         // Send up to two images as base64 strings (second can be empty).
-        'expenseReceipt1': encodeFileToBase64(receiptImage1),
-        'expenseReceipt2': encodeFileToBase64(receiptImage2),
+        'expenseReceipt1': encodedImages[0],
+        'expenseReceipt2': encodedImages[1],
         'expenseRemark': description,
         'expenseAmount': amount,
         'userID': 0,

@@ -20,6 +20,8 @@ class AttendanceRecord extends Equatable {
   final double? checkOutLat;
   final double? checkOutLon;
   final String? driverStatus;
+  /// 0 = regular (show approval), 1 = standby (hide approval).
+  final int standByStatus;
 
   const AttendanceRecord({
     required this.id,
@@ -38,13 +40,22 @@ class AttendanceRecord extends Equatable {
     this.checkOutLat,
     this.checkOutLon,
     this.driverStatus,
+    this.standByStatus = 0,
   });
 
+  bool get isStandBy => standByStatus == 1;
+
   // Helper method to check if check-in needs approval
-  bool get needsCheckInApproval => checkInTime != null && checkOutTime == null;
+  bool get needsCheckInApproval =>
+      !isStandBy && checkInTime != null && checkOutTime == null;
 
   // Helper method to check if check-out needs approval
-  bool get needsCheckOutApproval => checkInTime != null && checkOutTime != null && checkOutLat == null && checkOutLon == null;
+  bool get needsCheckOutApproval =>
+      !isStandBy &&
+      checkInTime != null &&
+      checkOutTime != null &&
+      checkOutLat == null &&
+      checkOutLon == null;
 
   @override
   List<Object?> get props => [
@@ -64,6 +75,7 @@ class AttendanceRecord extends Equatable {
         checkOutLat,
         checkOutLon,
         driverStatus,
+        standByStatus,
       ];
 }
 

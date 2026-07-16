@@ -13,6 +13,10 @@ class ReceiptCubit extends Cubit<ReceiptState> {
   final CreateReceiptUseCase createReceiptUseCase;
   final UpdateReceiptStatusUseCase updateReceiptStatusUseCase;
 
+  String? _lastDriverId;
+  String? _lastUserId;
+  ReceiptListFilter _filter = ReceiptListFilter.all;
+
   ReceiptCubit({
     required this.getReceiptsUseCase,
     required this.createReceiptUseCase,
@@ -24,26 +28,43 @@ class ReceiptCubit extends Cubit<ReceiptState> {
     String? userId,
     String? status,
   }) async {
+    _lastDriverId = driverId ?? _lastDriverId;
+    _lastUserId = userId ?? _lastUserId;
+
     emit(ReceiptLoading());
     final result = await getReceiptsUseCase(
-      driverId: driverId,
-      userId: userId,
+      driverId: _lastDriverId,
+      userId: _lastUserId,
       status: status,
     );
     result.fold(
       (failure) => emit(ReceiptError(failure.message)),
       (receipts) {
         final total = receipts.length;
-        final approved = receipts.where((r) => r.status == ReceiptStatus.approved).length;
-        final pending = receipts.where((r) => r.status == ReceiptStatus.pending).length;
+        final approved =
+            receipts.where((r) => r.status == ReceiptStatus.approved).length;
+        final pending =
+            receipts.where((r) => r.status == ReceiptStatus.pending).length;
+        final rejected =
+            receipts.where((r) => r.status == ReceiptStatus.rejected).length;
         emit(ReceiptsLoaded(
-          receipts: receipts,
+          allReceipts: receipts,
+          filter: _filter,
           total: total,
           approved: approved,
           pending: pending,
+          rejected: rejected,
         ));
       },
     );
+  }
+
+  void setFilter(ReceiptListFilter filter) {
+    _filter = filter;
+    final current = state;
+    if (current is ReceiptsLoaded) {
+      emit(current.copyWith(filter: filter));
+    }
   }
 
   Future<void> createReceipt({
@@ -75,8 +96,6 @@ class ReceiptCubit extends Cubit<ReceiptState> {
       (failure) => emit(ReceiptError(failure.message)),
       (receipt) {
         emit(ReceiptCreated(receipt: receipt));
-        // Reload receipts
-        loadReceipts();
       },
     );
   }
@@ -127,4 +146,3 @@ class ReceiptCubit extends Cubit<ReceiptState> {
     );
   }
 }
-

@@ -214,7 +214,11 @@ class ReceiptModel extends Receipt {
         approvedBy: (json['ApproverName'] ?? json['ApprovedBy'] ?? json['approvedBy'])?.toString(),
         submittedAt: receiptDate,
         driverId: driverId,
-        driverName: null,
+        driverName: (json['DriverName'] ??
+                json['driverName'] ??
+                json['Driver Name'] ??
+                json['driver_name'])
+            ?.toString(),
         fueledLiters: null,
         odometerReading: null,
         createdAt: receiptDate,

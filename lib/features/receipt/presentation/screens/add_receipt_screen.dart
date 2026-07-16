@@ -52,7 +52,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 80,
+      imageQuality: 60,
+      maxWidth: 1280,
     );
 
     if (pickedFile != null) {
@@ -149,7 +150,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
           }
         }
         final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.medium,
+          desiredAccuracy: LocationAccuracy.low,
+          timeLimit: const Duration(seconds: 8),
         );
         lat = position.latitude;
         lon = position.longitude;
@@ -189,7 +191,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
       body: BlocConsumer<ReceiptCubit, ReceiptState>(
         listener: (context, state) {
           if (state is ReceiptCreated) {
-            Navigator.pop(context);
+            Toast.showSuccess(context, 'Receipt submitted successfully');
+            Navigator.pop(context, true);
           } else if (state is ReceiptError) {
             Toast.showError(context, state.message);
           }
