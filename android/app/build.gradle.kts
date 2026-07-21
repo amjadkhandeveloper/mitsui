@@ -29,9 +29,9 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion  // Android 5.1 (Lollipop) - supports devices with API > 21
-        targetSdk = 35  // Android 15 - supports devices with API < 36 (compileSdk can be higher)
-        versionCode = 5
-        versionName = "1.0.3"
+        targetSdk = 36  // Android 15 - supports devices with API < 36 (compileSdk can be higher)
+        versionCode = 6
+        versionName = "1.0.4"
     }
 
     signingConfigs {

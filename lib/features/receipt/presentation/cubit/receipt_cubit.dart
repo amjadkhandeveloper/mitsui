@@ -95,6 +95,10 @@ class ReceiptCubit extends Cubit<ReceiptState> {
     result.fold(
       (failure) => emit(ReceiptError(failure.message)),
       (receipt) {
+        // A newly submitted receipt is always pending, so switch the list
+        // filter to Pending. The history screen reloads on return and will
+        // land on the Pending tab instead of the previous (e.g. Approved) one.
+        _filter = ReceiptListFilter.pending;
         emit(ReceiptCreated(receipt: receipt));
       },
     );

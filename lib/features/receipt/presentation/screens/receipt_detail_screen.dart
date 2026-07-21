@@ -153,11 +153,29 @@ class _ReceiptImageCard extends StatelessWidget {
 class ReceiptDetailScreen extends StatelessWidget {
   final Receipt receipt;
 
-  const ReceiptDetailScreen({super.key, required this.receipt});
+  /// Optional driver name to show when the receipt itself doesn't carry one
+  /// (e.g. a driver viewing their own just-submitted receipt).
+  final String? fallbackDriverName;
+
+  const ReceiptDetailScreen({
+    super.key,
+    required this.receipt,
+    this.fallbackDriverName,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd MMM yyyy, hh:mm a');
+    final driverName =
+        (receipt.driverName != null && receipt.driverName!.trim().isNotEmpty)
+            ? receipt.driverName!.trim()
+            : (fallbackDriverName != null &&
+                    fallbackDriverName!.trim().isNotEmpty)
+                ? fallbackDriverName!.trim()
+                : null;
+
+    // Backend sends a date-only value for the expense, so avoid showing a
+    // misleading "12:00 AM" by formatting the date without the time.
+    final dateFormat = DateFormat('dd MMM yyyy');
 
     Color statusColor;
     String statusText;
@@ -345,16 +363,10 @@ class ReceiptDetailScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    if (receipt.driverName != null &&
-                        receipt.driverName!.trim().isNotEmpty)
+                    if (driverName != null)
                       _DetailRow(
                         label: 'Driver Name',
-                        value: receipt.driverName!,
-                      )
-                    else if (receipt.driverId != null)
-                      _DetailRow(
-                        label: 'Driver ID',
-                        value: receipt.driverId!,
+                        value: driverName,
                       ),
                     _DetailRow(
                       label: 'Type',
@@ -371,11 +383,6 @@ class ReceiptDetailScreen extends StatelessWidget {
                         }
                       }(),
                     ),
-                    if (receipt.expenseId != null)
-                      _DetailRow(
-                        label: 'Expense ID',
-                        value: receipt.expenseId.toString(),
-                      ),
                   ],
                 ),
               ),

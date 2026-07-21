@@ -50,10 +50,14 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
 
   Future<void> _pickImage({required int slot}) async {
     final picker = ImagePicker();
+    // Compress more aggressively: a smaller image means a much smaller base64
+    // payload, which speeds up both the upload on submit and the receipt list
+    // load (the backend returns the images inline in the list response).
     final pickedFile = await picker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 60,
-      maxWidth: 1280,
+      imageQuality: 50,
+      maxWidth: 1024,
+      maxHeight: 1024,
     );
 
     if (pickedFile != null) {

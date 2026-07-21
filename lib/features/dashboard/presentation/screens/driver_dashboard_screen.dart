@@ -123,9 +123,21 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
   bool get _isStandbySessionActive =>
       _checkStatus == 7 && _standbyStatus == 1;
 
-  /// Idle/free: neither regular nor standby session is active.
+  /// Check-in approved by user: CheckStatus = 3.
+  /// Driver can Check Out or Standby Out.
+  bool get _isCheckInApproved => _checkStatus == 3;
+
+  /// Check-out approved by user: CheckStatus = 4.
+  /// Driver is free again → Check In + Standby In.
+  bool get _isCheckOutApproved => _checkStatus == 4;
+
+  /// Idle/free: Check Out approved, or neither regular/standby/check-in-approved.
   bool get _showIdlePairButtons =>
-      !_isRegularSessionActive && !_isStandbySessionActive;
+      _isCheckOutApproved ||
+      (!_isRegularSessionActive &&
+          !_isStandbySessionActive &&
+          !_isCheckInApproved);
+  bool get _showOutPairButtons => _isCheckInApproved;
   bool get _showCheckOutOnly => _isRegularSessionActive;
   bool get _showStandbyOutOnly => _isStandbySessionActive;
 
@@ -205,6 +217,32 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
             animationDelayMs: 350,
             onTap: () => _submitAttendance(
               attendanceStatus: ApiConstants.attendanceStatusStandbyIn,
+            ),
+          ),
+        ),
+      ]);
+    } else if (_showOutPairButtons) {
+      // CheckStatus = 3 (check-in approved): Check Out + Standby Out
+      children.addAll([
+        Expanded(
+          child: QuickActionButton(
+            type: QuickActionType.checkIn,
+            checkInLabel: 'Check Out',
+            attendanceStyle: AttendanceActionStyle.checkOut,
+            animationDelayMs: 300,
+            onTap: () => _submitAttendance(
+              attendanceStatus: ApiConstants.attendanceStatusCheckOut,
+            ),
+          ),
+        ),
+        Expanded(
+          child: QuickActionButton(
+            type: QuickActionType.checkIn,
+            checkInLabel: 'Standby Out',
+            attendanceStyle: AttendanceActionStyle.standbyOut,
+            animationDelayMs: 350,
+            onTap: () => _submitAttendance(
+              attendanceStatus: ApiConstants.attendanceStatusStandbyOut,
             ),
           ),
         ),

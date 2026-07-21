@@ -23,6 +23,7 @@ class ReceiptHistoryScreen extends StatefulWidget {
 class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
   UserRole? _role;
   int? _approvedByUserId;
+  String? _currentUserName;
 
   @override
   void initState() {
@@ -44,6 +45,9 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
       setState(() {
         _role = user!.role;
         _approvedByUserId = int.tryParse(uid ?? '');
+        _currentUserName = (user!.name != null && user!.name!.trim().isNotEmpty)
+            ? user!.name!.trim()
+            : user!.username;
       });
     }
 
@@ -219,6 +223,10 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                                     MaterialPageRoute(
                                       builder: (_) => ReceiptDetailScreen(
                                         receipt: receipt,
+                                        fallbackDriverName: _role ==
+                                                UserRole.driver
+                                            ? _currentUserName
+                                            : null,
                                       ),
                                     ),
                                   );
