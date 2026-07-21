@@ -6,8 +6,8 @@ class ApiConstants {
 
   // ── About App (update these before each release) ──
   static const String appName = 'Mitsui FleetPlus Prod';
-  static const String appVersion = '1.0.4';
-  static const String releaseDate = '21-July-2026 16:00:00';
+  static const String appVersion = '1.0.5';
+  static const String releaseDate = '21-July-2026 18:00:00';
 
   // API Endpoints
   static const String login = '/api/Auth/UserLogin';
@@ -64,7 +64,7 @@ class ApiConstants {
 
   /// Integer build version used for force-update checks.
   /// Update this before each release and compare with ForceUpdateClient API.
-  static const int localAppVersion = 12;
+  static const int localAppVersion = 13;
 
   /// Fallback client id when none is stored after login.
   static const int defaultClientId = 1;

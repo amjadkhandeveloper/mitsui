@@ -123,8 +123,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
   bool get _isStandbySessionActive =>
       _checkStatus == 7 && _standbyStatus == 1;
 
-  /// Check-in approved by user: CheckStatus = 3.
-  /// Driver can Check Out or Standby Out.
+  /// Check-in approved by user: CheckStatus = 3 → Check Out only.
   bool get _isCheckInApproved => _checkStatus == 3;
 
   /// Check-out approved by user: CheckStatus = 4.
@@ -137,8 +136,8 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
       (!_isRegularSessionActive &&
           !_isStandbySessionActive &&
           !_isCheckInApproved);
-  bool get _showOutPairButtons => _isCheckInApproved;
-  bool get _showCheckOutOnly => _isRegularSessionActive;
+  bool get _showCheckOutOnly =>
+      _isRegularSessionActive || _isCheckInApproved;
   bool get _showStandbyOutOnly => _isStandbySessionActive;
 
   double get _referenceOdometer =>
@@ -221,33 +220,8 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
           ),
         ),
       ]);
-    } else if (_showOutPairButtons) {
-      // CheckStatus = 3 (check-in approved): Check Out + Standby Out
-      children.addAll([
-        Expanded(
-          child: QuickActionButton(
-            type: QuickActionType.checkIn,
-            checkInLabel: 'Check Out',
-            attendanceStyle: AttendanceActionStyle.checkOut,
-            animationDelayMs: 300,
-            onTap: () => _submitAttendance(
-              attendanceStatus: ApiConstants.attendanceStatusCheckOut,
-            ),
-          ),
-        ),
-        Expanded(
-          child: QuickActionButton(
-            type: QuickActionType.checkIn,
-            checkInLabel: 'Standby Out',
-            attendanceStyle: AttendanceActionStyle.standbyOut,
-            animationDelayMs: 350,
-            onTap: () => _submitAttendance(
-              attendanceStatus: ApiConstants.attendanceStatusStandbyOut,
-            ),
-          ),
-        ),
-      ]);
     } else if (_showCheckOutOnly) {
+      // CheckStatus = 1 (active) or 3 (check-in approved): Check Out only
       children.add(
         Expanded(
           child: QuickActionButton(

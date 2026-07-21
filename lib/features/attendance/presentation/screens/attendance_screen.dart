@@ -145,6 +145,35 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             return _buildAttendanceListView(context, state);
           }
 
+          // Approval success/error are handled in the listener (toast + reload/
+          // restore). Avoid a blank white body while those states are active.
+          if (state is CheckInApproved || state is CheckOutApproved) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is AttendanceError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      state.message,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey.shade700),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => _loadAttendance(),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           return const Center(child: Text('No data available'));
         },
       ),

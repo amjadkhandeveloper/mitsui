@@ -62,13 +62,23 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     required int userId,
     required String remark,
   }) async {
+    // Keep the current list so an API error (e.g. "already approved")
+    // does not wipe the screen to a blank/white state.
+    final previousState = state;
     final result = await approveCheckInUseCase(
       attendanceId: attendanceId,
       userId: userId,
       remark: remark,
     );
     result.fold(
-      (failure) => emit(AttendanceError(failure.message)),
+      (failure) {
+        emit(AttendanceError(failure.message));
+        if (previousState is AttendanceLoaded) {
+          emit(previousState);
+        } else if (previousState is DriversLoaded) {
+          emit(previousState);
+        }
+      },
       (_) => emit(CheckInApproved(attendanceId: attendanceId)),
     );
   }
@@ -78,13 +88,21 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     required int userId,
     required String remark,
   }) async {
+    final previousState = state;
     final result = await approveCheckOutUseCase(
       attendanceId: attendanceId,
       userId: userId,
       remark: remark,
     );
     result.fold(
-      (failure) => emit(AttendanceError(failure.message)),
+      (failure) {
+        emit(AttendanceError(failure.message));
+        if (previousState is AttendanceLoaded) {
+          emit(previousState);
+        } else if (previousState is DriversLoaded) {
+          emit(previousState);
+        }
+      },
       (_) => emit(CheckOutApproved(attendanceId: attendanceId)),
     );
   }
