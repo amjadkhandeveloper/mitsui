@@ -5,9 +5,9 @@ class ApiConstants {
       'https://mitsuiv16mobapi.infotracktelematics.com/';
 
   // ── About App (update these before each release) ──
-  static const String appName = 'Mitsui FleetPlus';
-  static const String appVersion = '1.0.5';
-  static const String releaseDate = '21-July-2026';
+  static const String appName = 'Mitsui FleetPlus Prod';
+  static const String appVersion = '1.0.4';
+  static const String releaseDate = '21-July-2026 16:00:00';
 
   // API Endpoints
   static const String login = '/api/Auth/UserLogin';
