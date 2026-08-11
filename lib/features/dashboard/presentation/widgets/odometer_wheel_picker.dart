@@ -90,7 +90,7 @@ class _OdometerWheelPickerState extends State<OdometerWheelPicker> {
     ];
   }
 
-  Widget _buildDigitPicker(int index) {
+  Widget _buildDigitPicker(int index, Color digitColor) {
     return CupertinoPicker(
       scrollController: _controllers[index],
       itemExtent: _itemExtent.toDouble(),
@@ -106,9 +106,10 @@ class _OdometerWheelPickerState extends State<OdometerWheelPicker> {
         (digit) => Center(
           child: Text(
             '$digit',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w500,
+              color: digitColor,
             ),
           ),
         ),
@@ -118,15 +119,25 @@ class _OdometerWheelPickerState extends State<OdometerWheelPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
+    final digitColor = scheme.onSurface;
+    final wheelBg =
+        isDark ? AppTheme.darkSurfaceElevated : Colors.grey.shade100;
+    final selectionBg =
+        isDark ? AppTheme.darkSurface : Colors.white.withValues(alpha: 0.9);
+    final selectionBorder =
+        isDark ? AppTheme.darkBorder : Colors.grey.shade300;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          '${formattedValue} km',
-          style: const TextStyle(
+          '$formattedValue km',
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: AppTheme.mitsuiDarkBlue,
+            color: scheme.onSurface,
           ),
         ),
         const SizedBox(height: 8),
@@ -137,7 +148,7 @@ class _OdometerWheelPickerState extends State<OdometerWheelPicker> {
             child: Container(
               height: 180,
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: wheelBg,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Stack(
@@ -147,9 +158,9 @@ class _OdometerWheelPickerState extends State<OdometerWheelPicker> {
                     height: _itemExtent.toDouble(),
                     margin: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
+                      color: selectionBg,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey.shade300),
+                      border: Border.all(color: selectionBorder),
                     ),
                   ),
                   Padding(
@@ -158,20 +169,20 @@ class _OdometerWheelPickerState extends State<OdometerWheelPicker> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         for (int i = 0; i < _wholeDigitCount; i++) ...[
-                          Expanded(child: _buildDigitPicker(i)),
+                          Expanded(child: _buildDigitPicker(i, digitColor)),
                         ],
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 2),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 2),
                           child: Text(
                             '.',
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: digitColor,
                             ),
                           ),
                         ),
-                        Expanded(child: _buildDigitPicker(6)),
+                        Expanded(child: _buildDigitPicker(6, digitColor)),
                       ],
                     ),
                   ),

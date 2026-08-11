@@ -1,8 +1,15 @@
 class ApiConstants {
+  /// Switch API host: `true` = staging (POC), `false` = production.
+  static const bool useStagingApi = false;
+
+  static const String _prodBaseUrl =
+      'https://mitsuiv16mobapi.infotracktelematics.com/';
+  static const String _stagingBaseUrl =
+      'https://mitsuiv16pocmobapi.infotracktelematics.com/';
+
   // Base URL - Mitsui Fleet Management API
   static const String baseUrl =
-        // "https://mitsuiv16pocmobapi.infotracktelematics.com/"; //:8443
-      'https://mitsuiv16mobapi.infotracktelematics.com/';
+      useStagingApi ? _stagingBaseUrl : _prodBaseUrl;
 
   // ── About App (update these before each release) ──
   static const String appName = 'Mitsui FleetPlus Prod';

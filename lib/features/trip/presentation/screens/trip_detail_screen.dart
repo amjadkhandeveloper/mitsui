@@ -185,7 +185,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Trip'),
         backgroundColor: AppTheme.mitsuiDarkBlue,
@@ -371,12 +371,12 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                         FadeSlideAnimation(
                           delay: const Duration(milliseconds: 200),
                           beginOffset: const Offset(0, 0.2),
-                          child: const Text(
+                          child: Text(
                             'Odometer Readings',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -534,8 +534,13 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
             );
           }
 
-          return const Center(
-            child: Text('No data available'),
+          return Center(
+            child: Text(
+              'No data available',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           );
         },
       ),

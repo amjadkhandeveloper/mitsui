@@ -53,6 +53,9 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final muted = AppTheme.mutedTextColor(context);
+
     return FadeSlideAnimation(
       delay: const Duration(milliseconds: 200),
       beginOffset: const Offset(0, 0.2),
@@ -73,9 +76,10 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
                 Flexible(
                   child: Text(
                     '${_getMonthName(_focusedDay.month)} ${_focusedDay.year}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: scheme.onSurface,
                     ),
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
@@ -152,9 +156,9 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
                   color: AppTheme.mitsuiDarkBlue,
                   shape: BoxShape.circle,
                 ),
-                defaultTextStyle: const TextStyle(
+                defaultTextStyle: TextStyle(
                   fontSize: 14,
-                  color: Colors.black87,
+                  color: scheme.onSurface,
                 ),
                 weekendTextStyle: TextStyle(
                   fontSize: 14,
@@ -172,16 +176,16 @@ class _ScheduleCalendarState extends State<ScheduleCalendar> {
                 ),
                 disabledTextStyle: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey.shade300,
+                  color: muted.withValues(alpha: 0.4),
                 ),
               ),
-              daysOfWeekStyle: const DaysOfWeekStyle(
+              daysOfWeekStyle: DaysOfWeekStyle(
                 weekdayStyle: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: scheme.onSurface,
                 ),
-                weekendStyle: TextStyle(
+                weekendStyle: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Colors.red,

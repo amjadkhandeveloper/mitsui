@@ -16,6 +16,8 @@ class UserProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return FadeSlideAnimation(
       duration: AnimationDurations.normal,
       delay: AnimationDurations.fast,
@@ -35,7 +37,10 @@ class UserProfileCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withValues(alpha: isDark ? 0.45 : 0.3),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -48,7 +53,7 @@ class UserProfileCard extends StatelessWidget {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.white.withValues(alpha: isDark ? 0.95 : 1),
                 shape: BoxShape.circle,
               ),
               child: userImageUrl != null
@@ -82,11 +87,11 @@ class UserProfileCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'Welcome',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white70,
+                      color: Colors.white.withValues(alpha: 0.7),
                     ),
                   ),
                 ],

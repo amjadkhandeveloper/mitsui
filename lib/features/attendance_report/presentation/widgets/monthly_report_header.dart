@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/animations.dart';
 import '../../../../core/utils/gradients.dart';
 import '../../../../core/widgets/styled_card.dart';
@@ -57,7 +58,7 @@ class MonthlyReportHeader extends StatelessWidget {
                   ),
                   child: const Icon(
                     Icons.bar_chart,
-                    color: Colors.blue,
+                    color: AppTheme.mitsuiBlue,
                     size: 24,
                   ),
                 ),
@@ -95,7 +96,7 @@ class MonthlyReportHeader extends StatelessWidget {
                     value: selectedDriver,
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: Theme.of(context).colorScheme.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -120,8 +121,8 @@ class MonthlyReportHeader extends StatelessWidget {
                     onChanged: onDriverSelected,
                     isExpanded: true,
                     icon: const Icon(Icons.arrow_drop_down),
-                    style: const TextStyle(
-                      color: Colors.black87,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 14,
                     ),
                   ),
@@ -165,7 +166,7 @@ class MonthlyReportHeader extends StatelessWidget {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -173,15 +174,15 @@ class MonthlyReportHeader extends StatelessWidget {
                           Expanded(
                             child: Text(
                               monthText,
-                              style: const TextStyle(
-                                color: Colors.black87,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 14,
                               ),
                             ),
                           ),
-                          const Icon(
+                          Icon(
                             Icons.arrow_drop_down,
-                            color: Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ],
                       ),
@@ -196,4 +197,3 @@ class MonthlyReportHeader extends StatelessWidget {
     );
   }
 }
-

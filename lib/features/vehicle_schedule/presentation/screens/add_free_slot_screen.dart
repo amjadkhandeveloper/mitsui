@@ -57,7 +57,7 @@ class _AddFreeSlotScreenState extends State<AddFreeSlotScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Add New Free Slot'),
         backgroundColor: AppTheme.mitsuiDarkBlue,
@@ -172,21 +172,23 @@ class _AddFreeSlotScreenState extends State<AddFreeSlotScreen> {
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 side: BorderSide(
-                                  color: Colors.grey.shade300,
+                                  color: AppTheme.borderColor(context),
                                   width: 1.5,
                                 ),
-                                backgroundColor: Colors.grey.shade200,
-                                foregroundColor: Colors.white,
+                                backgroundColor: Theme.of(context).brightness == Brightness.dark
+                                    ? AppTheme.darkSurfaceElevated
+                                    : Colors.grey.shade200,
+                                foregroundColor: Theme.of(context).colorScheme.onSurface,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Cancel',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                             ),

@@ -10,6 +10,19 @@ class AppTheme {
   static const Color mitsuiGrey =
       Color(0xFFF5F5F5); // Light grey for input fields
   static const Color mitsuiTextGrey = Color(0xFF666666); // Text grey
+  static const Color mitsuiSurface = Color(0xFFFFFFFF);
+  static const Color mitsuiBorder = Color(0xFFDDE1E8);
+
+  // Dark surfaces (Orix-style, Mitsui-tinted)
+  static const Color darkScaffold = Color(0xFF0F1A24);
+  static const Color darkSurface = Color(0xFF1A2A3A);
+  static const Color darkSurfaceElevated = Color(0xFF243447);
+  static const Color darkBorder = Color(0xFF3A4656);
+  static const Color darkOnSurfaceMuted = Color(0xFFB0B8C4);
+
+  static const double cardRadius = 24;
+  static const double buttonRadius = 12;
+  static const double inputRadius = 12;
 
   /// Minimum readable body size (App Store Guideline 4 / iPad readability).
   static const double minFontSize = 14;
@@ -19,26 +32,48 @@ class AppTheme {
 
   static const Size minInteractiveSize = Size(minTapTarget, minTapTarget);
 
+  /// Border color that works on both themes.
+  static Color borderColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkBorder
+        : mitsuiBorder;
+  }
+
+  /// Muted body text for both themes.
+  static Color mutedTextColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkOnSurfaceMuted
+        : mitsuiTextGrey;
+  }
+
+  /// Elevated fill (chips, input-like boxes) for both themes.
+  static Color elevatedSurface(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkSurfaceElevated
+        : mitsuiGrey;
+  }
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
+      brightness: Brightness.light,
       colorScheme: const ColorScheme.light(
         primary: mitsuiBlue,
         onPrimary: Colors.white,
         secondary: mitsuiDarkBlue,
         onSecondary: Colors.white,
-        surface: Colors.white,
-        onSurface: Colors.black87,
-        background: mitsuiLightBlue,
-        onBackground: Colors.black87,
+        surface: mitsuiSurface,
+        onSurface: Color(0xFF1F2933),
+        onSurfaceVariant: Color(0xFF52606D),
+        outline: mitsuiBorder,
         error: Colors.red,
         onError: Colors.white,
       ),
-      scaffoldBackgroundColor:
-          mitsuiBlue, // Will be overridden by gradient in screens
+      scaffoldBackgroundColor: mitsuiLightBlue,
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
+        scrolledUnderElevation: 0,
         backgroundColor: mitsuiBlue,
         foregroundColor: Colors.white,
         titleTextStyle: TextStyle(
@@ -47,29 +82,47 @@ class AppTheme {
           color: Colors.white,
         ),
       ),
-      // Card styling is handled through colorScheme.surface in Material 3
-      // Use Card widget with custom decoration where specific styling is needed
+      cardTheme: CardThemeData(
+        color: mitsuiSurface,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(cardRadius),
+          side: const BorderSide(color: mitsuiBorder),
+        ),
+        margin: EdgeInsets.zero,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: mitsuiSurface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(cardRadius),
+        ),
+      ),
+      drawerTheme: const DrawerThemeData(
+        backgroundColor: mitsuiSurface,
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: mitsuiGrey,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(inputRadius),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(inputRadius),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(inputRadius),
           borderSide: const BorderSide(color: mitsuiBlue, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(inputRadius),
           borderSide: const BorderSide(color: Colors.red, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(inputRadius),
           borderSide: const BorderSide(color: Colors.red, width: 2),
         ),
         contentPadding:
@@ -85,7 +138,7 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(buttonRadius),
           ),
           elevation: 2,
         ),
@@ -108,77 +161,87 @@ class AppTheme {
           tapTargetSize: MaterialTapTargetSize.padded,
         ),
       ),
-      chipTheme: const ChipThemeData(
-        labelPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        labelStyle: TextStyle(fontSize: 16),
+      chipTheme: ChipThemeData(
+        backgroundColor: mitsuiGrey,
+        selectedColor: mitsuiBlue.withValues(alpha: 0.12),
+        labelPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        labelStyle: const TextStyle(fontSize: 16, color: Color(0xFF1F2933)),
+        side: const BorderSide(color: mitsuiBorder),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(buttonRadius),
+        ),
       ),
       listTileTheme: const ListTileThemeData(
         minVerticalPadding: 12,
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
+      dividerTheme: const DividerThemeData(
+        color: mitsuiBorder,
+        thickness: 1,
+      ),
       textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.bold,
-          color: Colors.black87,
+          color: Color(0xFF1F2933),
         ),
         headlineLarge: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
-          color: Colors.black87,
+          color: Color(0xFF1F2933),
         ),
         headlineMedium: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          color: Colors.black87,
+          color: Color(0xFF1F2933),
         ),
         headlineSmall: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: Colors.black87,
+          color: Color(0xFF1F2933),
         ),
         titleLarge: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Colors.black87,
+          color: Color(0xFF1F2933),
         ),
         titleMedium: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: Colors.black87,
+          color: Color(0xFF1F2933),
         ),
         titleSmall: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
-          color: Colors.black87,
+          color: Color(0xFF1F2933),
         ),
         bodyLarge: TextStyle(
           fontSize: 16,
-          color: Colors.black87,
+          color: Color(0xFF1F2933),
         ),
         bodyMedium: TextStyle(
           fontSize: 16,
-          color: Colors.black87,
+          color: Color(0xFF1F2933),
         ),
         bodySmall: TextStyle(
           fontSize: 14,
-          color: Colors.black87,
+          color: Color(0xFF52606D),
         ),
         labelLarge: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
-          color: Colors.black87,
+          color: Color(0xFF1F2933),
         ),
         labelMedium: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: Colors.black87,
+          color: Color(0xFF1F2933),
         ),
         labelSmall: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: Colors.black87,
+          color: Color(0xFF1F2933),
         ),
       ),
     );
@@ -187,21 +250,25 @@ class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
+      brightness: Brightness.dark,
       colorScheme: const ColorScheme.dark(
         primary: mitsuiBlue,
         onPrimary: Colors.white,
-        secondary: mitsuiDarkBlue,
+        secondary: Color(0xFF8BA3BC),
         onSecondary: Colors.white,
-        surface: Color(0xFF1E1E1E),
+        surface: darkSurface,
         onSurface: Colors.white,
-        error: Colors.red,
+        onSurfaceVariant: darkOnSurfaceMuted,
+        outline: darkBorder,
+        error: Color(0xFFEF5350),
         onError: Colors.white,
       ),
-      scaffoldBackgroundColor: mitsuiDarkBlue,
+      scaffoldBackgroundColor: darkScaffold,
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
-        backgroundColor: mitsuiDarkBlue,
+        scrolledUnderElevation: 0,
+        backgroundColor: darkScaffold,
         foregroundColor: Colors.white,
         titleTextStyle: TextStyle(
           fontSize: 22,
@@ -209,37 +276,72 @@ class AppTheme {
           color: Colors.white,
         ),
       ),
-      // Card styling is handled through colorScheme.surface in Material 3
-      // Use Card widget with custom decoration where specific styling is needed
+      cardTheme: CardThemeData(
+        color: darkSurface,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(cardRadius),
+          side: const BorderSide(color: darkBorder),
+        ),
+        margin: EdgeInsets.zero,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: darkSurface,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+        contentTextStyle: const TextStyle(
+          fontSize: 14,
+          color: darkOnSurfaceMuted,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(cardRadius),
+        ),
+      ),
+      drawerTheme: const DrawerThemeData(
+        backgroundColor: darkSurface,
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFF2E2E2E),
+        fillColor: darkSurfaceElevated,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(inputRadius),
+          borderSide: const BorderSide(color: darkBorder),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(inputRadius),
+          borderSide: const BorderSide(color: darkBorder),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(inputRadius),
           borderSide: const BorderSide(color: mitsuiBlue, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(inputRadius),
+          borderSide: const BorderSide(color: Color(0xFFEF5350), width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(inputRadius),
+          borderSide: const BorderSide(color: Color(0xFFEF5350), width: 2),
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        hintStyle: const TextStyle(color: Colors.grey, fontSize: 16),
-        labelStyle: const TextStyle(color: Colors.grey, fontSize: 16),
+        hintStyle: const TextStyle(color: darkOnSurfaceMuted, fontSize: 16),
+        labelStyle: const TextStyle(color: darkOnSurfaceMuted, fontSize: 16),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: mitsuiDarkBlue,
+          backgroundColor: mitsuiBlue,
           foregroundColor: Colors.white,
           minimumSize: minInteractiveSize,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(buttonRadius),
           ),
           elevation: 2,
         ),
@@ -262,14 +364,24 @@ class AppTheme {
           tapTargetSize: MaterialTapTargetSize.padded,
         ),
       ),
-      chipTheme: const ChipThemeData(
-        labelPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        labelStyle: TextStyle(fontSize: 16),
+      chipTheme: ChipThemeData(
+        backgroundColor: darkSurfaceElevated,
+        selectedColor: mitsuiBlue.withValues(alpha: 0.24),
+        labelPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        labelStyle: const TextStyle(fontSize: 16, color: Colors.white),
+        side: const BorderSide(color: darkBorder),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(buttonRadius),
+        ),
       ),
       listTileTheme: const ListTileThemeData(
         minVerticalPadding: 12,
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: darkBorder,
+        thickness: 1,
       ),
       textTheme: const TextTheme(
         displayLarge: TextStyle(
@@ -317,7 +429,7 @@ class AppTheme {
         ),
         bodySmall: TextStyle(
           fontSize: 14,
-          color: Colors.white70,
+          color: darkOnSurfaceMuted,
         ),
         labelLarge: TextStyle(
           fontSize: 16,

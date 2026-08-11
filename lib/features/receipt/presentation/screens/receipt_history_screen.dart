@@ -83,7 +83,7 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Receipt History'),
         backgroundColor: AppTheme.mitsuiDarkBlue,
@@ -125,7 +125,7 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                           width: 132,
                           child: SummaryCard(
                             icon: Icons.receipt_long,
-                            iconColor: Colors.blue,
+                            iconColor: AppTheme.mitsuiBlue,
                             value: '${state.total}',
                             label: 'Total',
                             selected: selectedFilter == ReceiptListFilter.all,
@@ -192,14 +192,19 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
                               Icon(
                                 Icons.receipt_long_outlined,
                                 size: 64,
-                                color: Colors.grey.withOpacity(0.5),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant
+                                    .withOpacity(0.5),
                               ),
                               const SizedBox(height: 16),
                               Text(
                                 'No receipts found',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.grey.withOpacity(0.7),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
                                 ),
                               ),
                             ],
@@ -287,8 +292,13 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
             );
           }
 
-          return const Center(
-            child: Text('No data available'),
+          return Center(
+            child: Text(
+              'No data available',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           );
         },
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/styled_card.dart';
 
 class TimeInputField extends StatelessWidget {
@@ -23,6 +24,11 @@ class TimeInputField extends StatelessWidget {
     final minuteText = value != null
         ? value!.minute.toString().padLeft(2, '0')
         : 'MM';
+    final scheme = Theme.of(context).colorScheme;
+    final muted = AppTheme.mutedTextColor(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final chipBg =
+        isDark ? AppTheme.darkSurfaceElevated : Colors.grey.shade100;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,7 +38,7 @@ class TimeInputField extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Colors.grey.shade800,
+            color: scheme.onSurface,
           ),
         ),
         const SizedBox(height: 8),
@@ -61,7 +67,7 @@ class TimeInputField extends StatelessWidget {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
+                        color: chipBg,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
@@ -71,8 +77,8 @@ class TimeInputField extends StatelessWidget {
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: value != null
-                                ? Colors.black87
-                                : Colors.grey.shade600,
+                                ? scheme.onSurface
+                                : muted,
                           ),
                         ),
                       ),
@@ -84,7 +90,7 @@ class TimeInputField extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey.shade600,
+                      color: muted,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -95,7 +101,7 @@ class TimeInputField extends StatelessWidget {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
+                        color: chipBg,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
@@ -105,8 +111,8 @@ class TimeInputField extends StatelessWidget {
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: value != null
-                                ? Colors.black87
-                                : Colors.grey.shade600,
+                                ? scheme.onSurface
+                                : muted,
                           ),
                         ),
                       ),

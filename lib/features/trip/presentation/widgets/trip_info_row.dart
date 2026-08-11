@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class TripInfoRow extends StatelessWidget {
   final String label;
@@ -24,7 +25,7 @@ class TripInfoRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+                color: AppTheme.mutedTextColor(context),
               ),
             ),
           ),
@@ -33,7 +34,7 @@ class TripInfoRow extends StatelessWidget {
               value,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey.shade900,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -42,4 +43,3 @@ class TripInfoRow extends StatelessWidget {
     );
   }
 }
-

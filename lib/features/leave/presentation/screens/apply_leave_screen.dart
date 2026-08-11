@@ -72,7 +72,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
     final maxDate = now.add(const Duration(days: 30));
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Apply Leave'),
         backgroundColor: AppTheme.mitsuiDarkBlue,
@@ -158,7 +158,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.mitsuiDarkBlue,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -166,40 +166,40 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                             'Choose the type of leave you want to apply for.',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey.shade600,
+                              color: AppTheme.mutedTextColor(context),
                             ),
                           ),
                           const SizedBox(height: 8),
                           Container(
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade50,
+                              color: AppTheme.elevatedSurface(context),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: Colors.grey.shade300,
+                                color: AppTheme.borderColor(context),
                                 width: 1,
                               ),
                             ),
                             child: (state is LeaveLoading && leaveTypes.isEmpty)
-                                ? const Padding(
-                                    padding: EdgeInsets.symmetric(
+                                ? Padding(
+                                    padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
                                       vertical: 12,
                                     ),
                                     child: Row(
                                       children: [
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 16,
                                           height: 16,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
                                           ),
                                         ),
-                                        SizedBox(width: 12),
+                                        const SizedBox(width: 12),
                                         Text(
                                           'Loading leave types...',
                                           style: TextStyle(
                                             fontSize: 14,
-                                            color: Colors.grey,
+                                            color: AppTheme.mutedTextColor(context),
                                           ),
                                         ),
                                       ],
@@ -220,7 +220,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                                     ? 'No leave types available' 
                                     : 'Select Leave Type',
                                 hintStyle: TextStyle(
-                                  color: Colors.grey.shade400,
+                                  color: AppTheme.mutedTextColor(context),
                                 ),
                               ),
                               items: leaveTypes.isEmpty
@@ -232,7 +232,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                                           leaveType.leaveTypeName,
                                           style: TextStyle(
                                             fontSize: 14,
-                                            color: Colors.grey.shade800,
+                                            color: Theme.of(context).colorScheme.onSurface,
                                           ),
                                         ),
                                       );
@@ -305,12 +305,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                               isDense: false,
                               icon: Icon(
                                 Icons.arrow_drop_down,
-                                color: Colors.grey.shade600,
+                                color: AppTheme.mutedTextColor(context),
                               ),
-                              dropdownColor: Colors.white,
+                              dropdownColor: Theme.of(context).colorScheme.surface,
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey.shade800,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                               menuMaxHeight: 250,
                             ),
@@ -334,7 +334,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.mitsuiDarkBlue,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -342,7 +342,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                             'Select the period and time for your leave.',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey.shade600,
+                              color: AppTheme.mutedTextColor(context),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -479,7 +479,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: Colors.grey.shade800,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 6),
@@ -493,23 +493,23 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                             decoration: InputDecoration(
                               hintText: 'Add a short reason for your leave...',
                               filled: true,
-                              fillColor: Colors.grey.shade50,
+                              fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                               contentPadding: const EdgeInsets.all(12),
                               hintStyle: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey.shade400,
+                                color: AppTheme.mutedTextColor(context),
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
+                                  color: AppTheme.borderColor(context),
                                   width: 1,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
+                                  color: AppTheme.borderColor(context),
                                   width: 1,
                                 ),
                               ),
@@ -523,7 +523,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                             ),
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey.shade800,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ],
@@ -548,7 +548,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               side: BorderSide(
-                                color: Colors.grey.shade300,
+                                color: AppTheme.borderColor(context),
                                 width: 1.2,
                               ),
                               shape: RoundedRectangleBorder(
@@ -560,7 +560,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade700,
+                                color: AppTheme.mutedTextColor(context),
                               ),
                             ),
                           ),

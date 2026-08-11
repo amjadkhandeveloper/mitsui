@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/styled_card.dart';
 
 class DateTimeInputField extends StatelessWidget {
@@ -89,7 +90,7 @@ class DateTimeInputField extends StatelessWidget {
                         fontSize: 16,
                         color: displayText != null
                             ? Theme.of(context).colorScheme.onSurface
-                            : Colors.grey.shade600,
+                            : AppTheme.mutedTextColor(context),
                         fontWeight: displayText != null
                             ? FontWeight.w500
                             : FontWeight.normal,

@@ -16,6 +16,7 @@ class DashboardDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
           DrawerHeader(
@@ -41,7 +42,7 @@ class DashboardDrawer extends StatelessWidget {
                     Text(
                       'Mitsui FleetPlus',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14,
                       ),
                     ),
@@ -54,42 +55,34 @@ class DashboardDrawer extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
-                ListTile(
-                  leading:
-                      const Icon(Icons.lock_reset, color: AppTheme.mitsuiDarkBlue),
-                  title: const Text('Reset password'),
+                _DrawerTile(
+                  icon: Icons.lock_reset,
+                  label: 'Reset password',
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, AppRoutes.resetPassword);
                   },
                 ),
-                ListTile(
-                  leading: const Icon(Icons.contact_phone,
-                      color: AppTheme.mitsuiDarkBlue),
-                  title: const Text('Support'),
+                _DrawerTile(
+                  icon: Icons.contact_phone,
+                  label: 'Support',
                   onTap: () {
                     Navigator.pop(context);
                     _showAdminContact(context);
                   },
                 ),
-                ListTile(
-                  leading: const Icon(Icons.info_outline,
-                      color: AppTheme.mitsuiDarkBlue),
-                  title: const Text('About app'),
+                _DrawerTile(
+                  icon: Icons.info_outline,
+                  label: 'About app',
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, AppRoutes.aboutApp);
                   },
                 ),
-                ListTile(
-                  leading: const Icon(Icons.logout, color: Colors.red),
-                  title: const Text(
-                    'Logout',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.red,
-                    ),
-                  ),
+                _DrawerTile(
+                  icon: Icons.logout,
+                  label: 'Logout',
+                  isDestructive: true,
                   onTap: () {
                     Navigator.pop(context);
                     onLogout();
@@ -105,5 +98,50 @@ class DashboardDrawer extends StatelessWidget {
 
   void _showAdminContact(BuildContext context) {
     Navigator.pushNamed(context, AppRoutes.adminContact);
+  }
+}
+
+class _DrawerTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isDestructive;
+
+  const _DrawerTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isDestructive = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = isDestructive ? Colors.red : scheme.onSurface;
+
+    return ListTile(
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: isDestructive
+              ? Colors.red.withValues(alpha: 0.08)
+              : (isDark
+                  ? AppTheme.darkSurfaceElevated
+                  : AppTheme.mitsuiLightBlue),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: color, size: 22),
+      ),
+      title: Text(
+        label,
+        style: TextStyle(
+          fontWeight: isDestructive ? FontWeight.w600 : FontWeight.w500,
+          color: color,
+        ),
+      ),
+      onTap: onTap,
+    );
   }
 }

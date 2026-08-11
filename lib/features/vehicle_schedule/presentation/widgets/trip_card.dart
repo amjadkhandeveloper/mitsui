@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/utils/animations.dart';
 import '../../../../core/widgets/styled_card.dart';
@@ -23,6 +24,12 @@ class TripCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateTimeFormat = DateFormat('dd-MMM-yyyy hh:mm a');
+    final scheme = Theme.of(context).colorScheme;
+    final muted = AppTheme.mutedTextColor(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final chipBg =
+        isDark ? AppTheme.darkSurfaceElevated : Colors.grey.shade100;
+    final dividerColor = AppTheme.borderColor(context);
 
     return FadeSlideAnimation(
       delay: Duration(milliseconds: 300 + (index * 50)),
@@ -41,12 +48,12 @@ class TripCard extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: chipBg,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.directions_car,
-                    color: Colors.black54,
+                    color: muted,
                     size: 20,
                   ),
                 ),
@@ -57,9 +64,10 @@ class TripCard extends StatelessWidget {
                     children: [
                       Text(
                         trip.vehicleName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          color: scheme.onSurface,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -70,7 +78,7 @@ class TripCard extends StatelessWidget {
                           trip.tripType!.toUpperCase(),
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey.shade600,
+                            color: muted,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -89,7 +97,7 @@ class TripCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: chipBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -97,10 +105,10 @@ class TripCard extends StatelessWidget {
                     children: [
                       Text(
                         'Trip Start Date',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          color: scheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -108,7 +116,7 @@ class TripCard extends StatelessWidget {
                         dateTimeFormat.format(trip.startTime),
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade700,
+                          color: muted,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -120,7 +128,7 @@ class TripCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: chipBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -128,10 +136,10 @@ class TripCard extends StatelessWidget {
                     children: [
                       Text(
                         'Trip End Date',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          color: scheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -139,7 +147,7 @@ class TripCard extends StatelessWidget {
                         dateTimeFormat.format(trip.endTime),
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade700,
+                          color: muted,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -157,7 +165,7 @@ class TripCard extends StatelessWidget {
                   Icon(
                     Icons.person_outline,
                     size: 14,
-                    color: Colors.grey.shade600,
+                    color: muted,
                   ),
                   const SizedBox(width: 6),
                   Expanded(
@@ -167,7 +175,7 @@ class TripCard extends StatelessWidget {
                           : (trip.driverName ?? 'N/A'),
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.shade700,
+                        color: muted,
                         fontWeight: FontWeight.w500,
                       ),
                       maxLines: 1,
@@ -186,7 +194,7 @@ class TripCard extends StatelessWidget {
                   Icon(
                     Icons.location_on_outlined,
                     size: 14,
-                    color: Colors.grey.shade600,
+                    color: muted,
                   ),
                   const SizedBox(width: 6),
                   Expanded(
@@ -194,7 +202,7 @@ class TripCard extends StatelessWidget {
                       trip.destination!,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.shade700,
+                        color: muted,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -215,7 +223,7 @@ class TripCard extends StatelessWidget {
               Divider(
                 height: 1,
                 thickness: 1,
-                color: Colors.grey.shade200,
+                color: dividerColor,
               ),
               const SizedBox(height: 12),
               Row(

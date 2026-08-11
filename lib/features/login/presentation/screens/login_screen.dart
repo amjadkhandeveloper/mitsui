@@ -45,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
     required int roleId,
   }) {
     final selected = _selectedRoleId == roleId;
+    final scheme = Theme.of(context).colorScheme;
 
     return ChoiceChip(
       label: Text(
@@ -55,17 +56,19 @@ class _LoginScreenState extends State<LoginScreen> {
         style: TextStyle(
           fontSize: 15,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-          color: selected ? Colors.white : Colors.black87,
+          color: selected ? Colors.white : scheme.onSurface,
         ),
       ),
       selected: selected,
       selectedColor: AppTheme.mitsuiDarkBlue,
-      backgroundColor: Colors.white,
+      backgroundColor: scheme.surface,
       showCheckmark: false,
       labelPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       side: BorderSide(
-        color: selected ? AppTheme.mitsuiDarkBlue : Colors.grey.shade400,
+        color: selected
+            ? AppTheme.mitsuiDarkBlue
+            : AppTheme.borderColor(context),
         width: selected ? 1.5 : 1,
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -94,7 +97,11 @@ class _LoginScreenState extends State<LoginScreen> {
     final spacingLarge = isSmallScreen ? 24.0 : 32.0;
     final topSectionHeight = isSmallScreen ? screenHeight * 0.18 : screenHeight * 0.22;
     
+    final scheme = Theme.of(context).colorScheme;
+    final muted = AppTheme.mutedTextColor(context);
+
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Container(
         decoration: BoxDecoration(
           gradient: AppGradients.primaryBlueGradient,
@@ -172,9 +179,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               beginOffset: const Offset(0, 0.3),
                               child: Container(
                                 margin: EdgeInsets.all(cardMargin),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.only(
+                                decoration: BoxDecoration(
+                                  color: scheme.surface,
+                                  borderRadius: const BorderRadius.only(
                                     topLeft: Radius.circular(32),
                                     topRight: Radius.circular(32),
                                   ),
@@ -195,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                             style: TextStyle(
                                               fontSize: signInTitleFontSize,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
+                                              color: scheme.onSurface,
                                             ),
                                             textAlign: TextAlign.center,
                                           ),
@@ -213,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w500,
-                                                  color: Colors.grey.shade700,
+                                                  color: muted,
                                                 ),
                                               ),
                                               const SizedBox(height: 6),
@@ -244,7 +251,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w500,
-                                                  color: Colors.grey.shade700,
+                                                  color: muted,
                                                 ),
                                               ),
                                               const SizedBox(height: 6),
@@ -288,7 +295,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w500,
-                                                  color: Colors.grey.shade700,
+                                                  color: muted,
                                                 ),
                                               ),
                                               const SizedBox(height: 12),
@@ -324,7 +331,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: AppTheme.mitsuiDarkBlue
-                                                      .withOpacity(0.3),
+                                                      .withValues(alpha: 0.3),
                                                   blurRadius: 8,
                                                   offset: const Offset(0, 4),
                                                 ),

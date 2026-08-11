@@ -20,6 +20,7 @@ class StyledCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: margin,
       decoration: BoxDecoration(
@@ -27,8 +28,8 @@ class StyledCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
+            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+            blurRadius: isDark ? 10 : 8,
             offset: const Offset(0, 2),
             spreadRadius: 0,
           ),

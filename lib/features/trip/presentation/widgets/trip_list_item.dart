@@ -90,6 +90,12 @@ class TripListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd-MMM-yyyy');
     final timeFormat = DateFormat('hh:mm a');
+    final scheme = Theme.of(context).colorScheme;
+    final muted = AppTheme.mutedTextColor(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final chipBg =
+        isDark ? AppTheme.darkSurfaceElevated : Colors.grey.shade100;
+    final dividerColor = AppTheme.borderColor(context);
 
     return FadeSlideAnimation(
       delay: Duration(milliseconds: 200 + (index * 50)),
@@ -119,9 +125,9 @@ class TripListItem extends StatelessWidget {
                     ),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.directions_car_rounded,
-                    color: AppTheme.mitsuiDarkBlue,
+                    color: isDark ? scheme.onSurface : AppTheme.mitsuiDarkBlue,
                     size: 22,
                   ),
                 ),
@@ -133,10 +139,10 @@ class TripListItem extends StatelessWidget {
                     children: [
                       Text(
                         trip.vehicleName.isNotEmpty ? trip.vehicleName : 'Vehicle',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: scheme.onSurface,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -146,7 +152,7 @@ class TripListItem extends StatelessWidget {
                         dateFormat.format(trip.scheduleStart),
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade600,
+                          color: muted,
                         ),
                       ),
                     ],
@@ -163,13 +169,13 @@ class TripListItem extends StatelessWidget {
                             const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: trip.status == TripDetailStatus.cancelled
-                              ? Colors.red.shade50
-                              : Colors.blue.shade50,
+                              ? Colors.red.withValues(alpha: isDark ? 0.2 : 0.08)
+                              : AppTheme.mitsuiBlue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: trip.status == TripDetailStatus.cancelled
                                 ? Colors.red.shade200
-                                : Colors.blue.shade200,
+                                : AppTheme.mitsuiBlue.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),
@@ -180,7 +186,7 @@ class TripListItem extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                             color: trip.status == TripDetailStatus.cancelled
                                 ? Colors.red.shade700
-                                : Colors.blue.shade700,
+                                : AppTheme.mitsuiBlue,
                             letterSpacing: 0.5,
                           ),
                         ),
@@ -222,7 +228,7 @@ class TripListItem extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
+                      color: chipBg,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -230,7 +236,7 @@ class TripListItem extends StatelessWidget {
                         Icon(
                           Icons.schedule_rounded,
                           size: 14,
-                          color: Colors.grey.shade700,
+                          color: muted,
                         ),
                         const SizedBox(width: 6),
                         Expanded(
@@ -241,15 +247,16 @@ class TripListItem extends StatelessWidget {
                                 'Start Time',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey.shade600,
+                                  color: muted,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 timeFormat.format(trip.scheduleStart),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
+                                  color: scheme.onSurface,
                                 ),
                               ),
                             ],
@@ -264,7 +271,7 @@ class TripListItem extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
+                      color: chipBg,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -272,7 +279,7 @@ class TripListItem extends StatelessWidget {
                         Icon(
                           Icons.event_rounded,
                           size: 14,
-                          color: Colors.grey.shade700,
+                          color: muted,
                         ),
                         const SizedBox(width: 6),
                         Expanded(
@@ -283,7 +290,7 @@ class TripListItem extends StatelessWidget {
                                 'End Time',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey.shade600,
+                                  color: muted,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -291,9 +298,10 @@ class TripListItem extends StatelessWidget {
                                 trip.scheduleEnd != null
                                     ? timeFormat.format(trip.scheduleEnd!)
                                     : '-',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
+                                  color: scheme.onSurface,
                                 ),
                               ),
                             ],
@@ -314,10 +322,10 @@ class TripListItem extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.person_outline_rounded,
                     size: 14,
-                    color: Colors.black54,
+                    color: muted,
                   ),
                   const SizedBox(width: 6),
                   Expanded(
@@ -331,10 +339,10 @@ class TripListItem extends StatelessWidget {
                           : (trip.mobileNo != null && trip.mobileNo!.isNotEmpty
                               ? '${trip.expatName ?? 'Expat'} (${trip.mobileNo})'
                               : (trip.expatName ?? 'Expat')),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                        color: scheme.onSurface,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -349,10 +357,10 @@ class TripListItem extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.location_on_outlined,
                     size: 14,
-                    color: Colors.black54,
+                    color: muted,
                   ),
                   const SizedBox(width: 6),
                   Expanded(
@@ -360,7 +368,7 @@ class TripListItem extends StatelessWidget {
                       trip.location!,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.shade800,
+                        color: muted,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -377,7 +385,7 @@ class TripListItem extends StatelessWidget {
                 icon: const Icon(Icons.picture_as_pdf_outlined, size: 18),
                 label: const Text('Doc preview'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppTheme.mitsuiDarkBlue,
+                  foregroundColor: scheme.primary,
                   side: BorderSide(color: AppTheme.mitsuiBlue),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   shape: RoundedRectangleBorder(
@@ -399,7 +407,7 @@ class TripListItem extends StatelessWidget {
               Divider(
                 height: 1,
                 thickness: 1,
-                color: Colors.grey.shade200,
+                color: dividerColor,
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -439,7 +447,7 @@ class TripListItem extends StatelessWidget {
               Divider(
                 height: 1,
                 thickness: 1,
-                color: Colors.grey.shade200,
+                color: dividerColor,
               ),
               const SizedBox(height: 16),
               Row(
@@ -474,7 +482,7 @@ class TripListItem extends StatelessWidget {
               Divider(
                 height: 1,
                 thickness: 1,
-                color: Colors.grey.shade200,
+                color: dividerColor,
               ),
               const SizedBox(height: 16),
               Row(
@@ -558,4 +566,3 @@ class TripListItem extends StatelessWidget {
     );
   }
 }
-

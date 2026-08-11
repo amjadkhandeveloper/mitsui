@@ -27,7 +27,7 @@ class _ReceiptImage extends StatelessWidget {
         height: _height,
         width: double.infinity,
         fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) => _buildPlaceholder(),
+        errorBuilder: (_, __, ___) => _buildPlaceholder(context),
       );
     } else {
       String base64Data = source.trim();
@@ -39,10 +39,10 @@ class _ReceiptImage extends StatelessWidget {
           height: _height,
           width: double.infinity,
           fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => _buildPlaceholder(),
+          errorBuilder: (_, __, ___) => _buildPlaceholder(context),
         );
       } catch (_) {
-        image = _buildPlaceholder();
+        image = _buildPlaceholder(context);
       }
     }
     return ClipRRect(
@@ -51,22 +51,24 @@ class _ReceiptImage extends StatelessWidget {
     );
   }
 
-  Widget _buildPlaceholder() {
+  Widget _buildPlaceholder(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final muted = AppTheme.mutedTextColor(context);
     return Container(
       height: _height,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: isDark ? AppTheme.darkSurfaceElevated : Colors.grey.shade200,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.broken_image_outlined, size: 40, color: Colors.grey.shade400),
+          Icon(Icons.broken_image_outlined, size: 40, color: muted),
           const SizedBox(height: 8),
           Text(
             'Unable to load image',
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 14, color: muted),
           ),
         ],
       ),
@@ -82,6 +84,10 @@ class _ReceiptImageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final muted = AppTheme.mutedTextColor(context);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -100,12 +106,12 @@ class _ReceiptImageCard extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: scheme.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade200, width: 1),
+            border: Border.all(color: AppTheme.borderColor(context), width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.06),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -120,7 +126,7 @@ class _ReceiptImageCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppTheme.mitsuiDarkBlue.withOpacity(0.1),
+                      color: AppTheme.mitsuiDarkBlue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -136,7 +142,7 @@ class _ReceiptImageCard extends StatelessWidget {
                   Icon(
                     Icons.zoom_in,
                     size: 18,
-                    color: Colors.grey.shade500,
+                    color: muted,
                   ),
                 ],
               ),
@@ -176,6 +182,9 @@ class ReceiptDetailScreen extends StatelessWidget {
     // Backend sends a date-only value for the expense, so avoid showing a
     // misleading "12:00 AM" by formatting the date without the time.
     final dateFormat = DateFormat('dd MMM yyyy');
+    final scheme = Theme.of(context).colorScheme;
+    final muted = AppTheme.mutedTextColor(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     Color statusColor;
     String statusText;
@@ -195,7 +204,7 @@ class ReceiptDetailScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Receipt Detail'),
         backgroundColor: AppTheme.mitsuiDarkBlue,
@@ -211,11 +220,12 @@ class ReceiptDetailScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: scheme.surface,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.borderColor(context)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -233,9 +243,10 @@ class ReceiptDetailScreen extends StatelessWidget {
                           children: [
                             Text(
                               '₹${receipt.amount.toStringAsFixed(2)}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
+                                color: scheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -243,7 +254,7 @@ class ReceiptDetailScreen extends StatelessWidget {
                               receipt.description,
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey.shade700,
+                                color: muted,
                               ),
                             ),
                           ],
@@ -255,10 +266,10 @@ class ReceiptDetailScreen extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: statusColor.withOpacity(0.08),
+                          color: statusColor.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: statusColor.withOpacity(0.4),
+                            color: statusColor.withValues(alpha: 0.4),
                           ),
                         ),
                         child: Row(
@@ -293,14 +304,14 @@ class ReceiptDetailScreen extends StatelessWidget {
                       Icon(
                         Icons.calendar_today_outlined,
                         size: 14,
-                        color: Colors.grey.shade600,
+                        color: muted,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         dateFormat.format(receipt.receiptDate),
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade600,
+                          color: muted,
                         ),
                       ),
                     ],
@@ -314,7 +325,7 @@ class ReceiptDetailScreen extends StatelessWidget {
                         Icon(
                           Icons.location_on_outlined,
                           size: 14,
-                          color: Colors.grey.shade600,
+                          color: muted,
                         ),
                         const SizedBox(width: 4),
                         Expanded(
@@ -322,7 +333,7 @@ class ReceiptDetailScreen extends StatelessWidget {
                             receipt.expLocation!,
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey.shade700,
+                              color: muted,
                             ),
                           ),
                         ),
@@ -341,11 +352,13 @@ class ReceiptDetailScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: scheme.surface,
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppTheme.borderColor(context)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
+                      color:
+                          Colors.black.withValues(alpha: isDark ? 0.3 : 0.03),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -359,7 +372,7 @@ class ReceiptDetailScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
+                        color: scheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -389,17 +402,19 @@ class ReceiptDetailScreen extends StatelessWidget {
               const SizedBox(height: 16),
             ],
             // Receipt Images - two images with clear labels
-            if (_hasImage(receipt.receiptImageUrl) || _hasImage(receipt.receiptImageUrl2)) ...[
+            if (_hasImage(receipt.receiptImageUrl) ||
+                _hasImage(receipt.receiptImageUrl2)) ...[
               Row(
                 children: [
-                  Icon(Icons.receipt_long, size: 20, color: AppTheme.mitsuiDarkBlue),
+                  const Icon(Icons.receipt_long,
+                      size: 20, color: AppTheme.mitsuiDarkBlue),
                   const SizedBox(width: 8),
                   Text(
                     'Receipt Images',
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey.shade800,
+                      color: scheme.onSurface,
                     ),
                   ),
                 ],
@@ -437,6 +452,9 @@ class _DetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final muted = AppTheme.mutedTextColor(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -447,7 +465,7 @@ class _DetailRow extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey.shade600,
+                color: muted,
               ),
             ),
           ),
@@ -455,9 +473,10 @@ class _DetailRow extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
+                color: scheme.onSurface,
               ),
             ),
           ),
@@ -466,4 +485,3 @@ class _DetailRow extends StatelessWidget {
     );
   }
 }
-
