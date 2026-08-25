@@ -1,6 +1,6 @@
 class ApiConstants {
   /// Switch API host: `true` = staging (POC), `false` = production.
-  static const bool useStagingApi = false;
+  static const bool useStagingApi = true;
 
   static const String _prodBaseUrl =
       'https://mitsuiv16mobapi.infotracktelematics.com/';
