@@ -1,0 +1,59 @@
+# Staging CI pipeline creating to test
+name: Flutter Staging CI
+
+#Trigger putting on the branch when push and merged on staging
+on:
+  push:
+    branches:
+      - staging
+#Trigger putting on the branch when pull and merge on staging
+  pull_request:
+    branches:
+      - staging
+#Jobs need to perform after that on staging
+jobs:
+  build-staging:
+    name: Build Staging APK
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # 1. Checkout source code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.1'
+          channel: 'stable'
+          cache: true
+
+      # 3. Check Flutter version
+      - name: Flutter version
+        run: flutter --version
+
+      # 4. Get Flutter dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 5. Analyze Flutter project
+      - name: Analyze project
+        run: flutter analyze
+
+      # 6. Run tests
+      - name: Run tests
+        run: flutter test
+
+      # 7. Build Staging APK
+      - name: Build Staging APK
+        run: flutter build apk --release
+
+      # 8. Upload APK to GitHub Actions
+      - name: Upload Staging APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 14
