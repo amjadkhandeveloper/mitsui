@@ -13,8 +13,8 @@ class ApiConstants {
 
   // ── About App (update these before each release) ──
   static const String appName = 'Mitsui FleetPlus Prod';
-  static const String appVersion = '1.0.5';
-  static const String releaseDate = '21-July-2026 18:00:00';
+  static const String appVersion = '1.0.6';
+  static const String releaseDate = '25-August-2026 11:50:00';
 
   // API Endpoints
   static const String login = '/api/Auth/UserLogin';
