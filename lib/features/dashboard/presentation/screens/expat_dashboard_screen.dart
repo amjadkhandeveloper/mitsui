@@ -14,6 +14,7 @@ import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/widgets/logout_helper.dart';
 import '../../../../core/widgets/dashboard_bootstrap_host.dart';
 
+/// Expat (user) home: vehicle schedule, attendance approval, leave, reports.
 class ExpatDashboardScreen extends StatefulWidget {
   const ExpatDashboardScreen({super.key});
 

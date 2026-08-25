@@ -6,6 +6,8 @@ import '../../../../core/mock/mock_data_service.dart';
 import '../models/attendance_record_model.dart';
 import '../models/driver_model.dart';
 
+/// Attendance list + driver lookup + approve check-in/out.
+/// List endpoint `/DriverAttendanceList` is not declared in [ApiConstants].
 abstract class AttendanceRemoteDataSource {
   Future<List<AttendanceRecordModel>> getAttendanceRecords({
     required int? driverId,

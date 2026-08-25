@@ -9,6 +9,7 @@ import '../../../../core/utils/gradients.dart';
 import '../../../../core/utils/animations.dart';
 import '../../../../core/utils/toast.dart';
 
+/// Username / password form with Expat vs Driver role chips.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -20,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  // 1 = expat (user), 2 = driver (default: expat)
+  /// Sent as `roleId` on UserLogin: 1 = expat, 2 = driver. Default is expat.
   int _selectedRoleId = 1;
 
   @override

@@ -5,7 +5,7 @@ import '../../data/datasources/local_storage_data_source.dart';
 import '../../../login/domain/repositories/auth_repository.dart';
 import '../../../../core/di/injection_container.dart' as di;
 
-// Splash State
+/// Splash UI state: loading flag + [AppInitStatus] used by SplashScreen to route.
 class SplashState extends Equatable {
   final bool isLoading;
   final AppInitStatus initStatus;
@@ -33,7 +33,8 @@ class SplashState extends Equatable {
   List<Object?> get props => [isLoading, initStatus, errorMessage];
 }
 
-// Splash Cubit
+/// Decides introduction vs login vs dashboard.
+/// Auto-login uses saved username/password when the token is missing.
 class SplashCubit extends Cubit<SplashState> {
   final LocalStorageDataSource localStorageDataSource;
 
@@ -69,7 +70,7 @@ class SplashCubit extends Cubit<SplashState> {
         // User is authenticated - check if token is valid
         final token = await localStorageDataSource.getAuthToken();
         if (token != null && token.isNotEmpty) {
-          // Token exists, user is authenticated
+          // Presence of a token is treated as authenticated; expiry is not checked.
           emit(state.copyWith(
             isLoading: false,
             initStatus: AppInitStatus.authenticated,

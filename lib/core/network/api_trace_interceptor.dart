@@ -13,6 +13,8 @@ class ApiTraceInterceptor extends Interceptor {
   static const _maxStringPreview = 120;
 
   /// Keys that usually contain huge base64 / binary payloads.
+  /// Login `password` is not in this set — with [ApiConstants.enableApiTrace]
+  /// true, credentials are printed in debug logs.
   static const _sensitiveKeys = {
     'expenseReceipt1',
     'expenseReceipt2',

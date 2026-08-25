@@ -22,6 +22,7 @@ import '../../../../core/widgets/logout_helper.dart';
 import '../../../../core/widgets/dashboard_bootstrap_host.dart';
 import '../widgets/attendance_odometer_dialog.dart';
 
+/// Driver home: check-in/out, standby, trips, receipts, and drawer.
 class DriverDashboardScreen extends StatefulWidget {
   const DriverDashboardScreen({super.key});
 

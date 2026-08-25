@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Light and dark [ThemeData] plus Mitsui brand tokens used by screens.
 class AppTheme {
   // Mitsui Brand Colors
   static const Color mitsuiBlue = Color(0xFF0066CC); // Primary blue

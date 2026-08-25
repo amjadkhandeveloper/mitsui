@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Session and preference access for splash, dashboard bootstrap, and FCM.
+/// Keys must stay in sync with [AuthRepositoryImpl] writes.
 abstract class LocalStorageDataSource {
   Future<String?> getAuthToken();
   Future<bool> isLoggedIn();

@@ -1,13 +1,24 @@
+/// Central API host, paths, timeouts, and release metadata for Mitsui Fleet.
+///
+/// Before each store release, update:
+/// - [appName], [appVersion], [releaseDate]
+/// - [localAppVersion] (integer compared with ForceUpdateClient)
+/// - [useStagingApi] (must stay `false` for production builds)
 class ApiConstants {
   /// Switch API host: `true` = staging (POC), `false` = production.
+  /// Keep `false` for Play Store / App Store builds.
   static const bool useStagingApi = true;
 
+  /// Production mobile API (path-style HTTPS, no custom port).
   static const String _prodBaseUrl =
       'https://mitsuiv16mobapi.infotracktelematics.com/';
+
+  /// Staging / POC mobile API used for QA.
   static const String _stagingBaseUrl =
       'https://mitsuiv16pocmobapi.infotracktelematics.com/';
 
-  // Base URL - Mitsui Fleet Management API
+  /// Resolved base URL used by [DioClient]. Trailing slash is required
+  /// so relative paths like `/api/Auth/UserLogin` concatenate correctly.
   static const String baseUrl =
       useStagingApi ? _stagingBaseUrl : _prodBaseUrl;
 
@@ -16,70 +27,70 @@ class ApiConstants {
   static const String appVersion = '1.0.6';
   static const String releaseDate = '25-August-2026 11:50:00';
 
-  // API Endpoints
+  // ── Auth ──
   static const String login = '/api/Auth/UserLogin';
-  static const String register = '/api/Auth/Register'; // reserved
+  /// Reserved; not wired in the current login flow.
+  static const String register = '/api/Auth/Register';
   static const String resetPassword = '/api/Auth/ResetPassword';
+  /// Returns the minimum supported [localAppVersion] and force-logout flag.
   static const String forceUpdateClient = '/api/Auth/ForceUpdateClient';
 
-  // Trip APIs
-  static const String tripDetails = '/api/Track/TripDetails'; // All trips
-  static const String tripListRequest =
-      '/api/Track/TripListRequest'; // Trip requests
+  // ── Trip / Track ──
+  /// All trips for the signed-in user or driver.
+  static const String tripDetails = '/api/Track/TripDetails';
+  /// Pending trip requests (expat approval list).
+  static const String tripListRequest = '/api/Track/TripListRequest';
   static const String updateVehicleApproveStatus =
       '/api/Track/UpdateVehicleApproveStatus';
   static const String cancelTrip = '/api/Track/UpdateTripCancel';
 
-  /// Base URL for trip document (PDF) preview; full URL = tripDocumentBaseUrl + FilePath from API
+  /// Host for trip document (PDF) preview.
+  /// Full URL = [tripDocumentBaseUrl] + `FilePath` from the API.
+  /// Warning: this still points at the POC host even when [useStagingApi] is false.
   static const String tripDocumentBaseUrl =
       'https://mitsuipocapi.infotracktelematics.com:5001';
 
-  // Leave
-  static const String leaveRequests =
-      '/api/Leave/LeaveRequest'; // apply / update
+  // ── Leave ──
+  /// Apply or update a leave request.
+  static const String leaveRequests = '/api/Leave/LeaveRequest';
   static const String leaveTypes = '/api/Leave/LeaveType';
   static const String leaveList = '/api/Leave/LeaveList';
   static const String leaveStatusUpdate = '/api/Leave/LeaveStatusUpdate';
 
-  // Attendance logging (driver check-in / check-out from dashboard)
-  // NOTE: Adjust this path if backend uses a different route name
+  // ── Attendance ──
+  // These routes omit the `/api/...` prefix used by Auth/Track/Leave.
+  // Confirm with backend if a prefix is added later.
   static const String driverAttendanceLog = '/DriverAttendance';
-
-  // Attendance approval (expat/user approves driver check-in / check-out)
   static const String driverAttendanceApproveStatus =
       '/DriverAttendanceApproveStatus';
-
-  // Driver dashboard summary (driver status, latest attendance info)
   static const String driverDashboard = '/DriverDashboard';
-
-  // Driver daily attendance summary (attendance report)
   static const String driverDailySummary = '/DriverDailySummary';
 
-  // Receipts (Expense module)
-  // NOTE: Update these endpoints to match backend routes.
+  // ── Receipts / Expense ──
   static const String receiptList = '/ListExpenseDetails';
   static const String receiptStatusUpdate = '/ExpenseApproveStatus';
   static const String expenseDetails = '/ExpenseDetails';
 
-  // FCM Token
+  // ── FCM ──
   static const String registerFcmToken = '/api/FcmToken/RegisterToken';
   static const String logoutFcmToken = '/api/FcmToken/Logout';
 
-  // Timeouts
-  static const int connectTimeout = 30000; // 30 seconds
-  static const int receiveTimeout = 30000; // 30 seconds
+  // ── Timeouts (milliseconds) ──
+  static const int connectTimeout = 30000;
+  static const int receiveTimeout = 30000;
 
   /// Integer build version used for force-update checks.
-  /// Update this before each release and compare with ForceUpdateClient API.
+  /// Must be incremented before each release and compared with ForceUpdateClient.
   static const int localAppVersion = 13;
 
   /// Fallback client id when none is stored after login.
   static const int defaultClientId = 1;
 
-  /// Set to true when odometer input is required for driver check-in/out.
+  /// When true, driver check-in / check-out requires an odometer reading.
   static const bool enableAttendanceOdometer = true;
 
   /// Logs URL, method, request body, and response for every Dio API call.
+  /// Keep `false` in production; request bodies can include login passwords.
   static const bool enableApiTrace = true;
 
   /// DriverAttendance `status` values (mode stays 1=In / 2=Out).
@@ -87,6 +98,7 @@ class ApiConstants {
   static const int attendanceStatusCheckOut = 2;
   static const int attendanceStatusStandbyIn = 7;
   static const int attendanceStatusStandbyOut = 8;
+
   static const String androidPlayStoreUrl =
       'https://play.google.com/store/apps/details?id=com.infotrack.mitsuifleet';
   static const String iosAppStoreUrl =

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// SnackBar helper. Hides any existing snack before showing the next one.
 class Toast {
   static void show(
     BuildContext context,

@@ -7,6 +7,15 @@ import '../constants/api_constants.dart';
 import '../error/exceptions.dart';
 import 'api_trace_interceptor.dart';
 
+/// Shared Dio HTTP client for all feature data sources.
+///
+/// Responsibilities:
+/// - Attach `Authorization: Bearer` from SharedPreferences
+/// - Short-circuit requests when DNS lookup of the API host fails
+/// - Map [DioException] to app [Exception] types
+///
+/// SSL: [badCertificateCallback] currently accepts any cert for the API host.
+/// That is unsafe for production (MITM). Prefer pinning or system CA validation.
 class DioClient {
   late Dio _dio;
   final SharedPreferences sharedPreferences;
@@ -28,12 +37,10 @@ class DioClient {
       ),
     );
 
-    // Configure SSL certificate handling
-    // NOTE: This accepts certificates for the API host - use only for development/testing
-    // For production, ensure proper SSL certificates are installed
+    // `onHttpClientCreate` is deprecated; migrate to `createHttpClient` when Dio is upgraded.
+    // Accepting any cert for the API host bypasses chain validation — production risk.
     (_dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate = (HttpClient client) {
       client.badCertificateCallback = (X509Certificate cert, String host, int port) {
-        // Accept certificate for the API host only
         final apiHost = Uri.parse(ApiConstants.baseUrl).host;
         return host == apiHost;
       };
@@ -68,6 +75,7 @@ class DioClient {
           }
           return handler.next(options);
         },
+        // No 401 refresh here even though login stores `refresh_token`.
         onError: (error, handler) {
           return handler.next(error);
         },
@@ -189,6 +197,9 @@ class DioClient {
     }
   }
 
+  /// Maps Dio failures to typed exceptions used by repositories.
+  /// Unknown errors are treated as "no internet" even when the cause may differ
+  /// (SSL, DNS, cancelled isolate, etc.).
   Exception _handleDioError(DioException error) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:

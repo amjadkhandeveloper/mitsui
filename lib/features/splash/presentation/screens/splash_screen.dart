@@ -6,6 +6,7 @@ import '../../../../core/routes/app_routes.dart';
 import '../../../../core/utils/gradients.dart';
 import '../../domain/entities/app_init_state.dart';
 
+/// First Flutter route: intro, login, or dashboard based on [SplashCubit].
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

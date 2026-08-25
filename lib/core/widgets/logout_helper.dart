@@ -7,11 +7,13 @@ import '../theme/app_theme.dart';
 import '../utils/toast.dart';
 import '../../features/login/domain/repositories/auth_repository.dart';
 
+/// Confirmation dialog + FCM server logout + local session clear.
 class LogoutHelper {
   LogoutHelper._();
 
   static bool _logoutInProgress = false;
 
+  /// Shows the confirm dialog, then signs out. No-ops if a logout is already running.
   static Future<void> showConfirmationAndLogout(BuildContext context) async {
     if (_logoutInProgress) return;
 

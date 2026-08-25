@@ -8,6 +8,7 @@ import '../../../../core/constants/api_constants.dart';
 import '../models/receipt_model.dart';
 import '../../domain/entities/receipt.dart';
 
+/// Expense list, create (with optional images), and approve/reject.
 abstract class ReceiptRemoteDataSource {
   Future<List<ReceiptModel>> getReceipts({
     String? driverId,

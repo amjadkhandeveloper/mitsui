@@ -15,6 +15,9 @@ import 'features/splash/data/datasources/local_storage_data_source.dart';
 import 'utils/app_globals.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Isolate entry for FCM when the app is in the background or killed.
+/// Must be a top-level function. Currently only initializes Firebase;
+/// payload handling is done when the user taps the notification.
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +27,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Lock device orientation to portrait mode only
+  // Fleet UI is designed for portrait; landscape is not supported.
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -67,6 +70,7 @@ void main() async {
   }
 
   // Token can be retrieved even if notification permission is denied (esp. Android).
+  // Clearing `last_registered_fcm_token` forces a re-register after dashboard bootstrap.
   final token = await FirebaseMessaging.instance.getToken();
   Global.fcmToken = token;
   if (Global.fcmToken != null && Global.fcmToken!.trim().isNotEmpty) {
@@ -145,6 +149,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  /// Used by notification tap handlers to navigate after the first frame.
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
@@ -159,6 +164,9 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       onGenerateRoute: AppRoutes.generateRoute,
       initialRoute: AppRoutes.splash,
+      // Bottom SafeArea only: status bar is drawn by each screen; home-indicator
+      // inset is applied globally. SplashCubit here is a fallback; the splash
+      // route also creates its own factory instance.
       builder: (context, child) {
         return BlocProvider<SplashCubit>(
           create: (_) => di.sl<SplashCubit>(),
@@ -175,9 +183,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Notification taps always land on the role-based dashboard when a session exists.
+/// Deep-linking by message payload (trip id, leave id, etc.) is not implemented yet.
 void _setupNotificationTapHandling() {
-  // Called lazily once app is running, but kept here for clarity in case you want
-  // to extend navigation based on message data.
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
     final localStorage = di.sl<LocalStorageDataSource>();
     final loggedIn = await localStorage.isLoggedIn();

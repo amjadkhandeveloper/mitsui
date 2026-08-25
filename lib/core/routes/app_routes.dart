@@ -32,6 +32,8 @@ import '../../features/login/domain/entities/user.dart';
 import '../widgets/dashboard_bootstrap_host.dart';
 import '../di/injection_container.dart' as di;
 
+/// Named routes and [MaterialPageRoute] factories.
+/// Dashboard (`/` home and `/dashboard`) picks Expat vs Driver from stored role.
 class AppRoutes {
   static const String splash = '/';
   static const String introduction = '/introduction';
@@ -52,13 +54,14 @@ class AppRoutes {
   static const String adminContact = '/admin-contact';
   static const String aboutApp = '/about-app';
 
+  /// Stored role string: `expat` or `driver`. On failure, driver dashboard is shown.
   static Future<String?> _getUserRole() async {
     try {
       final localStorage = di.sl<LocalStorageDataSource>();
       final role = await localStorage.getUserRole();
       return role;
     } catch (e) {
-      return 'driver'; // Default to driver
+      return 'driver';
     }
   }
 
@@ -77,6 +80,7 @@ class AppRoutes {
         );
       case home:
       case dashboard:
+        // FutureBuilder re-runs on every dashboard navigation; role is not cached.
         return MaterialPageRoute(
           builder: (_) {
             return FutureBuilder<String?>(
@@ -173,6 +177,7 @@ class AppRoutes {
           ),
         );
       case tripDetail:
+        // Throws if the caller omits arguments — always pass tripId as String.
         final tripId = settings.arguments as String;
         return MaterialPageRoute(
           builder: (_) => BlocProvider<TripCubit>(

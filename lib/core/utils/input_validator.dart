@@ -1,3 +1,4 @@
+/// Form-field validators used by login and apply-leave screens.
 class InputValidator {
   static String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {

@@ -1,5 +1,8 @@
 import 'package:dio/dio.dart';
 
+/// Connectivity probe used by the unused scaffold [RepositoryImpl].
+/// Live API calls use [DioClient._hasInternetConnection] (DNS lookup of the API host).
+/// Hitting google.com from the Dio instance that has Mitsui as baseUrl is unreliable.
 abstract class NetworkInfo {
   Future<bool> get isConnected;
 }

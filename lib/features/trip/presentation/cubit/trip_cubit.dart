@@ -9,6 +9,7 @@ import '../../domain/repositories/trip_repository.dart';
 
 part 'trip_state.dart';
 
+/// Trip list and actions for both driver and expat flows.
 class TripCubit extends Cubit<TripState> {
   final GetTripDetailsUseCase getTripsUseCase;
   final GetTripDetailUseCase getTripDetailUseCase;

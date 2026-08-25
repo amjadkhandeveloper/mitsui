@@ -21,7 +21,8 @@ class LoginUseCase implements UseCase<User, LoginParams> {
 class LoginParams {
   final String username;
   final String password;
-  // 1 = expat, 2 = driver
+  /// UI value sent to UserLogin: `1` = expat, `2` = driver.
+  /// Distinct from stored API RoleId (`4` / `7`).
   final int roleId;
 
   LoginParams({
@@ -30,4 +31,5 @@ class LoginParams {
     required this.roleId,
   });
 }
+
 

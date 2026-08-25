@@ -6,6 +6,9 @@ import '../../../../core/mock/mock_data_service.dart';
 import '../models/trip_detail_model.dart';
 import '../../domain/entities/trip_detail.dart';
 
+/// Trip list, detail, start/end, split, approve, and cancel.
+/// [getTripDetail] still calls `/trips/$tripId` which is not in [ApiConstants]
+/// and may not exist on the Mitsui API.
 abstract class TripRemoteDataSource {
   Future<List<TripDetailModel>> getTrips({
     String? userId,
