@@ -11,6 +11,10 @@ on:
     branches:
       - staging
 #Jobs need to perform after that on staging
+  merge_group:
+    branches:
+      - staging
+#Jobs need to perform after that on staging
 jobs:
   build-staging:
     name: Build Staging APK
