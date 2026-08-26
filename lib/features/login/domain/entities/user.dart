@@ -2,6 +2,8 @@ import 'package:equatable/equatable.dart';
 
 enum UserRole { expat, driver }
 
+/// Domain user after login. [id] is backend `userid`.
+/// For drivers, [driverId] is the value used in trip / attendance APIs.
 class User extends Equatable {
   final String id;
   // For driver logins, backend sends separate driverid

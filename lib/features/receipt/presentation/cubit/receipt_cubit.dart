@@ -8,6 +8,7 @@ import '../../domain/usecases/update_receipt_status_usecase.dart';
 
 part 'receipt_state.dart';
 
+/// Expense list, create (images + geo), and status updates.
 class ReceiptCubit extends Cubit<ReceiptState> {
   final GetReceiptsUseCase getReceiptsUseCase;
   final CreateReceiptUseCase createReceiptUseCase;

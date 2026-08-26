@@ -8,6 +8,7 @@ import '../models/trip_model.dart';
 import '../models/free_slot_model.dart';
 import '../../domain/entities/trip.dart';
 
+/// Expat trip-request list, approve/reject, and free-slot create.
 abstract class VehicleScheduleRemoteDataSource {
   Future<List<TripModel>> getTrips({
     String? userId,

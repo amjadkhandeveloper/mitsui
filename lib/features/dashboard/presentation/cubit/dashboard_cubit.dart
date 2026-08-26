@@ -3,7 +3,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/dashboard_feature.dart';
 
-// Dashboard State
 class DashboardState extends Equatable {
   final bool isLoading;
   final String? userName;
@@ -31,7 +30,7 @@ class DashboardState extends Equatable {
   List<Object?> get props => [isLoading, userName, features];
 }
 
-// Dashboard Cubit
+/// Builds the static feature-card list. User name is still a placeholder.
 class DashboardCubit extends Cubit<DashboardState> {
   DashboardCubit() : super(const DashboardState()) {
     _initializeDashboard();
@@ -40,8 +39,7 @@ class DashboardCubit extends Cubit<DashboardState> {
   void _initializeDashboard() {
     emit(state.copyWith(isLoading: true));
 
-    // Load user name from storage (you can integrate with auth repository)
-    // For now, using placeholder
+    // Placeholder — screens load the real name from LocalStorage / AuthRepository.
     final userName = 'LOKESH PUJARI';
 
     // Initialize features (hide Receipt card for release)

@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/error/exceptions.dart';
 import '../models/user_model.dart';
 
+/// Login API contract. Register/reset live on other screens and call Dio directly.
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String username, String password, int roleId);
 }
@@ -25,7 +27,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'username': username,
           'password': password,
           'userid': 0,
-          // 1 = expat, 2 = driver (as per requirement)
+          // UI roleId: 1 = expat, 2 = driver. Backend RoleId after login: 4 / 7.
           'roleId': roleId,
         },
       );
@@ -131,13 +133,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           e.response?.data['message'] ?? 'Login failed',
         );
       } else {
-        print(e.toString());
+        debugPrint(e.toString());
         throw const NetworkException('Network error occurred');
       }
     }
   }
 
   String _readToken(Map<String, dynamic> userJson) {
+    // Backend has used several token field names across API versions.
     for (final key in const [
       'token',
       'Token',

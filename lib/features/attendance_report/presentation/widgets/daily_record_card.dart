@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/animations.dart';
 import '../../../../core/widgets/styled_card.dart';
 import '../../domain/entities/attendance_report.dart';
@@ -27,6 +28,8 @@ class DailyRecordCard extends StatelessWidget {
     final dateFormat = DateFormat('dd-MMM-yyyy');
     final timeFormat = DateFormat('hh:mm a');
     final isPresent = record.status == AttendanceStatus.present;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
 
     return FadeSlideAnimation(
       delay: Duration(milliseconds: 300 + (index * 50)),
@@ -42,9 +45,10 @@ class DailyRecordCard extends StatelessWidget {
               children: [
                 Text(
                   dateFormat.format(record.date),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color: scheme.onSurface,
                   ),
                 ),
                 Container(
@@ -54,8 +58,12 @@ class DailyRecordCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: isPresent
-                        ? Colors.green.shade100
-                        : Colors.red.shade100,
+                        ? (isDark
+                            ? Colors.green.withValues(alpha: 0.2)
+                            : Colors.green.shade100)
+                        : (isDark
+                            ? Colors.red.withValues(alpha: 0.2)
+                            : Colors.red.shade100),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -90,23 +98,29 @@ class DailyRecordCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _buildDetailCard(
+                      context: context,
                       icon: Icons.login,
                       iconColor: Colors.green,
                       label: 'Check In',
                       value: timeFormat.format(record.checkInTime!),
-                      backgroundColor: Colors.green.shade50,
+                      backgroundColor: isDark
+                          ? Colors.green.withValues(alpha: 0.15)
+                          : Colors.green.shade50,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: _buildDetailCard(
+                      context: context,
                       icon: Icons.logout,
                       iconColor: Colors.orange,
                       label: 'Check Out',
                       value: record.checkOutTime != null
                           ? timeFormat.format(record.checkOutTime!)
                           : '--',
-                      backgroundColor: Colors.orange.shade50,
+                      backgroundColor: isDark
+                          ? Colors.orange.withValues(alpha: 0.15)
+                          : Colors.orange.shade50,
                     ),
                   ),
                 ],
@@ -116,21 +130,26 @@ class DailyRecordCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _buildDetailCard(
+                      context: context,
                       icon: Icons.access_time,
-                      iconColor: Colors.blue,
+                      iconColor: AppTheme.mitsuiBlue,
                       label: 'Total Hours',
                       value: _formatDuration(record.totalHours),
-                      backgroundColor: Colors.blue.shade50,
+                      backgroundColor:
+                          AppTheme.mitsuiBlue.withValues(alpha: 0.08),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: _buildDetailCard(
+                      context: context,
                       icon: Icons.alarm,
                       iconColor: Colors.orange,
                       label: 'Overtime',
                       value: _formatDuration(record.overtime),
-                      backgroundColor: Colors.orange.shade50,
+                      backgroundColor: isDark
+                          ? Colors.orange.withValues(alpha: 0.15)
+                          : Colors.orange.shade50,
                     ),
                   ),
                 ],
@@ -143,6 +162,7 @@ class DailyRecordCard extends StatelessWidget {
   }
 
   Widget _buildDetailCard({
+    required BuildContext context,
     required IconData icon,
     required Color iconColor,
     required String label,
@@ -163,7 +183,7 @@ class DailyRecordCard extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade700,
+              color: AppTheme.mutedTextColor(context),
             ),
           ),
           const SizedBox(height: 2),
@@ -172,7 +192,7 @@ class DailyRecordCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade800,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ],
@@ -180,4 +200,3 @@ class DailyRecordCard extends StatelessWidget {
     );
   }
 }
-

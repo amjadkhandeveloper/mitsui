@@ -128,9 +128,9 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                   color: Colors.green.shade400,
                   shape: BoxShape.circle,
                 ),
-                defaultTextStyle: const TextStyle(
+                defaultTextStyle: TextStyle(
                   fontSize: 14,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 weekendTextStyle: TextStyle(
                   fontSize: 14,
@@ -146,7 +146,7 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
-                markerDecoration: BoxDecoration(
+                markerDecoration: const BoxDecoration(
                   color: Colors.transparent,
                   shape: BoxShape.circle,
                 ),
@@ -154,13 +154,13 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                 markerSize: 6,
                 markerMargin: const EdgeInsets.symmetric(horizontal: 0.5),
               ),
-              daysOfWeekStyle: const DaysOfWeekStyle(
+              daysOfWeekStyle: DaysOfWeekStyle(
                 weekdayStyle: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
-                weekendStyle: TextStyle(
+                weekendStyle: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Colors.red,
@@ -198,7 +198,7 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                               fontSize: 14,
                               color: isSelected || isToday
                                   ? Colors.white
-                                  : Colors.black87,
+                                  : Theme.of(context).colorScheme.onSurface,
                               fontWeight: isSelected || isToday
                                   ? FontWeight.bold
                                   : FontWeight.normal,
@@ -289,9 +289,9 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildLegendItem(Colors.green, 'Present'),
+                _buildLegendItem(context, Colors.green, 'Present'),
                 const SizedBox(width: 24),
-                _buildLegendItem(Colors.red, 'Absent'),
+                _buildLegendItem(context, Colors.red, 'Absent'),
               ],
             ),
           ],
@@ -300,7 +300,7 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
     );
   }
 
-  Widget _buildLegendItem(Color color, String label) {
+  Widget _buildLegendItem(BuildContext context, Color color, String label) {
     return Row(
       children: [
         Container(
@@ -314,9 +314,9 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
         const SizedBox(width: 8),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ],

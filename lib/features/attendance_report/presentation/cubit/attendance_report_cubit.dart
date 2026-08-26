@@ -6,6 +6,7 @@ import '../../../attendance/domain/entities/driver.dart';
 
 part 'attendance_report_state.dart';
 
+/// Monthly driver attendance summary for the report screen.
 class AttendanceReportCubit extends Cubit<AttendanceReportState> {
   final GetAttendanceReportUseCase getAttendanceReportUseCase;
 

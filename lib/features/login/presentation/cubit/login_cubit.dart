@@ -3,7 +3,8 @@ import 'package:equatable/equatable.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/entities/user.dart';
 
-// Login State
+/// Login form state. [copyWith] always replaces [errorMessage] (including with null),
+/// so toggling password visibility also clears an existing error — intentional.
 class LoginState extends Equatable {
   final bool isLoading;
   final bool isPasswordVisible;
@@ -35,7 +36,6 @@ class LoginState extends Equatable {
   List<Object?> get props => [isLoading, isPasswordVisible, errorMessage, user];
 }
 
-// Login Cubit
 class LoginCubit extends Cubit<LoginState> {
   final LoginUseCase loginUseCase;
 

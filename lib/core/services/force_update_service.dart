@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 import '../../features/splash/data/datasources/local_storage_data_source.dart';
 
+/// Policy returned by ForceUpdateClient, compared against [ApiConstants.localAppVersion].
 class ForceUpdatePolicy {
   final int remoteAppVersion;
   final bool forceLogout;
@@ -14,6 +15,7 @@ class ForceUpdatePolicy {
   });
 }
 
+/// Fetches and interprets the force-update / force-logout policy for the client.
 class ForceUpdateService {
   final Dio dio;
   final LocalStorageDataSource localStorage;

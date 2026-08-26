@@ -54,7 +54,7 @@ class SummaryCard extends StatelessWidget {
                         fontSize: 14,
                         fontWeight:
                             selected ? FontWeight.w600 : FontWeight.normal,
-                        color: Colors.grey.shade600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         height: 1.1,
                       ),
                       textAlign: TextAlign.center,
@@ -76,7 +76,7 @@ class SummaryCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade800,
+                            color: Theme.of(context).colorScheme.onSurface,
                             height: 1.1,
                           ),
                           textAlign: TextAlign.center,

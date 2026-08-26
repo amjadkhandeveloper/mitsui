@@ -8,6 +8,8 @@ import '../../domain/entities/leave_request.dart';
 import '../models/leave_request_model.dart';
 import '../models/leave_type_model.dart';
 
+/// Leave list / apply / status / types. Role payload:
+/// driver sends the same id for userId and driverId; expat sends driverId = 0.
 abstract class LeaveRemoteDataSource {
   Future<List<LeaveRequestModel>> getLeaveRequests({String? userId, String? driverId});
   Future<String> applyLeave(Map<String, dynamic> leaveData);

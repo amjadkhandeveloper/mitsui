@@ -121,8 +121,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Reset password'),
         backgroundColor: AppTheme.mitsuiDarkBlue,
@@ -138,11 +140,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Enter your new password',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
+                    color: scheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -154,12 +157,22 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     labelText: 'New password',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppTheme.borderColor(context),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppTheme.borderColor(context),
+                      ),
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
                             ? Icons.visibility_off
                             : Icons.visibility,
+                        color: AppTheme.mutedTextColor(context),
                       ),
                       onPressed: () {
                         setState(() {
@@ -187,12 +200,22 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     labelText: 'Confirm password',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppTheme.borderColor(context),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppTheme.borderColor(context),
+                      ),
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscureConfirmPassword
                             ? Icons.visibility_off
                             : Icons.visibility,
+                        color: AppTheme.mutedTextColor(context),
                       ),
                       onPressed: () {
                         setState(() {
@@ -217,6 +240,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.mitsuiDarkBlue,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

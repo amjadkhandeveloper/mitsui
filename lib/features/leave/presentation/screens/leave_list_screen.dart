@@ -127,7 +127,7 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
     final isAdmin = widget.currentUser?.role == UserRole.expat;
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Leave Requests'),
         backgroundColor: AppTheme.mitsuiDarkBlue,
@@ -208,14 +208,14 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
                     Icon(
                       Icons.event_busy,
                       size: 64,
-                      color: Colors.grey.withOpacity(0.5),
+                      color: AppTheme.mutedTextColor(context).withOpacity(0.5),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'No leave requests found',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.withOpacity(0.7),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -223,7 +223,10 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
                       'Use the floating button to apply for leave',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.withOpacity(0.5),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurfaceVariant
+                            .withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -262,8 +265,13 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
             );
           }
 
-          return const Center(
-            child: Text('No data available'),
+          return Center(
+            child: Text(
+              'No data available',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           );
         },
       ),

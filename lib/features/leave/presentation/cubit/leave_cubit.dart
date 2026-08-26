@@ -9,6 +9,7 @@ import '../../domain/usecases/get_leave_types_usecase.dart';
 
 part 'leave_state.dart';
 
+/// Leave list, apply, types, and approve/reject.
 class LeaveCubit extends Cubit<LeaveState> {
   final GetLeaveRequestsUseCase getLeaveRequestsUseCase;
   final ApplyLeaveUseCase applyLeaveUseCase;

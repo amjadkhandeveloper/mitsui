@@ -86,14 +86,17 @@ class _HorizontalDateCalendarState extends State<HorizontalDateCalendar> {
     final isTablet = Responsive.isTablet(context);
     final itemWidth = isTablet ? 84.0 : 72.0;
     final calendarHeight = isTablet ? 108.0 : 96.0;
+    final scheme = Theme.of(context).colorScheme;
+    final muted = AppTheme.mutedTextColor(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       height: calendarHeight,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppTheme.darkSurface : scheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -153,7 +156,7 @@ class _HorizontalDateCalendarState extends State<HorizontalDateCalendar> {
                             ? Colors.white
                             : isToday
                                 ? AppTheme.mitsuiBlue
-                                : Colors.grey.shade700,
+                                : muted,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -167,8 +170,8 @@ class _HorizontalDateCalendarState extends State<HorizontalDateCalendar> {
                             : isToday
                                 ? AppTheme.mitsuiBlue
                                 : isAvailable
-                                    ? Colors.black87
-                                    : Colors.grey.shade400,
+                                    ? scheme.onSurface
+                                    : muted.withValues(alpha: 0.5),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -181,7 +184,7 @@ class _HorizontalDateCalendarState extends State<HorizontalDateCalendar> {
                             ? Colors.white.withOpacity(0.9)
                             : isToday
                                 ? AppTheme.mitsuiBlue
-                                : Colors.grey.shade600,
+                                : muted,
                       ),
                     ),
                   ],

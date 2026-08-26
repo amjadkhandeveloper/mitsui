@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/animations.dart';
 import '../../../../core/widgets/styled_card.dart';
 import '../../domain/entities/dashboard_feature.dart';
@@ -75,10 +76,7 @@ class FeatureCard extends StatelessWidget {
                           feature.subtitle,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.7),
+                            color: AppTheme.mutedTextColor(context),
                           ),
                           textAlign: TextAlign.center,
                           maxLines: 2,

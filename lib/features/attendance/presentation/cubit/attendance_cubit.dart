@@ -9,6 +9,7 @@ import '../../domain/usecases/approve_check_out_usecase.dart';
 
 part 'attendance_state.dart';
 
+/// Loads records/drivers and approves check-in / check-out for the expat flow.
 class AttendanceCubit extends Cubit<AttendanceState> {
   final GetAttendanceRecordsUseCase getAttendanceRecordsUseCase;
   final GetDriversUseCase getDriversUseCase;

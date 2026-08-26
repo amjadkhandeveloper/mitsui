@@ -14,6 +14,7 @@ import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/widgets/logout_helper.dart';
 import '../../../../core/widgets/dashboard_bootstrap_host.dart';
 
+/// Expat (user) home: vehicle schedule, attendance approval, leave, reports.
 class ExpatDashboardScreen extends StatefulWidget {
   const ExpatDashboardScreen({super.key});
 
@@ -69,7 +70,7 @@ class _ExpatDashboardScreenState extends State<ExpatDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(
           'User Dashboard',
@@ -181,7 +182,7 @@ class _ExpatDashboardScreenState extends State<ExpatDashboardScreen> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade800,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 16),

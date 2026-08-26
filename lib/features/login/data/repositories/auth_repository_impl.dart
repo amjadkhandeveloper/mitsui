@@ -9,6 +9,8 @@ import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
 import '../models/user_model.dart';
 
+/// Persists session fields in SharedPreferences after a successful login.
+/// Credentials are stored in plaintext for auto-login — not suitable for production as-is.
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final SharedPreferences sharedPreferences;
@@ -128,6 +130,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await sharedPreferences.remove('roleid');
       await sharedPreferences.remove('name');
       await sharedPreferences.remove('clientid');
+      await sharedPreferences.remove('zoneid');
       
       // Remove user data JSON
       await sharedPreferences.remove('user_data');

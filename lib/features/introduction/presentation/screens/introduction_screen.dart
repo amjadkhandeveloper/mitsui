@@ -84,14 +84,17 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.white,
-              AppTheme.mitsuiLightBlue.withOpacity(0.3),
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).brightness == Brightness.dark
+                  ? AppTheme.darkSurface
+                  : AppTheme.mitsuiLightBlue.withOpacity(0.3),
             ],
           ),
         ),
@@ -109,7 +112,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                       child: Text(
                         'Skip',
                         style: TextStyle(
-                          color: Colors.grey.shade600,
+                          color: AppTheme.mutedTextColor(context),
                           fontSize: 16,
                         ),
                       ),
@@ -141,7 +144,9 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                             icon: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? AppTheme.darkSurfaceElevated
+                                    : Colors.white.withOpacity(0.9),
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
@@ -172,7 +177,9 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                             icon: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? AppTheme.darkSurfaceElevated
+                                    : Colors.white.withOpacity(0.9),
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
@@ -291,10 +298,10 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   slide.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 3,
@@ -313,7 +320,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                   slide.description,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey.shade700,
+                    color: AppTheme.mutedTextColor(context),
                     height: 1.5,
                   ),
                   textAlign: TextAlign.center,
@@ -336,7 +343,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
       height: 8,
       width: isActive ? 24 : 8,
       decoration: BoxDecoration(
-        color: isActive ? AppTheme.mitsuiBlue : Colors.grey.shade300,
+        color: isActive ? AppTheme.mitsuiBlue : AppTheme.borderColor(context),
         borderRadius: BorderRadius.circular(4),
       ),
     );

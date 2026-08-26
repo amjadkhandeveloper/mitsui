@@ -7,6 +7,8 @@ class AdminContactScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final contacts = _adminContacts;
+    final scheme = Theme.of(context).colorScheme;
+    final muted = AppTheme.mutedTextColor(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -20,7 +22,7 @@ class AdminContactScreen extends StatelessWidget {
         backgroundColor: AppTheme.mitsuiDarkBlue,
         elevation: 0,
       ),
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         itemCount: contacts.length,
@@ -42,37 +44,37 @@ class AdminContactScreen extends StatelessWidget {
                       Expanded(
                         child: Text(
                           c.city,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black,
+                            color: scheme.onSurface,
                           ),
                         ),
                       ),
-                      const Icon(
+                      Icon(
                         Icons.support_agent,
                         size: 18,
-                        color: AppTheme.mitsuiDarkBlue,
+                        color: scheme.primary,
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Text(
                     c.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: scheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.phone,
                         size: 14,
-                        color: Colors.grey,
+                        color: muted,
                       ),
                       const SizedBox(width: 6),
                       Expanded(
@@ -80,7 +82,7 @@ class AdminContactScreen extends StatelessWidget {
                           c.phone,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey.shade800,
+                            color: muted,
                           ),
                         ),
                       ),
@@ -90,10 +92,10 @@ class AdminContactScreen extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.email_outlined,
                         size: 14,
-                        color: Colors.grey,
+                        color: muted,
                       ),
                       const SizedBox(width: 6),
                       Expanded(
@@ -101,7 +103,7 @@ class AdminContactScreen extends StatelessWidget {
                           c.email,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey.shade800,
+                            color: muted,
                           ),
                         ),
                       ),
@@ -187,4 +189,3 @@ const List<_AdminContact> _adminContacts = [
     email: 'P.Das@mitsui.com',
   ),
 ];
-

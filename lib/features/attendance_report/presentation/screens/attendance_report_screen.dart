@@ -53,7 +53,7 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Attendance Report'),
         backgroundColor: AppTheme.mitsuiDarkBlue,
@@ -93,18 +93,18 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.calendar_today,
                             color: AppTheme.mitsuiBlue,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
-                          const Text(
+                          Text(
                             'Daily Attendance Records',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ],
@@ -113,7 +113,7 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                         '${report.dailyRecords.length} records',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade600,
+                          color: AppTheme.mutedTextColor(context),
                         ),
                       ),
                     ],
@@ -135,7 +135,9 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                               'No records found',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.grey.withOpacity(0.7),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -155,8 +157,13 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
             );
           }
 
-          return const Center(
-            child: Text('No data available'),
+          return Center(
+            child: Text(
+              'No data available',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           );
         },
       ),
@@ -165,4 +172,3 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
 
   // _formatDuration no longer used since summary statistics were removed.
 }
-

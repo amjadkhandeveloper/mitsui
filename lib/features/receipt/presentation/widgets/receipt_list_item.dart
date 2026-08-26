@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/animations.dart';
 import '../../../../core/widgets/styled_card.dart';
 import '../../domain/entities/receipt.dart';
@@ -23,7 +24,7 @@ class ReceiptListItem extends StatelessWidget {
   Color _getTypeColor() {
     switch (receipt.type) {
       case ReceiptType.fuel:
-        return Colors.blue;
+        return AppTheme.mitsuiBlue;
       case ReceiptType.parking:
         return Colors.orange;
       case ReceiptType.toll:
@@ -145,7 +146,7 @@ class ReceiptListItem extends StatelessWidget {
                   dateFormat.format(receipt.receiptDate),
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey.shade600,
+                    color: AppTheme.mutedTextColor(context),
                   ),
                 ),
               ],
@@ -160,9 +161,10 @@ class ReceiptListItem extends StatelessWidget {
                     children: [
                       Text(
                         '₹${receipt.amount.toStringAsFixed(0)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -170,7 +172,7 @@ class ReceiptListItem extends StatelessWidget {
                         receipt.description,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade700,
+                          color: AppTheme.mutedTextColor(context),
                         ),
                       ),
                       if (receipt.expLocation != null &&
@@ -181,7 +183,7 @@ class ReceiptListItem extends StatelessWidget {
                             Icon(
                               Icons.location_on_outlined,
                               size: 14,
-                              color: Colors.grey.shade600,
+                              color: AppTheme.mutedTextColor(context),
                             ),
                             const SizedBox(width: 4),
                             Expanded(
@@ -189,7 +191,7 @@ class ReceiptListItem extends StatelessWidget {
                                 receipt.expLocation!,
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey.shade600,
+                                  color: AppTheme.mutedTextColor(context),
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -220,7 +222,7 @@ class ReceiptListItem extends StatelessWidget {
                             : receipt.rejectionReason ?? 'Receipt image not clear',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade600,
+                      color: AppTheme.mutedTextColor(context),
                     ),
                   ),
                 ),
@@ -229,7 +231,7 @@ class ReceiptListItem extends StatelessWidget {
                     '${dateFormat.format(receipt.approvedAt!)} ${timeFormat.format(receipt.approvedAt!)}',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade500,
+                      color: AppTheme.mutedTextColor(context),
                     ),
                   )
                 else if (receipt.status == ReceiptStatus.pending)
@@ -237,7 +239,7 @@ class ReceiptListItem extends StatelessWidget {
                     'Submitted ${dateFormat.format(receipt.submittedAt)}',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade500,
+                      color: AppTheme.mutedTextColor(context),
                     ),
                   ),
               ],

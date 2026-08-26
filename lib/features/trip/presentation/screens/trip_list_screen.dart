@@ -302,7 +302,7 @@ class _TripListScreenState extends State<TripListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Trips'),
         backgroundColor: AppTheme.mitsuiDarkBlue,
@@ -408,8 +408,13 @@ class _TripListScreenState extends State<TripListScreen> {
             );
           }
 
-          return const Center(
-            child: Text('No data available'),
+          return Center(
+            child: Text(
+              'No data available',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           );
         },
       ),

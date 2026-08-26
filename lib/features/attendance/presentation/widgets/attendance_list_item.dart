@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/animations.dart';
 import '../../domain/entities/attendance_record.dart';
 import 'package:intl/intl.dart';
@@ -27,7 +28,7 @@ class AttendanceListItem extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: Colors.grey.withOpacity(0.2),
+              color: AppTheme.borderColor(context),
               width: 1,
             ),
           ),

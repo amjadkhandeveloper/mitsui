@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/toast.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../login/domain/entities/user.dart';
@@ -83,7 +84,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Attendance Sheet'),
         actions: [
@@ -161,7 +162,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     Text(
                       state.message,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade700),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
@@ -272,18 +275,18 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: AppTheme.mitsuiBlue.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.blue.shade200,
+          color: AppTheme.mitsuiBlue.withValues(alpha: 0.25),
           width: 1,
         ),
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.person,
-            color: Colors.blue.shade700,
+            color: AppTheme.mitsuiBlue,
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -293,7 +296,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.blue.shade900,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -303,16 +306,16 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               context.read<AttendanceCubit>().selectDriver(null);
               context.read<AttendanceCubit>().loadDrivers();
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.change_circle,
               size: 16,
-              color: Colors.blue.shade700,
+              color: AppTheme.mitsuiBlue,
             ),
-            label: Text(
+            label: const Text(
               'Change',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.blue.shade700,
+                color: AppTheme.mitsuiBlue,
               ),
             ),
             style: TextButton.styleFrom(
@@ -421,7 +424,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isPresent ? Colors.green.shade200 : Colors.red.shade200,
@@ -463,10 +466,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               const Spacer(),
               Text(
                 '${date.day}-${_getMonthAbbr(date.month)}-${date.year}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -476,19 +479,19 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.person_outline,
                   size: 16,
-                  color: Colors.black54,
+                  color: AppTheme.mutedTextColor(context),
                 ),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     record.driverName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -500,14 +503,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.login, size: 16, color: Colors.grey.shade600),
+                Icon(Icons.login, size: 16, color: AppTheme.mutedTextColor(context)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     '${record.isStandBy ? 'Standby In' : 'Check In'}: ${_formatTime(record.checkInTime!)}',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade700,
+                      color: AppTheme.mutedTextColor(context),
                     ),
                   ),
                 ),
@@ -537,14 +540,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.logout, size: 16, color: Colors.grey.shade600),
+                Icon(Icons.logout, size: 16, color: AppTheme.mutedTextColor(context)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     '${record.isStandBy ? 'Standby Out' : 'Check Out'}: ${_formatTime(record.checkOutTime!)}',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade700,
+                      color: AppTheme.mutedTextColor(context),
                     ),
                   ),
                 ),
@@ -559,7 +562,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                   icon: const Icon(Icons.check, size: 18),
                   label: const Text('Check-out Approval'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: disableCheckOutApproval ? Colors.grey : Colors.blue,
+                    backgroundColor: disableCheckOutApproval
+                        ? Colors.grey
+                        : AppTheme.mitsuiBlue,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey.shade400,
                     disabledForegroundColor: Colors.white70,
@@ -574,14 +579,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.location_on, size: 16, color: Colors.grey.shade600),
+                Icon(Icons.location_on, size: 16, color: AppTheme.mutedTextColor(context)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     record.location!,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade700,
+                      color: AppTheme.mutedTextColor(context),
                     ),
                   ),
                 ),

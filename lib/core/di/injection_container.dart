@@ -63,6 +63,8 @@ import '../../features/receipt/domain/usecases/create_receipt_usecase.dart';
 import '../../features/receipt/domain/usecases/update_receipt_status_usecase.dart';
 import '../../features/receipt/presentation/cubit/receipt_cubit.dart';
 
+/// App-wide service locator. Call [init] once from `main()` before `runApp`.
+/// Cubits are factories (new instance per screen); data sources / repos are singletons.
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -73,6 +75,8 @@ Future<void> init() async {
   //! Features - Register your features here
 
   //! Splash Feature
+  // Factory: each resolve creates a new wrapper around the same SharedPreferences.
+  // Prefer registerLazySingleton so session reads share one instance.
   sl.registerFactory<LocalStorageDataSource>(
     () =>
         LocalStorageDataSourceImpl(sharedPreferences: sl<SharedPreferences>()),
@@ -282,6 +286,7 @@ Future<void> init() async {
     ),
   );
 
+  //! Scaffold data sources / repository — unused by live features.
   //! Data sources
   sl.registerLazySingleton<RemoteDataSource>(
     () => RemoteDataSourceImpl(dio: sl<Dio>()),

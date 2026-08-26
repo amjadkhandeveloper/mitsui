@@ -109,7 +109,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(
           'Dashboard',
@@ -157,7 +157,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Icon(
                             Icons.location_on,
                             color: _locationError != null
-                                ? Colors.grey
+                                ? AppTheme.mutedTextColor(context)
                                 : AppTheme.mitsuiDarkBlue,
                             size: 28,
                           ),
@@ -168,13 +168,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 : _locationError != null
                                     ? Text(
                                         _locationError!,
-                                        style: TextStyle(color: Colors.grey.shade700),
+                                        style: TextStyle(
+                                          color: AppTheme.mutedTextColor(context),
+                                        ),
                                       )
                                     : Text(
                                         'Lat: ${_currentLat!.toStringAsFixed(5)}, Lon: ${_currentLon!.toStringAsFixed(5)}',
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: Colors.grey.shade800,
+                                          color: AppTheme.mutedTextColor(context),
                                         ),
                                       ),
                           ),
@@ -206,7 +208,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade800,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -248,7 +250,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade800,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 16),

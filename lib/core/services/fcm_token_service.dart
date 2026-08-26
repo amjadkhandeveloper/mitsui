@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 import '../../features/splash/data/datasources/local_storage_data_source.dart';
 
+/// Registers and unregisters the device FCM token with the Mitsui backend.
 class FcmTokenService {
   final Dio dio;
   final LocalStorageDataSource localStorage;

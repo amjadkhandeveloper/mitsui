@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/animations.dart';
 
 enum QuickActionType {
@@ -48,8 +49,7 @@ class QuickActionButton extends StatelessWidget {
     return AttendanceActionStyle.checkIn;
   }
 
-  Color _backgroundColor() {
-    if (!enabled) return Colors.grey.shade400;
+  Color _attendanceBackgroundColor() {
     switch (_resolvedAttendanceStyle) {
       case AttendanceActionStyle.checkIn:
         return Colors.green;
@@ -59,6 +59,17 @@ class QuickActionButton extends StatelessWidget {
       case AttendanceActionStyle.standbyIn:
         return Colors.amber.shade700;
     }
+  }
+
+  Color? _backgroundColor(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (!enabled) {
+      return isDark ? AppTheme.darkSurfaceElevated : Colors.grey.shade400;
+    }
+    if (type == QuickActionType.checkIn) {
+      return _attendanceBackgroundColor();
+    }
+    return Theme.of(context).colorScheme.surface;
   }
 
   IconData _icon() {
@@ -75,6 +86,17 @@ class QuickActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCheckIn = type == QuickActionType.checkIn;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
+
+    final Color contentColor;
+    if (!enabled) {
+      contentColor = AppTheme.mutedTextColor(context);
+    } else if (isCheckIn) {
+      contentColor = Colors.white;
+    } else {
+      contentColor = scheme.primary;
+    }
 
     return FadeSlideAnimation(
       delay: Duration(milliseconds: animationDelayMs),
@@ -89,19 +111,19 @@ class QuickActionButton extends StatelessWidget {
             margin: margin,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
             decoration: BoxDecoration(
-              color: isCheckIn
-                  ? _backgroundColor()
-                  : Colors.white,
-              border: isCheckIn
+              color: _backgroundColor(context),
+              border: isCheckIn && enabled
                   ? null
                   : Border.all(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 2,
+                      color: !enabled
+                          ? AppTheme.borderColor(context)
+                          : scheme.primary,
+                      width: !enabled ? 1.5 : 2,
                     ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -113,9 +135,7 @@ class QuickActionButton extends StatelessWidget {
               children: [
                 Icon(
                   isCheckIn ? _icon() : Icons.calendar_today,
-                  color: isCheckIn
-                      ? Colors.white
-                      : Theme.of(context).colorScheme.primary,
+                  color: contentColor,
                   size: 22,
                 ),
                 const SizedBox(width: 8),
@@ -127,9 +147,7 @@ class QuickActionButton extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: isCheckIn
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.primary,
+                      color: contentColor,
                     ),
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,

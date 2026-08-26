@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/styled_card.dart';
 
 class OdometerInputField extends StatelessWidget {
@@ -18,6 +19,10 @@ class OdometerInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final chipBg =
+        isDark ? AppTheme.darkSurfaceElevated : Colors.grey.shade100;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -26,7 +31,7 @@ class OdometerInputField extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Colors.grey.shade800,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 8),
@@ -51,15 +56,16 @@ class OdometerInputField extends StatelessWidget {
                 borderSide: BorderSide.none,
               ),
               filled: true,
-              fillColor: Colors.grey.shade100,
+              fillColor: chipBg,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 16,
               ),
             ),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             onChanged: (text) {
               if (text.isNotEmpty) {
@@ -75,4 +81,3 @@ class OdometerInputField extends StatelessWidget {
     );
   }
 }
-

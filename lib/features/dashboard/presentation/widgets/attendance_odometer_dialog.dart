@@ -54,7 +54,7 @@ class AttendanceOdometerDialog {
                           : 'Minimum allowed: $minimumLabel km (check-in reading).',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.shade700,
+                        color: AppTheme.mutedTextColor(dialogContext),
                       ),
                     ),
                   ],
@@ -114,7 +114,8 @@ class AttendanceOdometerDialog {
                     Navigator.pop(dialogContext, valueToSubmit);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.mitsuiDarkBlue,
+                    backgroundColor:
+                        Theme.of(dialogContext).colorScheme.primary,
                     foregroundColor: Colors.white,
                   ),
                   child: Text(resolvedConfirm),

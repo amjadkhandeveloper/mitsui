@@ -186,7 +186,7 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Fuel & Receipts'),
         backgroundColor: AppTheme.mitsuiDarkBlue,
@@ -217,7 +217,7 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade800,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -264,7 +264,7 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                                       width: 40,
                                       height: 4,
                                       decoration: BoxDecoration(
-                                        color: Colors.grey.shade400,
+                                        color: AppTheme.mutedTextColor(context),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                     ),
@@ -381,8 +381,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          filled: true,
-                          fillColor: Colors.grey.shade100,
+                          filled: false,
+                          fillColor: Colors.transparent,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 16,
@@ -408,7 +408,7 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -428,8 +428,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
                             ),
-                            filled: true,
-                            fillColor: Colors.grey.shade100,
+                            filled: false,
+                            fillColor: Colors.transparent,
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 16,
@@ -457,8 +457,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
                             ),
-                            filled: true,
-                            fillColor: Colors.grey.shade100,
+                            filled: false,
+                            fillColor: Colors.transparent,
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 16,
@@ -486,8 +486,8 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          filled: true,
-                          fillColor: Colors.grey.shade100,
+                          filled: false,
+                          fillColor: Colors.transparent,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 16,
@@ -530,7 +530,10 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                                   child: Container(
                                     height: 160,
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? AppTheme.darkSurfaceElevated
+                                          : Colors.grey.shade100,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: _receiptImage1 != null
@@ -567,13 +570,16 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                                               Icon(
                                                 Icons.add_photo_alternate,
                                                 size: 36,
-                                                color: Colors.grey.shade400,
+                                                color: AppTheme.mutedTextColor(
+                                                    context),
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
                                                 'Receipt 1',
                                                 style: TextStyle(
-                                                  color: Colors.grey.shade600,
+                                                  color:
+                                                      AppTheme.mutedTextColor(
+                                                          context),
                                                 ),
                                               ),
                                             ],
@@ -593,7 +599,10 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                                   child: Container(
                                     height: 160,
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? AppTheme.darkSurfaceElevated
+                                          : Colors.grey.shade100,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: _receiptImage2 != null
@@ -630,13 +639,16 @@ class _AddReceiptScreenState extends State<AddReceiptScreen> {
                                               Icon(
                                                 Icons.add_photo_alternate,
                                                 size: 36,
-                                                color: Colors.grey.shade400,
+                                                color: AppTheme.mutedTextColor(
+                                                    context),
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
                                                 'Receipt 2',
                                                 style: TextStyle(
-                                                  color: Colors.grey.shade600,
+                                                  color:
+                                                      AppTheme.mutedTextColor(
+                                                          context),
                                                 ),
                                               ),
                                             ],

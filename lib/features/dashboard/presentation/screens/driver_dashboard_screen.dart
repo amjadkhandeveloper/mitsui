@@ -22,6 +22,7 @@ import '../../../../core/widgets/logout_helper.dart';
 import '../../../../core/widgets/dashboard_bootstrap_host.dart';
 import '../widgets/attendance_odometer_dialog.dart';
 
+/// Driver home: check-in/out, standby, trips, receipts, and drawer.
 class DriverDashboardScreen extends StatefulWidget {
   const DriverDashboardScreen({super.key});
 
@@ -301,7 +302,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(
           'Driver Dashboard',
@@ -397,7 +398,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade800,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -417,7 +418,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade800,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 16),

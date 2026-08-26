@@ -1,6 +1,7 @@
 import '../../core/network/network_info.dart';
 import '../../domain/repositories/repository.dart';
 
+/// Unused template repository. Feature modules have their own `*_repository_impl.dart`.
 class RepositoryImpl implements Repository {
   final NetworkInfo networkInfo;
   // Add your data sources here

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/utils/animations.dart';
 import '../../../../core/widgets/styled_card.dart';
@@ -61,6 +62,10 @@ class LeaveRequestItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final muted = AppTheme.mutedTextColor(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return FadeSlideAnimation(
       delay: Duration(milliseconds: 200 + (index * 50)),
       beginOffset: const Offset(0, 0.1),
@@ -79,7 +84,7 @@ class LeaveRequestItem extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: scheme.onSurface,
                     ),
                   ),
                 ),
@@ -121,7 +126,7 @@ class LeaveRequestItem extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
+                Icon(Icons.schedule, size: 16, color: muted),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Row(
@@ -131,20 +136,20 @@ class LeaveRequestItem extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                        const Text(
-                          'From Date',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
+                            Text(
+                              'From Date',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: scheme.onSurface,
+                              ),
+                            ),
                             const SizedBox(height: 2),
                             Text(
                               _formatDateTime(request.startDate),
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey.shade700,
+                                color: muted,
                               ),
                             ),
                           ],
@@ -156,8 +161,10 @@ class LeaveRequestItem extends StatelessWidget {
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: request.leaveType == LeaveType.half
-                              ? Colors.orange.shade100
-                              : Colors.blue.shade100,
+                              ? (isDark
+                                  ? Colors.orange.withValues(alpha: 0.2)
+                                  : Colors.orange.shade100)
+                              : AppTheme.mitsuiBlue.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -170,7 +177,7 @@ class LeaveRequestItem extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                             color: request.leaveType == LeaveType.half
                                 ? Colors.orange.shade700
-                                : Colors.blue.shade700,
+                                : AppTheme.mitsuiBlue,
                           ),
                         ),
                       ),
@@ -184,7 +191,7 @@ class LeaveRequestItem extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
+                Icon(Icons.schedule, size: 16, color: muted),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -192,10 +199,10 @@ class LeaveRequestItem extends StatelessWidget {
                     children: [
                       Text(
                         'To Date',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          color: scheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -203,7 +210,7 @@ class LeaveRequestItem extends StatelessWidget {
                         _formatDateTime(request.endDate),
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade700,
+                          color: muted,
                         ),
                       ),
                     ],
@@ -217,7 +224,7 @@ class LeaveRequestItem extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.info_outline, size: 16, color: Colors.grey.shade600),
+                  Icon(Icons.info_outline, size: 16, color: muted),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
@@ -225,10 +232,10 @@ class LeaveRequestItem extends StatelessWidget {
                       children: [
                         Text(
                           'Reason',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black,
+                            color: scheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -236,7 +243,7 @@ class LeaveRequestItem extends StatelessWidget {
                           request.reason!,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey.shade700,
+                            color: muted,
                           ),
                         ),
                       ],
@@ -251,7 +258,7 @@ class LeaveRequestItem extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.comment_outlined, size: 16, color: Colors.grey.shade600),
+                  Icon(Icons.comment_outlined, size: 16, color: muted),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
@@ -259,10 +266,10 @@ class LeaveRequestItem extends StatelessWidget {
                       children: [
                         Text(
                           'Remark',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black,
+                            color: scheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -270,7 +277,7 @@ class LeaveRequestItem extends StatelessWidget {
                           request.remark!,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey.shade700,
+                            color: muted,
                           ),
                         ),
                       ],
@@ -294,7 +301,7 @@ class LeaveRequestItem extends StatelessWidget {
                     constraints: const BoxConstraints(minHeight: 44),
                     child: Row(
                       children: [
-                        Icon(Icons.attach_file, size: 18, color: Theme.of(context).colorScheme.primary),
+                        Icon(Icons.attach_file, size: 18, color: scheme.primary),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -302,11 +309,11 @@ class LeaveRequestItem extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.primary,
+                              color: scheme.primary,
                             ),
                           ),
                         ),
-                        Icon(Icons.open_in_new, size: 18, color: Theme.of(context).colorScheme.primary),
+                        Icon(Icons.open_in_new, size: 18, color: scheme.primary),
                       ],
                     ),
                   ),

@@ -8,6 +8,7 @@ import '../../domain/usecases/create_free_slot_usecase.dart';
 
 part 'vehicle_schedule_state.dart';
 
+/// Expat trip requests: list, approve/reject, and create a free slot.
 class VehicleScheduleCubit extends Cubit<VehicleScheduleState> {
   final GetTripsUseCase getTripsUseCase;
   final UpdateTripStatusUseCase updateTripStatusUseCase;
