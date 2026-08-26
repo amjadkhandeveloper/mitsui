@@ -1,5 +1,5 @@
 # Staging CI pipeline creating to test
-name: Flutter Staging CI
+name: staging CI
 
 #Trigger putting on the branch when push and merged on staging
 on:
