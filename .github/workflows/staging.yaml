@@ -15,6 +15,8 @@ jobs:
   build-staging:
     name: Build Staging APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
 
@@ -50,10 +52,32 @@ jobs:
       - name: Build Staging APK
         run: flutter build apk --release
 
-      # 8. Upload APK to GitHub Actions
+      # 8. Rename APK to appname_date_version
+      - name: Rename APK to appname_date_version
+        run: |
+          APP_NAME=$(grep -oP "appName = '\K[^']+" lib/core/constants/api_constants.dart | head -1 | tr ' ' '_')
+          APP_VERSION=$(grep -oP "appVersion = '\K[^']+" lib/core/constants/api_constants.dart | head -1)
+          RELEASE_DATE=$(grep -oP "releaseDate = '\K[^']+" lib/core/constants/api_constants.dart | head -1 | awk '{print $1}')
+          APK_NAME="${APP_NAME}_${RELEASE_DATE}_${APP_VERSION}.apk"
+          cp build/app/outputs/flutter-apk/app-release.apk "build/app/outputs/flutter-apk/${APK_NAME}"
+          echo "APK_PATH=build/app/outputs/flutter-apk/${APK_NAME}" >> "$GITHUB_ENV"
+          echo "APK_NAME=${APK_NAME}" >> "$GITHUB_ENV"
+
+      # 9. Upload APK to GitHub Actions
       - name: Upload Staging APK
         uses: actions/upload-artifact@v4
         with:
-          name: staging-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: ${{ env.APK_NAME }}
+          path: ${{ env.APK_PATH }}
           retention-days: 14
+
+      # 10. Publish APK to GitHub Release (testers download without Actions login)
+      - name: Publish staging APK to GitHub Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: staging-latest
+          name: Staging APK
+          prerelease: true
+          body: Staging build ${{ env.APK_NAME }} from ${{ github.sha }}
+          files: ${{ env.APK_PATH }}
